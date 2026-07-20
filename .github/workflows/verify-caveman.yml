@@ -4,15 +4,19 @@ on:
   push:
     paths:
       - ".agents/skills/**"
+      - "AGENTS.md"
       - ".github/workflows/verify-caveman.yml"
       - "scripts/install-caveman.*"
+      - "scripts/test-caveman-installer.mjs"
       - "caveman-manifest.json"
       - "skills-lock.json"
   pull_request:
     paths:
       - ".agents/skills/**"
+      - "AGENTS.md"
       - ".github/workflows/verify-caveman.yml"
       - "scripts/install-caveman.*"
+      - "scripts/test-caveman-installer.mjs"
       - "caveman-manifest.json"
       - "skills-lock.json"
 
@@ -38,17 +42,21 @@ jobs:
       - name: Install through POSIX wrapper
         if: runner.os != 'Windows'
         shell: bash
-        run: ./scripts/install-caveman.sh --target "$RUNNER_TEMP/caveman-skills"
+        run: ./scripts/install-caveman.sh --target "$RUNNER_TEMP/caveman-skills" --agents-file "$RUNNER_TEMP/codex-home/AGENTS.md"
 
       - name: Install through PowerShell wrapper
         if: runner.os == 'Windows'
         shell: pwsh
-        run: ./scripts/install-caveman.ps1 -Target "$env:RUNNER_TEMP\caveman-skills"
+        run: ./scripts/install-caveman.ps1 -Target "$env:RUNNER_TEMP\caveman-skills" -AgentsFile "$env:RUNNER_TEMP\codex-home\AGENTS.md"
 
       - name: Verify installed files
         shell: bash
-        run: node scripts/install-caveman.mjs --target "$RUNNER_TEMP/caveman-skills" --verify
+        run: node scripts/install-caveman.mjs --target "$RUNNER_TEMP/caveman-skills" --agents-file "$RUNNER_TEMP/codex-home/AGENTS.md" --verify
 
       - name: Verify idempotent reinstall
         shell: bash
-        run: node scripts/install-caveman.mjs --target "$RUNNER_TEMP/caveman-skills"
+        run: node scripts/install-caveman.mjs --target "$RUNNER_TEMP/caveman-skills" --agents-file "$RUNNER_TEMP/codex-home/AGENTS.md"
+
+      - name: Test preservation and conflict handling
+        shell: bash
+        run: node scripts/test-caveman-installer.mjs

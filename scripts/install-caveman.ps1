@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param(
     [string]$Target,
+    [string]$AgentsFile,
     [switch]$Verify,
     [switch]$DryRun,
     [switch]$Force
@@ -23,6 +24,9 @@ $installerArguments = @($installerPath)
 
 if ($Target) {
     $installerArguments += @('--target', $Target)
+}
+if ($AgentsFile) {
+    $installerArguments += @('--agents-file', $AgentsFile)
 }
 if ($Verify) {
     $installerArguments += '--verify'

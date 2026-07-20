@@ -3,6 +3,7 @@
 import { createHash } from "node:crypto";
 import {
   cp,
+  copyFile,
   lstat,
   mkdir,
   mkdtemp,
@@ -10,6 +11,7 @@ import {
   readdir,
   rename,
   rm,
+  writeFile,
 } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -27,6 +29,16 @@ const repositoryRoot = path.resolve(scriptDirectory, "..");
 const sourceRoot = path.join(repositoryRoot, ".agents", "skills");
 const lockPath = path.join(repositoryRoot, "skills-lock.json");
 const manifestPath = path.join(repositoryRoot, "caveman-manifest.json");
+const repositoryAgentsPath = path.join(repositoryRoot, "AGENTS.md");
+const alwaysOnStartMarker = "<!-- BEGIN CAVEMAN PORTABLE ALWAYS-ON -->";
+const alwaysOnEndMarker = "<!-- END CAVEMAN PORTABLE ALWAYS-ON -->";
+
+function defaultCodexHome() {
+  const configuredHome = process.env.CODEX_HOME?.trim();
+  return configuredHome
+    ? path.resolve(configuredHome)
+    : path.join(os.homedir(), ".codex");
+}
 
 function printUsage() {
   console.log(`Usage: node scripts/install-caveman.mjs [options]
@@ -35,17 +47,19 @@ Copy the reviewed, repository-pinned Caveman skills into Codex's user-level
 skill directory. The installer does not download or execute upstream code.
 
 Options:
-  --target <path>  Override the default target ($HOME/.agents/skills)
-  --verify         Check that target copies exactly match the repository
-  --dry-run        Show actions without writing files
-  --force          Back up and replace conflicting target skill directories
-  --help           Show this help
+  --target <path>       Override the skill target ($HOME/.agents/skills)
+  --agents-file <path>  Override the always-on file ($CODEX_HOME/AGENTS.md)
+  --verify              Verify skills and the managed always-on block
+  --dry-run             Show actions without writing files
+  --force               Back up and replace conflicting managed content
+  --help                Show this help
 `);
 }
 
 function parseArguments(argumentsList) {
   const options = {
     target: path.join(os.homedir(), ".agents", "skills"),
+    agentsFile: path.join(defaultCodexHome(), "AGENTS.md"),
     verify: false,
     dryRun: false,
     force: false,
@@ -60,6 +74,15 @@ function parseArguments(argumentsList) {
           throw new Error("--target requires a path");
         }
         options.target = path.resolve(target);
+        index += 1;
+        break;
+      }
+      case "--agents-file": {
+        const agentsFile = argumentsList[index + 1];
+        if (!agentsFile) {
+          throw new Error("--agents-file requires a path");
+        }
+        options.agentsFile = path.resolve(agentsFile);
         index += 1;
         break;
       }
@@ -99,6 +122,257 @@ async function getPathState(targetPath) {
     if (error?.code === "ENOENT") {
       return null;
     }
+    throw error;
+  }
+}
+
+function countOccurrences(contents, marker) {
+  let count = 0;
+  let offset = 0;
+  while (true) {
+    const index = contents.indexOf(marker, offset);
+    if (index < 0) {
+      return count;
+    }
+    count += 1;
+    offset = index + marker.length;
+  }
+}
+
+function hashBytes(contents) {
+  return createHash("sha256").update(contents).digest("hex");
+}
+
+function decodeTextBuffer(buffer, filePath) {
+  let encoding = "utf8";
+  let bom = false;
+  let payload = buffer;
+
+  if (buffer.subarray(0, 3).equals(Buffer.from([0xef, 0xbb, 0xbf]))) {
+    bom = true;
+    payload = buffer.subarray(3);
+  } else if (buffer.subarray(0, 2).equals(Buffer.from([0xff, 0xfe]))) {
+    encoding = "utf16le";
+    bom = true;
+    payload = buffer.subarray(2);
+  } else if (buffer.subarray(0, 2).equals(Buffer.from([0xfe, 0xff]))) {
+    encoding = "utf16be";
+    bom = true;
+    payload = buffer.subarray(2);
+  } else if (buffer.includes(0)) {
+    throw new Error(
+      `Unsupported text encoding in ${filePath}; UTF-16 files require a byte-order mark`,
+    );
+  }
+
+  try {
+    const decoder = new TextDecoder(encoding.replace("utf16", "utf-16"), {
+      fatal: true,
+      ignoreBOM: true,
+    });
+    return {
+      contents: decoder.decode(payload),
+      format: { encoding, bom },
+    };
+  } catch (error) {
+    throw new Error(`Invalid ${encoding.toUpperCase()} text in ${filePath}`, {
+      cause: error,
+    });
+  }
+}
+
+function encodeTextBuffer(contents, format) {
+  let encoded;
+  let marker = Buffer.alloc(0);
+  if (format.encoding === "utf8") {
+    encoded = Buffer.from(contents, "utf8");
+    if (format.bom) {
+      marker = Buffer.from([0xef, 0xbb, 0xbf]);
+    }
+  } else if (format.encoding === "utf16le") {
+    encoded = Buffer.from(contents, "utf16le");
+    marker = Buffer.from([0xff, 0xfe]);
+  } else if (format.encoding === "utf16be") {
+    encoded = Buffer.from(contents, "utf16le");
+    encoded.swap16();
+    marker = Buffer.from([0xfe, 0xff]);
+  } else {
+    throw new Error(`Unsupported output encoding: ${format.encoding}`);
+  }
+  return format.bom ? Buffer.concat([marker, encoded]) : encoded;
+}
+
+async function readTextFile(filePath) {
+  const bytes = await readFile(filePath);
+  return {
+    bytes,
+    ...decodeTextBuffer(bytes, filePath),
+  };
+}
+
+async function readAlwaysOnBlock() {
+  const { contents } = await readTextFile(repositoryAgentsPath);
+  const startCount = countOccurrences(contents, alwaysOnStartMarker);
+  const endCount = countOccurrences(contents, alwaysOnEndMarker);
+  if (startCount !== 1 || endCount !== 1) {
+    throw new Error(`Repository AGENTS.md must contain one Caveman managed block`);
+  }
+
+  const startIndex = contents.indexOf(alwaysOnStartMarker);
+  const endIndex = contents.indexOf(alwaysOnEndMarker, startIndex);
+  if (endIndex < startIndex) {
+    throw new Error(`Invalid Caveman marker order in ${repositoryAgentsPath}`);
+  }
+  return contents
+    .slice(startIndex, endIndex + alwaysOnEndMarker.length)
+    .replace(/\r\n/g, "\n");
+}
+
+async function inspectAlwaysOnFile(agentsFile, expectedBlock) {
+  const state = await getPathState(agentsFile);
+  if (!state) {
+    return {
+      exists: false,
+      status: "missing",
+      contents: "",
+      format: { encoding: "utf8", bom: false },
+      snapshotHash: null,
+      mode: 0o666,
+    };
+  }
+  if (!state.isFile()) {
+    throw new Error(`Always-on target must be a regular file: ${agentsFile}`);
+  }
+
+  const { bytes, contents, format } = await readTextFile(agentsFile);
+  const sharedState = {
+    exists: true,
+    contents,
+    format,
+    snapshotHash: hashBytes(bytes),
+    mode: state.mode & 0o777,
+  };
+  const startCount = countOccurrences(contents, alwaysOnStartMarker);
+  const endCount = countOccurrences(contents, alwaysOnEndMarker);
+  if (startCount === 0 && endCount === 0) {
+    return { ...sharedState, status: "missing" };
+  }
+  if (startCount !== 1 || endCount !== 1) {
+    return {
+      ...sharedState,
+      status: "conflict",
+      reason: "marker count mismatch",
+      replaceable: false,
+    };
+  }
+
+  const startIndex = contents.indexOf(alwaysOnStartMarker);
+  const endMarkerIndex = contents.indexOf(alwaysOnEndMarker, startIndex);
+  if (endMarkerIndex < startIndex) {
+    return {
+      ...sharedState,
+      status: "conflict",
+      reason: "marker order mismatch",
+      replaceable: false,
+    };
+  }
+  const endIndex = endMarkerIndex + alwaysOnEndMarker.length;
+  const existingBlock = contents
+    .slice(startIndex, endIndex)
+    .replace(/\r\n/g, "\n");
+
+  return {
+    ...sharedState,
+    status: existingBlock === expectedBlock ? "current" : "conflict",
+    startIndex,
+    endIndex,
+    replaceable: true,
+    reason: existingBlock === expectedBlock ? undefined : "managed block differs",
+  };
+}
+
+function buildAlwaysOnContents(guidanceState, expectedBlock) {
+  const newline = guidanceState.contents.includes("\r\n") ? "\r\n" : "\n";
+  const localizedBlock = expectedBlock.replace(/\n/g, newline);
+
+  if (guidanceState.status === "missing") {
+    if (guidanceState.contents.length === 0) {
+      return `${localizedBlock}${newline}`;
+    }
+    const separator = guidanceState.contents.endsWith(`${newline}${newline}`)
+      ? ""
+      : guidanceState.contents.endsWith(newline)
+        ? newline
+        : `${newline}${newline}`;
+    return `${guidanceState.contents}${separator}${localizedBlock}${newline}`;
+  }
+
+  if (guidanceState.status === "conflict") {
+    if (!Number.isInteger(guidanceState.startIndex) || !Number.isInteger(guidanceState.endIndex)) {
+      throw new Error(`Cannot safely replace malformed Caveman markers`);
+    }
+    return `${guidanceState.contents.slice(0, guidanceState.startIndex)}${localizedBlock}${guidanceState.contents.slice(guidanceState.endIndex)}`;
+  }
+
+  return guidanceState.contents;
+}
+
+async function assertAlwaysOnSnapshot(agentsFile, guidanceState) {
+  const state = await getPathState(agentsFile);
+  if (!guidanceState.exists) {
+    if (state) {
+      throw new Error(`Always-on target changed during installation: ${agentsFile}`);
+    }
+    return;
+  }
+  if (!state?.isFile()) {
+    throw new Error(`Always-on target changed during installation: ${agentsFile}`);
+  }
+  const currentHash = hashBytes(await readFile(agentsFile));
+  if (currentHash !== guidanceState.snapshotHash) {
+    throw new Error(`Always-on target changed during installation: ${agentsFile}`);
+  }
+}
+
+async function installAlwaysOnFile(agentsFile, guidanceState, expectedBlock, force) {
+  if (guidanceState.status === "current") {
+    return null;
+  }
+  if (guidanceState.status === "conflict" && !force) {
+    throw new Error(`Managed Caveman block differs in ${agentsFile}; use --force`);
+  }
+
+  await mkdir(path.dirname(agentsFile), { recursive: true });
+  await assertAlwaysOnSnapshot(agentsFile, guidanceState);
+  let backupPath = null;
+  if (guidanceState.exists) {
+    backupPath = await findBackupPath(
+      path.dirname(agentsFile),
+      `${path.basename(agentsFile)}.caveman`,
+    );
+    await copyFile(agentsFile, backupPath);
+    if (hashBytes(await readFile(backupPath)) !== guidanceState.snapshotHash) {
+      throw new Error(`Always-on target changed while backing it up: ${agentsFile}`);
+    }
+  }
+
+  const temporaryDirectory = await mkdtemp(
+    path.join(path.dirname(agentsFile), `.${path.basename(agentsFile)}-caveman-install-`),
+  );
+  const temporaryFile = path.join(temporaryDirectory, path.basename(agentsFile));
+  try {
+    const updatedContents = buildAlwaysOnContents(guidanceState, expectedBlock);
+    await writeFile(
+      temporaryFile,
+      encodeTextBuffer(updatedContents, guidanceState.format),
+      { flag: "wx", mode: guidanceState.mode },
+    );
+    await assertAlwaysOnSnapshot(agentsFile, guidanceState);
+    await rename(temporaryFile, agentsFile);
+    await rm(temporaryDirectory, { recursive: true, force: true });
+    return backupPath;
+  } catch (error) {
+    await rm(temporaryDirectory, { recursive: true, force: true });
     throw error;
   }
 }
@@ -323,7 +597,15 @@ async function main() {
 
   const options = parseArguments(process.argv.slice(2));
   const targetRoot = path.resolve(options.target);
+  const agentsFile = path.resolve(options.agentsFile);
   const { release, sourceHashes } = await validateSources();
+  const alwaysOnBlock = await readAlwaysOnBlock();
+  const guidanceState = await inspectAlwaysOnFile(agentsFile, alwaysOnBlock);
+  if (guidanceState.status === "conflict" && !guidanceState.replaceable) {
+    throw new Error(
+      `Cannot safely replace malformed Caveman markers in ${agentsFile}: ${guidanceState.reason}`,
+    );
+  }
 
   const states = [];
   for (const skillName of SKILL_NAMES) {
@@ -346,21 +628,33 @@ async function main() {
     for (const state of states) {
       console.log(`${state.matches ? "OK" : "MISMATCH"} ${state.skillName}`);
     }
-    if (failures.length > 0) {
-      throw new Error(`Verification failed for ${failures.length} skill(s)`);
+    const guidanceMatches = guidanceState.status === "current";
+    console.log(`${guidanceMatches ? "OK" : "MISMATCH"} always-on ${agentsFile}`);
+    if (failures.length > 0 || !guidanceMatches) {
+      throw new Error(
+        `Verification failed for ${failures.length} skill(s) and ${guidanceMatches ? 0 : 1} always-on file(s)`,
+      );
     }
-    console.log(`Verified ${SKILL_NAMES.length} Caveman skills (${release}) in ${targetRoot}`);
+    console.log(
+      `Verified ${SKILL_NAMES.length} Caveman skills and always-on guidance (${release})`,
+    );
     return;
   }
 
   const conflicts = states.filter(
     (state) => state.conflict || (state.exists && !state.matches),
   );
-  if (conflicts.length > 0 && !options.force) {
+  const guidanceConflicts = guidanceState.status === "conflict";
+  if ((conflicts.length > 0 || guidanceConflicts) && !options.force) {
     for (const state of conflicts) {
       console.error(`CONFLICT ${state.destination}`);
     }
-    throw new Error("Existing skills differ. Re-run with --force to back up and replace them.");
+    if (guidanceConflicts) {
+      console.error(`CONFLICT ${agentsFile}: ${guidanceState.reason}`);
+    }
+    throw new Error(
+      "Existing managed content differs. Re-run with --force to back up and replace it.",
+    );
   }
 
   if (options.dryRun) {
@@ -368,6 +662,12 @@ async function main() {
       const action = state.matches ? "KEEP" : state.exists ? "BACKUP+REPLACE" : "INSTALL";
       console.log(`${action} ${state.skillName} -> ${state.destination}`);
     }
+    const guidanceAction = guidanceState.status === "current"
+      ? "KEEP"
+      : guidanceState.exists
+        ? "BACKUP+UPDATE"
+        : "INSTALL";
+    console.log(`${guidanceAction} always-on -> ${agentsFile}`);
     console.log(`Dry run complete for Caveman ${release}`);
     return;
   }
@@ -390,8 +690,23 @@ async function main() {
     }
   }
 
+  if (guidanceState.status === "current") {
+    console.log(`UP-TO-DATE always-on ${agentsFile}`);
+  } else {
+    const guidanceBackup = await installAlwaysOnFile(
+      agentsFile,
+      guidanceState,
+      alwaysOnBlock,
+      options.force,
+    );
+    console.log(`INSTALLED always-on ${agentsFile}`);
+    if (guidanceBackup) {
+      console.log(`BACKUP ${guidanceBackup}`);
+    }
+  }
+
   console.log(`Installed Caveman ${release} into ${targetRoot}`);
-  console.log("Start a new Codex task, or restart Codex if the skills do not appear.");
+  console.log("Start a new Codex task. Restart Codex if the always-on rule does not appear.");
 }
 
 main().catch((error) => {

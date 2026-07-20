@@ -1,10 +1,12 @@
 /.gitattributes text eol=lf
 /.agents/skills/** text eol=lf
 /.github/workflows/verify-caveman.yml text eol=lf
+/AGENTS.md text eol=lf
 /CAVEMAN.md text eol=lf
 /THIRD_PARTY_NOTICES.md text eol=lf
 /caveman-manifest.json text eol=lf
 /scripts/install-caveman.mjs text eol=lf
 /scripts/install-caveman.ps1 text eol=lf
 /scripts/install-caveman.sh text eol=lf
+/scripts/test-caveman-installer.mjs text eol=lf
 /skills-lock.json text eol=lf
