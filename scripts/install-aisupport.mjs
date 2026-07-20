@@ -1,5 +1,160 @@
 #!/usr/bin/env node
 
-// Canonical entry point. Keep install-caveman.mjs as the implementation so
-// existing automation and bookmarks continue to work.
-await import("./install-caveman.mjs");
+import { spawnSync } from "node:child_process";
+import path from "node:path";
+import process from "node:process";
+import { fileURLToPath } from "node:url";
+
+const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
+const cavemanInstaller = path.join(scriptDirectory, "install-caveman.mjs");
+const gupabalInstaller = path.join(scriptDirectory, "install_gupabal.py");
+
+function assertSupportedNode() {
+  const major = Number.parseInt(process.versions.node.split(".")[0], 10);
+  if (!Number.isInteger(major) || major < 18) {
+    throw new Error(
+      `Node.js 18 or newer is required; found ${process.versions.node}`,
+    );
+  }
+}
+
+function pythonCandidates() {
+  const candidates = [];
+  if (process.platform === "win32") {
+    candidates.push({ command: "py", prefixArguments: ["-3"] });
+  }
+  candidates.push(
+    { command: "python3", prefixArguments: [] },
+    { command: "python", prefixArguments: [] },
+  );
+  return candidates;
+}
+
+function findPython() {
+  for (const candidate of pythonCandidates()) {
+    const result = spawnSync(
+      candidate.command,
+      [...candidate.prefixArguments, "--version"],
+      {
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "pipe"],
+        timeout: 10_000,
+        windowsHide: true,
+      },
+    );
+    if (result.error || result.status !== 0) {
+      continue;
+    }
+
+    const versionOutput = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
+    const match = versionOutput.match(/Python\s+(\d+)\.(\d+)(?:\.\d+)?/i);
+    if (!match) {
+      continue;
+    }
+    const major = Number.parseInt(match[1], 10);
+    const minor = Number.parseInt(match[2], 10);
+    if (major > 3 || (major === 3 && minor >= 10)) {
+      return candidate;
+    }
+  }
+
+  throw new Error("Python 3.10 or newer is required");
+}
+
+function runChild(command, argumentsList, displayName) {
+  const result = spawnSync(command, argumentsList, {
+    stdio: "inherit",
+    windowsHide: true,
+  });
+  if (result.error) {
+    throw new Error(`${displayName} could not be started`);
+  }
+  if (result.status !== 0) {
+    throw new Error(`${displayName} failed with a non-zero exit status`);
+  }
+}
+
+function runInstallers(python, argumentsList) {
+  runChild(
+    process.execPath,
+    [cavemanInstaller, ...argumentsList],
+    "Skill installer",
+  );
+  runChild(
+    python.command,
+    [...python.prefixArguments, gupabalInstaller, ...argumentsList],
+    "Gupabal installer",
+  );
+}
+
+function inspectArguments(argumentsList) {
+  let singlePass = false;
+  let verify = false;
+  let dryRun = false;
+  let force = false;
+
+  for (let index = 0; index < argumentsList.length; index += 1) {
+    const argument = argumentsList[index];
+    if (argument === "--target" || argument === "--agents-file") {
+      const value = argumentsList[index + 1];
+      if (!value || value.startsWith("-")) {
+        throw new Error(`${argument} requires a path`);
+      }
+      index += 1;
+      continue;
+    }
+    if (argument === "--verify") {
+      verify = true;
+      singlePass = true;
+      continue;
+    }
+    if (argument === "--dry-run") {
+      dryRun = true;
+      singlePass = true;
+      continue;
+    }
+    if (argument === "--force") {
+      force = true;
+      continue;
+    }
+    if (argument === "--help" || argument === "-h") {
+      singlePass = true;
+      continue;
+    }
+    throw new Error(`Unknown option: ${argument}`);
+  }
+
+  if (verify && force) {
+    throw new Error("--verify and --force cannot be used together");
+  }
+  if (verify && dryRun) {
+    throw new Error("--verify and --dry-run cannot be used together");
+  }
+  return { singlePass };
+}
+
+function main() {
+  assertSupportedNode();
+  const originalArguments = process.argv.slice(2);
+  const { singlePass } = inspectArguments(originalArguments);
+  const python = findPython();
+
+  if (singlePass) {
+    runInstallers(python, originalArguments);
+    return;
+  }
+
+  runInstallers(python, [...originalArguments, "--dry-run"]);
+  runInstallers(python, originalArguments);
+  const verificationArguments = originalArguments.filter(
+    (argument) => argument !== "--force",
+  );
+  runInstallers(python, [...verificationArguments, "--verify"]);
+}
+
+try {
+  main();
+} catch (error) {
+  console.error(`AISUPPORT installer failed: ${error.message}`);
+  process.exitCode = 1;
+}

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic, opt-in lifecycle checks for the Gupabal game team."""
+"""Deterministic AISUPPORT lifecycle checks for the opt-in Gupabal game team."""
 
 from __future__ import annotations
 

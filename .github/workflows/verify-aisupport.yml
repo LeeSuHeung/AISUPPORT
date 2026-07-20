@@ -1,30 +1,46 @@
-name: Verify AISUPPORT skill portability
+name: Verify AISUPPORT portability
 
 on:
   push:
     paths:
       - ".gitattributes"
       - ".agents/skills/**"
+      - ".codex/**"
       - "AGENTS.md"
-      - ".github/workflows/verify-caveman.yml"
+      - "GUPABAL_GAME.md"
+      - "README.md"
+      - ".github/workflows/verify-aisupport.yml"
+      - "install.*"
       - "scripts/install-caveman.*"
       - "scripts/install-aisupport.*"
+      - "scripts/install_gupabal.py"
+      - "scripts/merge_gupabal_hooks.py"
       - "scripts/test-caveman-installer.mjs"
       - "caveman-manifest.json"
+      - "gupabal-manifest.json"
       - "superpowers-manifest.json"
       - "skills-lock.json"
+      - "tests/**"
   pull_request:
     paths:
       - ".gitattributes"
       - ".agents/skills/**"
+      - ".codex/**"
       - "AGENTS.md"
-      - ".github/workflows/verify-caveman.yml"
+      - "GUPABAL_GAME.md"
+      - "README.md"
+      - ".github/workflows/verify-aisupport.yml"
+      - "install.*"
       - "scripts/install-caveman.*"
       - "scripts/install-aisupport.*"
+      - "scripts/install_gupabal.py"
+      - "scripts/merge_gupabal_hooks.py"
       - "scripts/test-caveman-installer.mjs"
       - "caveman-manifest.json"
+      - "gupabal-manifest.json"
       - "superpowers-manifest.json"
       - "skills-lock.json"
+      - "tests/**"
 
 jobs:
   portable-install:
@@ -45,9 +61,14 @@ jobs:
         with:
           node-version: "20"
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
       - name: Verify tracked executable modes
         shell: bash
         run: |
+          test "$(git ls-files --stage -- install.sh | cut -d' ' -f1)" = "100755"
           test "$(git ls-files --stage -- scripts/install-aisupport.sh | cut -d' ' -f1)" = "100755"
           while IFS= read -r file; do
             test "$(git ls-files --stage -- "$file" | cut -d' ' -f1)" = "100755"
@@ -74,3 +95,12 @@ jobs:
       - name: Test preservation and conflict handling
         shell: bash
         run: node scripts/test-caveman-installer.mjs
+
+      - name: Test Gupabal Hooks
+        shell: bash
+        run: python -B -m unittest discover -s tests -v
+
+      - name: Test integrated POSIX wrapper
+        if: runner.os != 'Windows'
+        shell: bash
+        run: sh tests/test_install_sh.sh

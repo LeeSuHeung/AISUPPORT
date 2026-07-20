@@ -114,7 +114,7 @@ function parseArguments(argumentsList) {
     switch (argument) {
       case "--target": {
         const target = argumentsList[index + 1];
-        if (!target) {
+        if (!target || target.startsWith("-")) {
           throw new Error("--target requires a path");
         }
         options.target = path.resolve(target);
@@ -123,7 +123,7 @@ function parseArguments(argumentsList) {
       }
       case "--agents-file": {
         const agentsFile = argumentsList[index + 1];
-        if (!agentsFile) {
+        if (!agentsFile || agentsFile.startsWith("-")) {
           throw new Error("--agents-file requires a path");
         }
         options.agentsFile = path.resolve(agentsFile);

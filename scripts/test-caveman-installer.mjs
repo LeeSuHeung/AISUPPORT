@@ -297,6 +297,20 @@ async function testUnsupportedEncoding(root) {
   );
 }
 
+async function testOptionCannotBeConsumedAsAPath(root) {
+  await mkdir(root, { recursive: true });
+  const result = spawnSync(
+    process.execPath,
+    [installerPath, "--target", "--dry-run"],
+    { cwd: root, encoding: "utf8" },
+  );
+  assert(result.status !== 0, "Option token was accepted as a target path");
+  assert(
+    !(await pathExists(path.join(root, "--dry-run"))),
+    "Malformed arguments wrote to an option-named target",
+  );
+}
+
 const temporaryRoot = await mkdtemp(path.join(os.tmpdir(), "aisupport-installer-test-"));
 try {
   await testPreservationAndConflicts(path.join(temporaryRoot, "main"));
@@ -306,6 +320,9 @@ try {
   await testUtf16(path.join(temporaryRoot, "utf16"), "le");
   await testUtf16(path.join(temporaryRoot, "utf16"), "be");
   await testUnsupportedEncoding(path.join(temporaryRoot, "invalid"));
+  await testOptionCannotBeConsumedAsAPath(
+    path.join(temporaryRoot, "invalid-arguments"),
+  );
   console.log("AISUPPORT installer tests passed");
 } finally {
   await rm(temporaryRoot, { recursive: true, force: true });

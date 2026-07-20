@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -9,9 +10,9 @@ from pathlib import Path
 
 
 REPOSITORY = Path(__file__).resolve().parents[1]
-HOOK = REPOSITORY / "bundle" / "hooks" / "gupabal_hooks.py"
-MERGER = REPOSITORY / "bundle" / "hooks" / "merge_hooks.py"
-HOOK_SOURCE = REPOSITORY / "bundle" / "hooks" / "hooks.json"
+HOOK = REPOSITORY / ".codex" / "hooks" / "gupabal_hooks.py"
+MERGER = REPOSITORY / "scripts" / "merge_gupabal_hooks.py"
+HOOK_SOURCE = REPOSITORY / ".codex" / "hooks" / "gupabal-hooks.template.json"
 
 
 class HookTestCase(unittest.TestCase):
@@ -513,6 +514,100 @@ END_GUPABAL_RESULT
         self.assertEqual(second.returncode, 0, second.stderr)
         self.assertIn("Unchanged", second.stdout)
 
+    def test_merger_dry_run_does_not_create_config_or_script(self) -> None:
+        target = self.root / "config" / "hooks.json"
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(MERGER),
+                "--source",
+                str(HOOK_SOURCE),
+                "--hook-script-source",
+                str(HOOK),
+                "--target",
+                str(target),
+                "--backup-suffix",
+                "dry-run",
+                "--dry-run",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertIn("INSTALL", completed.stdout)
+        self.assertIn("UPDATE", completed.stdout)
+        self.assertFalse(target.exists())
+        self.assertFalse((target.parent / "hooks").exists())
+
+    def test_merger_verify_succeeds_after_install(self) -> None:
+        target = self.root / "hooks.json"
+        command = [
+            sys.executable,
+            str(MERGER),
+            "--source",
+            str(HOOK_SOURCE),
+            "--hook-script-source",
+            str(HOOK),
+            "--target",
+            str(target),
+            "--backup-suffix",
+            "verify",
+        ]
+        installed = subprocess.run(command, capture_output=True, text=True, check=False)
+        self.assertEqual(installed.returncode, 0, installed.stderr)
+
+        verified = subprocess.run(command + ["--verify"], capture_output=True, text=True, check=False)
+        self.assertEqual(verified.returncode, 0, verified.stderr)
+        self.assertEqual(verified.stdout.count("OK "), 2)
+
+    def test_merger_verify_fails_when_installed_script_differs(self) -> None:
+        target = self.root / "hooks.json"
+        command = [
+            sys.executable,
+            str(MERGER),
+            "--source",
+            str(HOOK_SOURCE),
+            "--hook-script-source",
+            str(HOOK),
+            "--target",
+            str(target),
+            "--backup-suffix",
+            "verify-script",
+        ]
+        installed = subprocess.run(command, capture_output=True, text=True, check=False)
+        self.assertEqual(installed.returncode, 0, installed.stderr)
+        installed_script = next((target.parent / "hooks").glob("gupabal_hooks_*.py"))
+        installed_script.write_bytes(installed_script.read_bytes() + b"\n# tampered\n")
+
+        verified = subprocess.run(command + ["--verify"], capture_output=True, text=True, check=False)
+        self.assertNotEqual(verified.returncode, 0)
+        self.assertIn(f"MISMATCH {installed_script}", verified.stdout)
+
+    def test_merger_verify_fails_when_config_differs(self) -> None:
+        target = self.root / "hooks.json"
+        command = [
+            sys.executable,
+            str(MERGER),
+            "--source",
+            str(HOOK_SOURCE),
+            "--hook-script-source",
+            str(HOOK),
+            "--target",
+            str(target),
+            "--backup-suffix",
+            "verify-config",
+        ]
+        installed = subprocess.run(command, capture_output=True, text=True, check=False)
+        self.assertEqual(installed.returncode, 0, installed.stderr)
+        config = json.loads(target.read_text(encoding="utf-8"))
+        config["hooks"]["PreToolUse"] = []
+        target.write_text(json.dumps(config, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+        verified = subprocess.run(command + ["--verify"], capture_output=True, text=True, check=False)
+        self.assertNotEqual(verified.returncode, 0)
+        self.assertIn(f"MISMATCH {target}", verified.stdout)
+
     def test_merger_rejects_invalid_existing_event_without_changes(self) -> None:
         target = self.root / "hooks.json"
         original = json.dumps({"hooks": {"PreToolUse": {"not": "a list"}}})
@@ -540,6 +635,14 @@ END_GUPABAL_RESULT
 
     def test_merger_preserves_user_handler_and_removes_stale_managed_events(self) -> None:
         target = self.root / "hooks.json"
+        stale_script = target.parent / "hooks" / "gupabal_hooks_deadbeefdeadbeef.py"
+        stale_pre_command = (
+            f"{shlex.quote(sys.executable)} {shlex.quote(str(stale_script))} PreToolUse"
+        )
+        stale_stop_command = (
+            f"{shlex.quote(sys.executable)} {shlex.quote(str(stale_script))} Stop"
+        )
+        user_command = "python user_gupabal_hooks_helper.py"
         target.write_text(
             json.dumps(
                 {
@@ -548,15 +651,16 @@ END_GUPABAL_RESULT
                             {
                                 "matcher": "^apply_patch$",
                                 "hooks": [
-                                    {"type": "command", "command": "python gupabal_hooks_old.py PreToolUse"},
+                                    {"type": "command", "command": stale_pre_command},
                                     {"type": "command", "command": "python user_pre.py"},
+                                    {"type": "command", "command": user_command},
                                 ],
                             }
                         ],
                         "Stop": [
                             {
                                 "hooks": [
-                                    {"type": "command", "command": "python gupabal_hooks_old.py Stop"}
+                                    {"type": "command", "command": stale_stop_command}
                                 ]
                             }
                         ],
@@ -590,7 +694,8 @@ END_GUPABAL_RESULT
             for handler in group.get("hooks", [])
         ]
         self.assertEqual(sum(handler.get("command") == "python user_pre.py" for handler in pre_handlers), 1)
-        self.assertFalse(any("gupabal_hooks_old.py" in handler.get("command", "") for handler in pre_handlers))
+        self.assertEqual(sum(handler.get("command") == user_command for handler in pre_handlers), 1)
+        self.assertFalse(any(handler.get("command") == stale_pre_command for handler in pre_handlers))
         self.assertEqual(merged["hooks"]["Stop"], [])
 
     def test_hook_content_change_changes_trusted_command(self) -> None:

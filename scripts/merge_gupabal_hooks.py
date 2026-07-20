@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Merge the managed Gupabal hook groups without replacing user hooks."""
+"""Merge AISUPPORT-managed Gupabal handlers without replacing user hooks."""
 
 from __future__ import annotations
 
@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import shlex
 import shutil
 import subprocess
@@ -18,6 +19,7 @@ from typing import Any
 
 MANAGED_SCRIPT_MARKER = "gupabal_hooks_"
 LEGACY_SCRIPT_NAME = "gupabal_hooks.py"
+MANAGED_SCRIPT_PATTERN = re.compile(r"^gupabal_hooks_[0-9a-f]{16}\.py$")
 
 
 def parse_args() -> argparse.Namespace:
@@ -26,6 +28,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--hook-script-source", type=Path, required=True)
     parser.add_argument("--target", type=Path, required=True)
     parser.add_argument("--backup-suffix", required=True)
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--verify", action="store_true")
+    mode.add_argument("--dry-run", action="store_true")
     return parser.parse_args()
 
 
@@ -51,25 +56,38 @@ def replace_tokens(value: Any, command: str, windows_command: str) -> Any:
     return value
 
 
-def is_managed_handler(handler: Any) -> bool:
+def is_managed_handler(handler: Any, hooks_directory: Path) -> bool:
     if not isinstance(handler, dict):
         return False
-    commands = (handler.get("command"), handler.get("commandWindows"), handler.get("command_windows"))
-    return any(
-        isinstance(command, str)
-        and (MANAGED_SCRIPT_MARKER in command or LEGACY_SCRIPT_NAME in command)
-        for command in commands
+    command = handler.get("command")
+    if not isinstance(command, str):
+        return False
+    try:
+        arguments = shlex.split(command)
+    except ValueError:
+        return False
+    if len(arguments) != 3:
+        return False
+    script_path = Path(arguments[1]).expanduser().resolve(strict=False)
+    script_name = script_path.name
+    managed_name = script_name == LEGACY_SCRIPT_NAME or bool(
+        MANAGED_SCRIPT_PATTERN.fullmatch(script_name)
     )
+    return managed_name and script_path.parent == hooks_directory.resolve(strict=False)
 
 
-def remove_managed_handlers(groups: list[Any]) -> list[Any]:
+def remove_managed_handlers(groups: list[Any], hooks_directory: Path) -> list[Any]:
     cleaned: list[Any] = []
     for group in groups:
         if not isinstance(group, dict) or not isinstance(group.get("hooks"), list):
             cleaned.append(group)
             continue
         handlers = group["hooks"]
-        retained = [handler for handler in handlers if not is_managed_handler(handler)]
+        retained = [
+            handler
+            for handler in handlers
+            if not is_managed_handler(handler, hooks_directory)
+        ]
         if len(retained) == len(handlers):
             cleaned.append(group)
         elif retained:
@@ -79,7 +97,9 @@ def remove_managed_handlers(groups: list[Any]) -> list[Any]:
     return cleaned
 
 
-def merge(existing: dict[str, Any], managed: dict[str, Any]) -> dict[str, Any]:
+def merge(
+    existing: dict[str, Any], managed: dict[str, Any], hooks_directory: Path
+) -> dict[str, Any]:
     result = dict(existing)
     if "description" not in result and isinstance(managed.get("description"), str):
         result["description"] = managed["description"]
@@ -88,7 +108,7 @@ def merge(existing: dict[str, Any], managed: dict[str, Any]) -> dict[str, Any]:
     for event, groups in list(existing_hooks.items()):
         if not isinstance(groups, list):
             raise ValueError(f"existing hook event must be a list and was not changed: {event}")
-        existing_hooks[event] = remove_managed_handlers(groups)
+        existing_hooks[event] = remove_managed_handlers(groups, hooks_directory)
     managed_hooks = managed.get("hooks")
     if not isinstance(managed_hooks, dict):
         raise ValueError("managed hooks must be an object")
@@ -115,21 +135,34 @@ def main() -> int:
     windows_command = subprocess.list2cmdline([executable, str(hook_script)])
     managed = replace_tokens(read_json(source), unix_command, windows_command)
     existing = read_json(target) if target.is_file() else {}
-    merged = merge(existing, managed)
+    merged = merge(existing, managed, hook_script.parent)
     rendered = json.dumps(merged, ensure_ascii=False, indent=2) + "\n"
     previous = target.read_text(encoding="utf-8-sig") if target.is_file() else None
+    script_matches = hook_script.is_file() and hook_script.read_bytes() == hook_script_source.read_bytes()
+    config_matches = previous == rendered
+
+    if args.verify:
+        print(f"{'OK' if script_matches else 'MISMATCH'} {hook_script}")
+        print(f"{'OK' if config_matches else 'MISMATCH'} {target}")
+        return 0 if script_matches and config_matches else 1
+
+    if args.dry_run:
+        print(f"{'KEEP' if script_matches else 'INSTALL'} {hook_script}")
+        print(f"{'KEEP' if config_matches else 'UPDATE'} {target}")
+        return 0
 
     target.parent.mkdir(parents=True, exist_ok=True)
     hook_script.parent.mkdir(parents=True, exist_ok=True)
-    if hook_script.is_file():
+    if script_matches:
+        print(f"Unchanged: {hook_script}")
+    elif hook_script.is_file():
         if hook_script.read_bytes() != hook_script_source.read_bytes():
             raise ValueError(f"versioned hook script hash collision: {hook_script}")
-        print(f"Unchanged: {hook_script}")
     else:
         shutil.copy2(hook_script_source, hook_script)
         print(f"Installed: {hook_script}")
 
-    if previous == rendered:
+    if config_matches:
         print(f"Unchanged: {target}")
         return 0
 

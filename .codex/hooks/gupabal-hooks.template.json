@@ -1,5 +1,5 @@
 {
-  "description": "구파발게임 역할 결과, 합의 상태, 변경 파일을 가볍게 확인하는 Hook입니다.",
+  "description": "AISUPPORT 구파발게임 역할 결과, 합의 상태, 변경 파일을 가볍게 확인하는 Hook입니다.",
   "hooks": {
     "SubagentStop": [
       {

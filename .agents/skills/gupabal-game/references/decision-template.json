@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "enabled": true,
-  "feature": "실제 기능 이름",
+  "feature": "사용자가 요청한 실제 기능 이름",
   "planning_allow": [],
   "agreement": {
     "status": "planning",
