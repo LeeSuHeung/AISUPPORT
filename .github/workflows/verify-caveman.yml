@@ -1,0 +1,54 @@
+name: Verify Caveman portability
+
+on:
+  push:
+    paths:
+      - ".agents/skills/**"
+      - ".github/workflows/verify-caveman.yml"
+      - "scripts/install-caveman.*"
+      - "caveman-manifest.json"
+      - "skills-lock.json"
+  pull_request:
+    paths:
+      - ".agents/skills/**"
+      - ".github/workflows/verify-caveman.yml"
+      - "scripts/install-caveman.*"
+      - "caveman-manifest.json"
+      - "skills-lock.json"
+
+jobs:
+  portable-install:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install through POSIX wrapper
+        if: runner.os != 'Windows'
+        shell: bash
+        run: ./scripts/install-caveman.sh --target "$RUNNER_TEMP/caveman-skills"
+
+      - name: Install through PowerShell wrapper
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/install-caveman.ps1 -Target "$env:RUNNER_TEMP\caveman-skills"
+
+      - name: Verify installed files
+        shell: bash
+        run: node scripts/install-caveman.mjs --target "$RUNNER_TEMP/caveman-skills" --verify
+
+      - name: Verify idempotent reinstall
+        shell: bash
+        run: node scripts/install-caveman.mjs --target "$RUNNER_TEMP/caveman-skills"
