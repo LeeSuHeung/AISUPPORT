@@ -2,6 +2,7 @@
   "version": 1,
   "release": "v1.9.1",
   "upstreamCommit": "033f918602bd5319931256a537c4bd9ea7a48c25",
+  "executables": [],
   "files": {
     ".agents/skills/caveman/README.md": "9369b69197e5d07e0c56679f9fc346f3539f58537c17f4e804a44612f086dc73",
     ".agents/skills/caveman/SKILL.md": "5e30bb56afbd0b01bd736f2da84180e76f18db4a64de8e124525d5c8dc2e8605",

@@ -18,17 +18,60 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 
-const SKILL_NAMES = Object.freeze([
-  "caveman",
-  "caveman-commit",
-  "caveman-review",
+const SKILL_BUNDLES = Object.freeze([
+  Object.freeze({
+    displayName: "Caveman",
+    source: "JuliusBrussee/caveman",
+    ref: "v1.9.1",
+    manifestFile: "caveman-manifest.json",
+    executables: Object.freeze([]),
+    skillNames: Object.freeze([
+      "caveman",
+      "caveman-commit",
+      "caveman-review",
+    ]),
+  }),
+  Object.freeze({
+    displayName: "Superpowers",
+    source: "obra/superpowers",
+    ref: "v6.1.1",
+    manifestFile: "superpowers-manifest.json",
+    executables: Object.freeze([
+      ".agents/skills/brainstorming/scripts/start-server.sh",
+      ".agents/skills/brainstorming/scripts/stop-server.sh",
+      ".agents/skills/subagent-driven-development/scripts/review-package",
+      ".agents/skills/subagent-driven-development/scripts/sdd-workspace",
+      ".agents/skills/subagent-driven-development/scripts/task-brief",
+      ".agents/skills/systematic-debugging/find-polluter.sh",
+      ".agents/skills/writing-skills/render-graphs.js",
+    ]),
+    skillNames: Object.freeze([
+      "brainstorming",
+      "dispatching-parallel-agents",
+      "executing-plans",
+      "finishing-a-development-branch",
+      "receiving-code-review",
+      "requesting-code-review",
+      "subagent-driven-development",
+      "systematic-debugging",
+      "test-driven-development",
+      "using-git-worktrees",
+      "using-superpowers",
+      "verification-before-completion",
+      "writing-plans",
+      "writing-skills",
+    ]),
+  }),
 ]);
+
+const SKILL_NAMES = Object.freeze(
+  SKILL_BUNDLES.flatMap((bundle) => bundle.skillNames),
+);
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = path.resolve(scriptDirectory, "..");
 const sourceRoot = path.join(repositoryRoot, ".agents", "skills");
 const lockPath = path.join(repositoryRoot, "skills-lock.json");
-const manifestPath = path.join(repositoryRoot, "caveman-manifest.json");
 const repositoryAgentsPath = path.join(repositoryRoot, "AGENTS.md");
 const alwaysOnStartMarker = "<!-- BEGIN CAVEMAN PORTABLE ALWAYS-ON -->";
 const alwaysOnEndMarker = "<!-- END CAVEMAN PORTABLE ALWAYS-ON -->";
@@ -41,10 +84,11 @@ function defaultCodexHome() {
 }
 
 function printUsage() {
-  console.log(`Usage: node scripts/install-caveman.mjs [options]
+  console.log(`Usage: node scripts/install-aisupport.mjs [options]
 
-Copy the reviewed, repository-pinned Caveman skills into Codex's user-level
-skill directory. The installer does not download or execute upstream code.
+Copy the reviewed, repository-pinned AISUPPORT skill suite into Codex's
+user-level skill directory. The installer does not download or execute
+upstream code.
 
 Options:
   --target <path>       Override the skill target ($HOME/.agents/skills)
@@ -215,7 +259,7 @@ async function readAlwaysOnBlock() {
   const startCount = countOccurrences(contents, alwaysOnStartMarker);
   const endCount = countOccurrences(contents, alwaysOnEndMarker);
   if (startCount !== 1 || endCount !== 1) {
-    throw new Error(`Repository AGENTS.md must contain one Caveman managed block`);
+    throw new Error(`Repository AGENTS.md must contain one AISUPPORT managed block`);
   }
 
   const startIndex = contents.indexOf(alwaysOnStartMarker);
@@ -309,7 +353,7 @@ function buildAlwaysOnContents(guidanceState, expectedBlock) {
 
   if (guidanceState.status === "conflict") {
     if (!Number.isInteger(guidanceState.startIndex) || !Number.isInteger(guidanceState.endIndex)) {
-      throw new Error(`Cannot safely replace malformed Caveman markers`);
+      throw new Error(`Cannot safely replace malformed AISUPPORT markers`);
     }
     return `${guidanceState.contents.slice(0, guidanceState.startIndex)}${localizedBlock}${guidanceState.contents.slice(guidanceState.endIndex)}`;
   }
@@ -339,7 +383,7 @@ async function installAlwaysOnFile(agentsFile, guidanceState, expectedBlock, for
     return null;
   }
   if (guidanceState.status === "conflict" && !force) {
-    throw new Error(`Managed Caveman block differs in ${agentsFile}; use --force`);
+    throw new Error(`Managed AISUPPORT block differs in ${agentsFile}; use --force`);
   }
 
   await mkdir(path.dirname(agentsFile), { recursive: true });
@@ -348,7 +392,7 @@ async function installAlwaysOnFile(agentsFile, guidanceState, expectedBlock, for
   if (guidanceState.exists) {
     backupPath = await findBackupPath(
       path.dirname(agentsFile),
-      `${path.basename(agentsFile)}.caveman`,
+      `${path.basename(agentsFile)}.aisupport`,
     );
     await copyFile(agentsFile, backupPath);
     if (hashBytes(await readFile(backupPath)) !== guidanceState.snapshotHash) {
@@ -357,7 +401,7 @@ async function installAlwaysOnFile(agentsFile, guidanceState, expectedBlock, for
   }
 
   const temporaryDirectory = await mkdtemp(
-    path.join(path.dirname(agentsFile), `.${path.basename(agentsFile)}-caveman-install-`),
+    path.join(path.dirname(agentsFile), `.${path.basename(agentsFile)}-aisupport-install-`),
   );
   const temporaryFile = path.join(temporaryDirectory, path.basename(agentsFile));
   try {
@@ -420,6 +464,52 @@ async function hashDirectory(directoryPath) {
   return digest.digest("hex");
 }
 
+async function hashCanonicalTextDirectory(directoryPath) {
+  const state = await getPathState(directoryPath);
+  if (!state?.isDirectory()) {
+    throw new Error(`Expected directory: ${directoryPath}`);
+  }
+
+  const digest = createHash("sha256");
+  for (const relativePath of await collectFiles(directoryPath)) {
+    const normalizedPath = relativePath.split(path.sep).join("/");
+    const canonicalContents = (await readFile(
+      path.join(directoryPath, relativePath),
+      "utf8",
+    )).replace(/\r\n/g, "\n");
+    const contents = Buffer.from(canonicalContents, "utf8");
+    digest.update(normalizedPath, "utf8");
+    digest.update("\0");
+    digest.update(String(contents.length), "utf8");
+    digest.update("\0");
+    digest.update(contents);
+    digest.update("\0");
+  }
+  return digest.digest("hex");
+}
+
+function executableRelativePaths(skillName) {
+  const prefix = `.agents/skills/${skillName}/`;
+  return SKILL_BUNDLES.flatMap((bundle) => bundle.executables)
+    .filter((repositoryPath) => repositoryPath.startsWith(prefix))
+    .map((repositoryPath) => repositoryPath.slice(prefix.length));
+}
+
+async function hasExpectedExecutableModes(skillDirectory, skillName) {
+  if (process.platform === "win32") {
+    return true;
+  }
+  for (const relativePath of executableRelativePaths(skillName)) {
+    const state = await getPathState(
+      path.join(skillDirectory, ...relativePath.split("/")),
+    );
+    if (!state?.isFile() || (state.mode & 0o111) === 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
 function readFrontmatterName(contents, skillPath) {
   const normalized = contents.replace(/\r\n/g, "\n");
   if (!normalized.startsWith("---\n")) {
@@ -439,16 +529,8 @@ function readFrontmatterName(contents, skillPath) {
 
 async function validateSources() {
   const lock = JSON.parse(await readFile(lockPath, "utf8"));
-  const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
   if (lock.version !== 1 || typeof lock.skills !== "object") {
     throw new Error(`Unsupported skills lock format: ${lockPath}`);
-  }
-  if (
-    manifest.version !== 1 ||
-    typeof manifest.files !== "object" ||
-    !/^[0-9a-f]{40}$/.test(manifest.upstreamCommit ?? "")
-  ) {
-    throw new Error(`Unsupported Caveman manifest format: ${manifestPath}`);
   }
 
   const lockedNames = Object.keys(lock.skills).sort();
@@ -459,75 +541,117 @@ async function validateSources() {
     );
   }
 
-  const lockedRefs = new Set();
   const sourceHashes = new Map();
-  const manifestFiles = [];
-  for (const skillName of SKILL_NAMES) {
-    const skillDirectory = path.join(sourceRoot, skillName);
-    const skillFile = path.join(skillDirectory, "SKILL.md");
-    const declaredName = readFrontmatterName(
-      await readFile(skillFile, "utf8"),
-      skillFile,
-    );
-    if (declaredName !== skillName) {
+  const releases = [];
+
+  for (const bundle of SKILL_BUNDLES) {
+    const manifestPath = path.join(repositoryRoot, bundle.manifestFile);
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    if (
+      manifest.version !== 1 ||
+      typeof manifest.files !== "object" ||
+      !/^[0-9a-f]{40}$/.test(manifest.upstreamCommit ?? "")
+    ) {
       throw new Error(
-        `Skill name mismatch: directory ${skillName}, frontmatter ${declaredName}`,
+        `Unsupported ${bundle.displayName} manifest format: ${manifestPath}`,
+      );
+    }
+    if (manifest.release !== bundle.ref) {
+      throw new Error(
+        `${bundle.displayName} manifest release ${manifest.release} does not match ${bundle.ref}`,
+      );
+    }
+    const declaredExecutables = Array.isArray(manifest.executables)
+      ? [...manifest.executables].sort()
+      : [];
+    const expectedExecutables = [...bundle.executables].sort();
+    if (
+      JSON.stringify(declaredExecutables) !==
+      JSON.stringify(expectedExecutables)
+    ) {
+      throw new Error(
+        `${bundle.displayName} executable manifest does not match expected files`,
       );
     }
 
-    const locked = lock.skills[skillName];
-    if (locked.source !== "JuliusBrussee/caveman") {
-      throw new Error(`Unexpected source for ${skillName}: ${locked.source}`);
-    }
-    if (locked.skillPath !== `skills/${skillName}/SKILL.md`) {
-      throw new Error(`Unexpected source path for ${skillName}: ${locked.skillPath}`);
-    }
-    if (!locked.ref || !locked.computedHash) {
-      throw new Error(`Incomplete lock entry for ${skillName}`);
-    }
-    lockedRefs.add(locked.ref);
-    sourceHashes.set(skillName, await hashDirectory(skillDirectory));
+    const manifestFiles = [];
+    for (const skillName of bundle.skillNames) {
+      const skillDirectory = path.join(sourceRoot, skillName);
+      const skillFile = path.join(skillDirectory, "SKILL.md");
+      const declaredName = readFrontmatterName(
+        await readFile(skillFile, "utf8"),
+        skillFile,
+      );
+      if (declaredName !== skillName) {
+        throw new Error(
+          `Skill name mismatch: directory ${skillName}, frontmatter ${declaredName}`,
+        );
+      }
 
-    for (const relativePath of await collectFiles(skillDirectory)) {
-      const repositoryPath = [
-        ".agents",
-        "skills",
-        skillName,
-        ...relativePath.split(path.sep),
-      ].join("/");
-      manifestFiles.push(repositoryPath);
-      const expectedHash = manifest.files[repositoryPath];
-      const canonicalContents = (await readFile(
-        path.join(skillDirectory, relativePath),
-        "utf8",
-      )).replace(/\r\n/g, "\n");
-      const actualHash = createHash("sha256")
-        .update(canonicalContents, "utf8")
-        .digest("hex");
-      if (!expectedHash || actualHash !== expectedHash) {
-        throw new Error(`Manifest hash mismatch: ${repositoryPath}`);
+      const locked = lock.skills[skillName];
+      if (
+        locked.source !== bundle.source ||
+        locked.ref !== bundle.ref ||
+        locked.sourceType !== "github"
+      ) {
+        throw new Error(`Unexpected source lock for ${skillName}`);
+      }
+      if (locked.skillPath !== `skills/${skillName}/SKILL.md`) {
+        throw new Error(
+          `Unexpected source path for ${skillName}: ${locked.skillPath}`,
+        );
+      }
+      if (!/^[0-9a-f]{64}$/.test(locked.computedHash ?? "")) {
+        throw new Error(`Incomplete lock entry for ${skillName}`);
+      }
+      const canonicalDirectoryHash = await hashCanonicalTextDirectory(
+        skillDirectory,
+      );
+      if (locked.computedHash !== canonicalDirectoryHash) {
+        throw new Error(`Lock hash mismatch: ${skillName}`);
+      }
+      if (!(await hasExpectedExecutableModes(skillDirectory, skillName))) {
+        throw new Error(`Executable mode mismatch: ${skillName}`);
+      }
+      sourceHashes.set(skillName, await hashDirectory(skillDirectory));
+
+      for (const relativePath of await collectFiles(skillDirectory)) {
+        const repositoryPath = [
+          ".agents",
+          "skills",
+          skillName,
+          ...relativePath.split(path.sep),
+        ].join("/");
+        manifestFiles.push(repositoryPath);
+        const expectedHash = manifest.files[repositoryPath];
+        const canonicalContents = (await readFile(
+          path.join(skillDirectory, relativePath),
+          "utf8",
+        )).replace(/\r\n/g, "\n");
+        const actualHash = createHash("sha256")
+          .update(canonicalContents, "utf8")
+          .digest("hex");
+        if (!expectedHash || actualHash !== expectedHash) {
+          throw new Error(`Manifest hash mismatch: ${repositoryPath}`);
+        }
       }
     }
-  }
 
-  if (lockedRefs.size !== 1) {
-    throw new Error("All Caveman skills must use the same upstream release");
-  }
-
-  const release = [...lockedRefs][0];
-  if (manifest.release !== release) {
-    throw new Error(
-      `Manifest release ${manifest.release} does not match lock release ${release}`,
-    );
-  }
-  const declaredManifestFiles = Object.keys(manifest.files).sort();
-  const actualManifestFiles = manifestFiles.sort();
-  if (JSON.stringify(declaredManifestFiles) !== JSON.stringify(actualManifestFiles)) {
-    throw new Error("Caveman manifest file list does not match vendored skill files");
+    const declaredManifestFiles = Object.keys(manifest.files).sort();
+    const actualManifestFiles = manifestFiles.sort();
+    if (
+      JSON.stringify(declaredManifestFiles) !==
+      JSON.stringify(actualManifestFiles)
+    ) {
+      throw new Error(
+        `${bundle.displayName} manifest file list does not match vendored skill files`,
+      );
+    }
+    releases.push(`${bundle.displayName} ${bundle.ref}`);
   }
 
   return {
-    release,
+    release: releases.join(", "),
     sourceHashes,
   };
 }
@@ -603,7 +727,7 @@ async function main() {
   const guidanceState = await inspectAlwaysOnFile(agentsFile, alwaysOnBlock);
   if (guidanceState.status === "conflict" && !guidanceState.replaceable) {
     throw new Error(
-      `Cannot safely replace malformed Caveman markers in ${agentsFile}: ${guidanceState.reason}`,
+      `Cannot safely replace malformed AISUPPORT markers in ${agentsFile}: ${guidanceState.reason}`,
     );
   }
 
@@ -619,6 +743,9 @@ async function main() {
         continue;
       }
       matches = (await hashDirectory(destination)) === sourceHashes.get(skillName);
+      matches =
+        matches &&
+        (await hasExpectedExecutableModes(destination, skillName));
     }
     states.push({ skillName, source, destination, exists: Boolean(destinationState), matches });
   }
@@ -636,7 +763,7 @@ async function main() {
       );
     }
     console.log(
-      `Verified ${SKILL_NAMES.length} Caveman skills and always-on guidance (${release})`,
+      `Verified ${SKILL_NAMES.length} AISUPPORT skills and always-on guidance (${release})`,
     );
     return;
   }
@@ -668,7 +795,7 @@ async function main() {
         ? "BACKUP+UPDATE"
         : "INSTALL";
     console.log(`${guidanceAction} always-on -> ${agentsFile}`);
-    console.log(`Dry run complete for Caveman ${release}`);
+    console.log(`Dry run complete for AISUPPORT skills (${release})`);
     return;
   }
 
@@ -705,11 +832,11 @@ async function main() {
     }
   }
 
-  console.log(`Installed Caveman ${release} into ${targetRoot}`);
+  console.log(`Installed AISUPPORT skills (${release}) into ${targetRoot}`);
   console.log("Start a new Codex task. Restart Codex if the always-on rule does not appear.");
 }
 
 main().catch((error) => {
-  console.error(`Caveman installer failed: ${error.message}`);
+  console.error(`AISUPPORT installer failed: ${error.message}`);
   process.exitCode = 1;
 });

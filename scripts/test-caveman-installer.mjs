@@ -7,6 +7,7 @@ import {
   readFile,
   readdir,
   rm,
+  stat,
   writeFile,
 } from "node:fs/promises";
 import os from "node:os";
@@ -16,7 +17,18 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
-const installerPath = path.join(scriptDirectory, "install-caveman.mjs");
+const repositoryRoot = path.resolve(scriptDirectory, "..");
+const installerPath = path.join(scriptDirectory, "install-aisupport.mjs");
+const skillsLock = JSON.parse(
+  await readFile(path.join(repositoryRoot, "skills-lock.json"), "utf8"),
+);
+const superpowersManifest = JSON.parse(
+  await readFile(
+    path.join(repositoryRoot, "superpowers-manifest.json"),
+    "utf8",
+  ),
+);
+const expectedSkillNames = Object.keys(skillsLock.skills).sort();
 const startMarker = "<!-- BEGIN CAVEMAN PORTABLE ALWAYS-ON -->";
 const endMarker = "<!-- END CAVEMAN PORTABLE ALWAYS-ON -->";
 
@@ -27,6 +39,18 @@ function digest(contents) {
 function assert(condition, message) {
   if (!condition) {
     throw new Error(message);
+  }
+}
+
+async function pathExists(targetPath) {
+  try {
+    await stat(targetPath);
+    return true;
+  } catch (error) {
+    if (error?.code === "ENOENT") {
+      return false;
+    }
+    throw error;
   }
 }
 
@@ -50,7 +74,7 @@ function runInstaller(argumentsList, shouldPass = true) {
 
 async function listAgentBackups(agentsFile) {
   const directory = path.dirname(agentsFile);
-  const prefix = `${path.basename(agentsFile)}.caveman.backup-`;
+  const prefix = `${path.basename(agentsFile)}.aisupport.backup-`;
   return (await readdir(directory))
     .filter((name) => name.startsWith(prefix))
     .sort()
@@ -77,12 +101,19 @@ function decodeUtf16(buffer, byteOrder) {
 async function testPreservationAndConflicts(root) {
   const skillTarget = path.join(root, "skills");
   const agentsFile = path.join(root, "codex-home", "AGENTS.md");
+  const unrelatedSkill = path.join(skillTarget, "user-owned", "SKILL.md");
+  const unrelatedContents = Buffer.from(
+    "---\nname: user-owned\ndescription: preserve me\n---\n",
+    "utf8",
+  );
   const original = Buffer.from(
     "## Existing guidance\r\n\r\nKeep this line.\r\n",
     "utf8",
   );
   await mkdir(path.dirname(agentsFile), { recursive: true });
+  await mkdir(path.dirname(unrelatedSkill), { recursive: true });
   await writeFile(agentsFile, original);
+  await writeFile(unrelatedSkill, unrelatedContents);
 
   const commonArguments = [
     "--target",
@@ -91,6 +122,31 @@ async function testPreservationAndConflicts(root) {
     agentsFile,
   ];
   runInstaller(commonArguments);
+
+  for (const skillName of expectedSkillNames) {
+    const skillFile = path.join(skillTarget, skillName, "SKILL.md");
+    assert(
+      (await readFile(skillFile, "utf8")).startsWith("---"),
+      `Missing installed skill: ${skillName}`,
+    );
+  }
+  assert(
+    digest(await readFile(unrelatedSkill)) === digest(unrelatedContents),
+    "Unrelated user skill changed",
+  );
+  if (process.platform !== "win32") {
+    for (const repositoryPath of superpowersManifest.executables) {
+      const relativePath = repositoryPath.replace(".agents/skills/", "");
+      const installedExecutable = path.join(
+        skillTarget,
+        ...relativePath.split("/"),
+      );
+      assert(
+        ((await stat(installedExecutable)).mode & 0o111) !== 0,
+        `Installed executable mode missing: ${relativePath}`,
+      );
+    }
+  }
 
   const installed = await readFile(agentsFile, "utf8");
   assert(installed.startsWith(original.toString("utf8")), "Existing guidance changed");
@@ -118,6 +174,10 @@ async function testPreservationAndConflicts(root) {
 
   runInstaller([...commonArguments, "--force"]);
   runInstaller([...commonArguments, "--verify"]);
+  assert(
+    digest(await readFile(unrelatedSkill)) === digest(unrelatedContents),
+    "Forced update changed unrelated user skill",
+  );
   backups = await listAgentBackups(agentsFile);
   assert(backups.length === 2, "Forced update did not create a backup");
 
@@ -140,6 +200,49 @@ async function testPreservationAndConflicts(root) {
   );
   backups = await listAgentBackups(agentsFile);
   assert(backups.length === 2, "Malformed marker failure created a backup");
+}
+
+async function testSuperpowersConflictAndBackup(root) {
+  const skillTarget = path.join(root, "skills");
+  const agentsFile = path.join(root, "codex-home", "AGENTS.md");
+  const conflictingSkill = path.join(skillTarget, "brainstorming");
+  const conflictingSkillFile = path.join(conflictingSkill, "SKILL.md");
+  const conflictingContents = Buffer.from(
+    "---\nname: brainstorming\ndescription: user copy\n---\n",
+    "utf8",
+  );
+  await mkdir(conflictingSkill, { recursive: true });
+  await writeFile(conflictingSkillFile, conflictingContents);
+
+  const argumentsList = [
+    "--target",
+    skillTarget,
+    "--agents-file",
+    agentsFile,
+  ];
+  runInstaller(argumentsList, false);
+  assert(
+    digest(await readFile(conflictingSkillFile)) === digest(conflictingContents),
+    "Superpowers conflict was overwritten without --force",
+  );
+  assert(
+    !(await pathExists(path.join(skillTarget, "caveman"))),
+    "Superpowers conflict preflight installed another managed skill",
+  );
+
+  runInstaller([...argumentsList, "--force"]);
+  runInstaller([...argumentsList, "--verify"]);
+  const backupRoot = path.join(root, "skill-backups");
+  const backups = (await readdir(backupRoot)).filter((name) =>
+    name.startsWith("brainstorming.backup-"),
+  );
+  assert(backups.length === 1, "Superpowers conflict backup missing");
+  assert(
+    digest(
+      await readFile(path.join(backupRoot, backups[0], "SKILL.md")),
+    ) === digest(conflictingContents),
+    "Superpowers conflict backup differs",
+  );
 }
 
 async function testUtf16(root, byteOrder) {
@@ -194,13 +297,16 @@ async function testUnsupportedEncoding(root) {
   );
 }
 
-const temporaryRoot = await mkdtemp(path.join(os.tmpdir(), "caveman-installer-test-"));
+const temporaryRoot = await mkdtemp(path.join(os.tmpdir(), "aisupport-installer-test-"));
 try {
   await testPreservationAndConflicts(path.join(temporaryRoot, "main"));
+  await testSuperpowersConflictAndBackup(
+    path.join(temporaryRoot, "superpowers-conflict"),
+  );
   await testUtf16(path.join(temporaryRoot, "utf16"), "le");
   await testUtf16(path.join(temporaryRoot, "utf16"), "be");
   await testUnsupportedEncoding(path.join(temporaryRoot, "invalid"));
-  console.log("Caveman installer tests passed");
+  console.log("AISUPPORT installer tests passed");
 } finally {
   await rm(temporaryRoot, { recursive: true, force: true });
 }

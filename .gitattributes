@@ -1,10 +1,15 @@
 /.gitattributes text eol=lf
-/.agents/skills/** text eol=lf
+/.agents/skills/** text eol=lf whitespace=-trailing-space
 /.github/workflows/verify-caveman.yml text eol=lf
 /AGENTS.md text eol=lf
 /CAVEMAN.md text eol=lf
+/SUPERPOWERS.md text eol=lf
 /THIRD_PARTY_NOTICES.md text eol=lf
 /caveman-manifest.json text eol=lf
+/superpowers-manifest.json text eol=lf
+/scripts/install-aisupport.mjs text eol=lf
+/scripts/install-aisupport.ps1 text eol=lf
+/scripts/install-aisupport.sh text eol=lf
 /scripts/install-caveman.mjs text eol=lf
 /scripts/install-caveman.ps1 text eol=lf
 /scripts/install-caveman.sh text eol=lf

@@ -1,23 +1,29 @@
-name: Verify Caveman portability
+name: Verify AISUPPORT skill portability
 
 on:
   push:
     paths:
+      - ".gitattributes"
       - ".agents/skills/**"
       - "AGENTS.md"
       - ".github/workflows/verify-caveman.yml"
       - "scripts/install-caveman.*"
+      - "scripts/install-aisupport.*"
       - "scripts/test-caveman-installer.mjs"
       - "caveman-manifest.json"
+      - "superpowers-manifest.json"
       - "skills-lock.json"
   pull_request:
     paths:
+      - ".gitattributes"
       - ".agents/skills/**"
       - "AGENTS.md"
       - ".github/workflows/verify-caveman.yml"
       - "scripts/install-caveman.*"
+      - "scripts/install-aisupport.*"
       - "scripts/test-caveman-installer.mjs"
       - "caveman-manifest.json"
+      - "superpowers-manifest.json"
       - "skills-lock.json"
 
 jobs:
@@ -39,23 +45,31 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Verify tracked executable modes
+        shell: bash
+        run: |
+          test "$(git ls-files --stage -- scripts/install-aisupport.sh | cut -d' ' -f1)" = "100755"
+          while IFS= read -r file; do
+            test "$(git ls-files --stage -- "$file" | cut -d' ' -f1)" = "100755"
+          done < <(node -e "for (const file of require('./superpowers-manifest.json').executables) console.log(file)")
+
       - name: Install through POSIX wrapper
         if: runner.os != 'Windows'
         shell: bash
-        run: ./scripts/install-caveman.sh --target "$RUNNER_TEMP/caveman-skills" --agents-file "$RUNNER_TEMP/codex-home/AGENTS.md"
+        run: ./scripts/install-aisupport.sh --target "$RUNNER_TEMP/aisupport-skills" --agents-file "$RUNNER_TEMP/codex-home/AGENTS.md"
 
       - name: Install through PowerShell wrapper
         if: runner.os == 'Windows'
         shell: pwsh
-        run: ./scripts/install-caveman.ps1 -Target "$env:RUNNER_TEMP\caveman-skills" -AgentsFile "$env:RUNNER_TEMP\codex-home\AGENTS.md"
+        run: ./scripts/install-aisupport.ps1 -Target "$env:RUNNER_TEMP\aisupport-skills" -AgentsFile "$env:RUNNER_TEMP\codex-home\AGENTS.md"
 
       - name: Verify installed files
         shell: bash
-        run: node scripts/install-caveman.mjs --target "$RUNNER_TEMP/caveman-skills" --agents-file "$RUNNER_TEMP/codex-home/AGENTS.md" --verify
+        run: node scripts/install-aisupport.mjs --target "$RUNNER_TEMP/aisupport-skills" --agents-file "$RUNNER_TEMP/codex-home/AGENTS.md" --verify
 
       - name: Verify idempotent reinstall
         shell: bash
-        run: node scripts/install-caveman.mjs --target "$RUNNER_TEMP/caveman-skills" --agents-file "$RUNNER_TEMP/codex-home/AGENTS.md"
+        run: node scripts/install-aisupport.mjs --target "$RUNNER_TEMP/aisupport-skills" --agents-file "$RUNNER_TEMP/codex-home/AGENTS.md"
 
       - name: Test preservation and conflict handling
         shell: bash

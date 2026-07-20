@@ -33,23 +33,24 @@ When the user-level copy is installed, Codex may display both the repository
 and user copies while working inside this repository. Codex does not merge
 same-named skills; both copies are intentionally identical and verified.
 
-To make the same reviewed skills available in every repository for the current
-user, run the included offline bootstrap after cloning:
+To make the reviewed AISUPPORT skill suite (Caveman plus Superpowers) available
+in every repository for the current user, run the included offline bootstrap
+after cloning:
 
 ```powershell
 # Windows PowerShell
-.\scripts\install-caveman.ps1
+.\scripts\install-aisupport.ps1
 ```
 
 ```bash
 # macOS or Linux
-./scripts/install-caveman.sh
+./scripts/install-aisupport.sh
 ```
 
 The cross-platform implementation is also directly callable:
 
 ```bash
-node scripts/install-caveman.mjs
+node scripts/install-aisupport.mjs
 ```
 
 Requirements: Git and Node.js 18 or newer. The installer copies only the
@@ -66,17 +67,18 @@ AGENTS targets such as symbolic links are rejected before managed files change.
 Verify an installation without changing it:
 
 ```powershell
-.\scripts\install-caveman.ps1 -Verify
+.\scripts\install-aisupport.ps1 -Verify
 ```
 
 ```bash
-./scripts/install-caveman.sh --verify
+./scripts/install-aisupport.sh --verify
 ```
 
 If Codex does not immediately show a changed skill, restart Codex. The GitHub
 Actions workflow verifies install, verification, idempotency, instruction and
 encoding preservation, backups, and conflict handling on Windows, macOS, and
-Linux.
+Linux. The legacy `install-caveman.*` entry points remain compatible aliases
+and now install the same complete AISUPPORT suite.
 
 ## AISUPPORT extension policy
 
