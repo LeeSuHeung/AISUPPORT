@@ -1,0 +1,155 @@
+#!/usr/bin/env python3
+"""Merge the managed Gupabal hook groups without replacing user hooks."""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import shlex
+import shutil
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+from typing import Any
+
+
+MANAGED_SCRIPT_MARKER = "gupabal_hooks_"
+LEGACY_SCRIPT_NAME = "gupabal_hooks.py"
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--source", type=Path, required=True)
+    parser.add_argument("--hook-script-source", type=Path, required=True)
+    parser.add_argument("--target", type=Path, required=True)
+    parser.add_argument("--backup-suffix", required=True)
+    return parser.parse_args()
+
+
+def read_json(path: Path) -> dict[str, Any]:
+    value = json.loads(path.read_text(encoding="utf-8-sig"))
+    if not isinstance(value, dict):
+        raise ValueError(f"JSON root must be an object: {path}")
+    hooks = value.get("hooks")
+    if hooks is not None and not isinstance(hooks, dict):
+        raise ValueError(f"hooks must be an object: {path}")
+    return value
+
+
+def replace_tokens(value: Any, command: str, windows_command: str) -> Any:
+    if isinstance(value, dict):
+        return {key: replace_tokens(item, command, windows_command) for key, item in value.items()}
+    if isinstance(value, list):
+        return [replace_tokens(item, command, windows_command) for item in value]
+    if isinstance(value, str):
+        return value.replace("__GUPABAL_COMMAND__", command).replace(
+            "__GUPABAL_WINDOWS_COMMAND__", windows_command
+        )
+    return value
+
+
+def is_managed_handler(handler: Any) -> bool:
+    if not isinstance(handler, dict):
+        return False
+    commands = (handler.get("command"), handler.get("commandWindows"), handler.get("command_windows"))
+    return any(
+        isinstance(command, str)
+        and (MANAGED_SCRIPT_MARKER in command or LEGACY_SCRIPT_NAME in command)
+        for command in commands
+    )
+
+
+def remove_managed_handlers(groups: list[Any]) -> list[Any]:
+    cleaned: list[Any] = []
+    for group in groups:
+        if not isinstance(group, dict) or not isinstance(group.get("hooks"), list):
+            cleaned.append(group)
+            continue
+        handlers = group["hooks"]
+        retained = [handler for handler in handlers if not is_managed_handler(handler)]
+        if len(retained) == len(handlers):
+            cleaned.append(group)
+        elif retained:
+            updated_group = dict(group)
+            updated_group["hooks"] = retained
+            cleaned.append(updated_group)
+    return cleaned
+
+
+def merge(existing: dict[str, Any], managed: dict[str, Any]) -> dict[str, Any]:
+    result = dict(existing)
+    if "description" not in result and isinstance(managed.get("description"), str):
+        result["description"] = managed["description"]
+    existing_hooks = result.get("hooks")
+    existing_hooks = dict(existing_hooks) if isinstance(existing_hooks, dict) else {}
+    for event, groups in list(existing_hooks.items()):
+        if not isinstance(groups, list):
+            raise ValueError(f"existing hook event must be a list and was not changed: {event}")
+        existing_hooks[event] = remove_managed_handlers(groups)
+    managed_hooks = managed.get("hooks")
+    if not isinstance(managed_hooks, dict):
+        raise ValueError("managed hooks must be an object")
+    for event, groups in managed_hooks.items():
+        if not isinstance(groups, list):
+            raise ValueError(f"managed hook event must be a list: {event}")
+        current = existing_hooks.get(event)
+        current = list(current) if isinstance(current, list) else []
+        existing_hooks[event] = current + groups
+    result["hooks"] = existing_hooks
+    return result
+
+
+def main() -> int:
+    args = parse_args()
+    source = args.source.resolve(strict=True)
+    hook_script_source = args.hook_script_source.resolve(strict=True)
+    target = args.target.expanduser().resolve(strict=False)
+    script_hash = hashlib.sha256(hook_script_source.read_bytes()).hexdigest()[:16]
+    hook_script = (target.parent / "hooks" / f"{MANAGED_SCRIPT_MARKER}{script_hash}.py").resolve(strict=False)
+
+    executable = str(Path(sys.executable).resolve(strict=False))
+    unix_command = f"{shlex.quote(executable)} {shlex.quote(str(hook_script))}"
+    windows_command = subprocess.list2cmdline([executable, str(hook_script)])
+    managed = replace_tokens(read_json(source), unix_command, windows_command)
+    existing = read_json(target) if target.is_file() else {}
+    merged = merge(existing, managed)
+    rendered = json.dumps(merged, ensure_ascii=False, indent=2) + "\n"
+    previous = target.read_text(encoding="utf-8-sig") if target.is_file() else None
+
+    target.parent.mkdir(parents=True, exist_ok=True)
+    hook_script.parent.mkdir(parents=True, exist_ok=True)
+    if hook_script.is_file():
+        if hook_script.read_bytes() != hook_script_source.read_bytes():
+            raise ValueError(f"versioned hook script hash collision: {hook_script}")
+        print(f"Unchanged: {hook_script}")
+    else:
+        shutil.copy2(hook_script_source, hook_script)
+        print(f"Installed: {hook_script}")
+
+    if previous == rendered:
+        print(f"Unchanged: {target}")
+        return 0
+
+    if target.is_file():
+        backup = Path(f"{target}.backup-{args.backup_suffix}")
+        shutil.copy2(target, backup)
+        print(f"Backed up: {backup}")
+
+    file_descriptor, temporary_name = tempfile.mkstemp(prefix=f".{target.name}.", suffix=".tmp", dir=target.parent)
+    temporary = Path(temporary_name)
+    try:
+        with os.fdopen(file_descriptor, "w", encoding="utf-8", newline="\n") as output:
+            output.write(rendered)
+        os.replace(temporary, target)
+    finally:
+        if temporary.exists():
+            temporary.unlink()
+    print(f"Updated: {target}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
