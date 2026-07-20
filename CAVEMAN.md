@@ -78,6 +78,19 @@ Actions workflow verifies install, verification, idempotency, instruction and
 encoding preservation, backups, and conflict handling on Windows, macOS, and
 Linux.
 
+## AISUPPORT extension policy
+
+AISUPPORT is the canonical Git source for Codex skills and lifecycle hooks made
+for this user. New skills belong in `.agents/skills/<skill-name>/`. Project hook
+configuration should normally use `.codex/hooks.json`, with supporting scripts
+under `.codex/hooks/`. User-level copies are installation targets, not the only
+source of truth.
+
+When a new skill or hook needs user-wide activation, extend the checked-in
+bootstrap and integrity metadata so another computer can reproduce the same
+installation from this repository. Validate the change, then commit and push it
+to `origin` unless the requested task is explicitly local-only.
+
 ## Usage
 
 Caveman `full` starts automatically in every new Codex task. No invocation is
