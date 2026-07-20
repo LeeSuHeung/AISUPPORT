@@ -1,0 +1,4 @@
+interface:
+  display_name: "구파발게임"
+  short_description: "기획·아트·클라이언트·서버가 함께 검토하는 게임 개발팀"
+  default_prompt: "Use $gupabal-game to coordinate 구파발기획자, 구파발아트디자이너, 구파발클라이언트, and 구파발서버 for this game feature."

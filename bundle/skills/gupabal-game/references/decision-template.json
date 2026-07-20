@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "enabled": true,
+  "feature": "실제 기능 이름",
+  "planning_allow": [],
+  "agreement": {
+    "status": "planning",
+    "approvals": {
+      "planner": "PENDING",
+      "art": "PENDING",
+      "client": "PENDING",
+      "server": "PENDING"
+    },
+    "unresolved": []
+  },
+  "ownership": {
+    "art": [],
+    "client": [],
+    "server": [],
+    "shared": []
+  },
+  "checks": {
+    "exclude": [
+      "**/.git/**",
+      "**/node_modules/**",
+      "**/vendor/**",
+      "**/Library/**",
+      "**/Temp/**",
+      "**/build/**",
+      "**/dist/**"
+    ],
+    "art": {
+      "roots": [],
+      "max_file_bytes": null,
+      "naming_glob": null,
+      "assets": []
+    },
+    "client": {
+      "roots": [],
+      "max_file_bytes": null
+    },
+    "server": {
+      "roots": [],
+      "max_file_bytes": null
+    }
+  }
+}

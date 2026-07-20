@@ -1,0 +1,47 @@
+{
+  "description": "구파발게임 역할 결과, 합의 상태, 변경 파일을 가볍게 확인하는 Hook입니다.",
+  "hooks": {
+    "SubagentStop": [
+      {
+        "matcher": "^(gupabal_(planner|art_designer|client|server)|구파발(기획자|아트디자이너|클라이언트|서버))$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "__GUPABAL_COMMAND__ SubagentStop",
+            "commandWindows": "__GUPABAL_WINDOWS_COMMAND__ SubagentStop",
+            "timeout": 5,
+            "statusMessage": "구파발 역할 결과 확인 중"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "^apply_patch$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "__GUPABAL_COMMAND__ PreToolUse",
+            "commandWindows": "__GUPABAL_WINDOWS_COMMAND__ PreToolUse",
+            "timeout": 5,
+            "statusMessage": "구파발 합의 확인 중"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "^apply_patch$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "__GUPABAL_COMMAND__ PostToolUse",
+            "commandWindows": "__GUPABAL_WINDOWS_COMMAND__ PostToolUse",
+            "timeout": 5,
+            "statusMessage": "구파발 변경 파일 확인 중"
+          }
+        ]
+      }
+    ]
+  }
+}
