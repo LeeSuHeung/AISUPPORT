@@ -649,6 +649,18 @@ def _container_error(path: Path, description: str) -> Optional[str]:
         return f"Could not inspect {description}: {path}: {error}"
     if stat.S_ISLNK(path_stat.st_mode):
         return f"{description} must not be a symbolic link: {path}"
+    is_junction = getattr(path, "is_junction", None)
+    if callable(is_junction):
+        try:
+            if is_junction():
+                return f"{description} must not be a junction: {path}"
+        except OSError as error:
+            return f"Could not inspect {description}: {path}: {error}"
+    else:
+        reparse_flag = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)
+        attributes = getattr(path_stat, "st_file_attributes", 0)
+        if reparse_flag and attributes & reparse_flag:
+            return f"{description} must not be a reparse point: {path}"
     if not stat.S_ISDIR(path_stat.st_mode):
         return f"{description} must be a directory: {path}"
     return None

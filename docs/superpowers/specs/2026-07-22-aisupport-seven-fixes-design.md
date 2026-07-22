@@ -98,6 +98,18 @@ Skill의 완료 단계도 존재하지 않는 `<CODEX_HOME>/hooks/gupabal_hooks.
 
 시스템 `quick_validate.py`는 먼저 실행한다. 현재 검증 환경처럼 import 단계에서 PyYAML이 없으면 Skill 실패가 아니라 validator environment `NOT RUN`으로 기록하고 사용자 전역 Python에 의존성을 자동 설치하지 않는다. 대신 같은 frontmatter 규칙의 표준 라이브러리 동등 검사, Node 설치기 검사, Hook·Skill 회귀 테스트를 통과시킨다. 이 대체 증거는 소스 acceptance에는 허용하지만 공식 validator 통과로 표현하지 않는다.
 
+## Revision 6 독립 리뷰 보강
+
+최종 독립 리뷰에서 재현된 세 결함을 기존 계약 범위 안에서 보강한다.
+
+1. 비활성 schema v2도 단순히 `enabled: false`만 확인하지 않는다. 정상 완료는 `completed`, 빈 `unresolved`, null 계약 digest, 현재 revision의 `PENDING`·null digest 승인 네 개를 모두 요구한다. 의도적 취소는 `planning`, 짧은 취소 사유 정확히 한 건, 같은 초기화 규칙을 요구한다. 허용 필드와 나머지 계약 구조도 활성 v2와 같은 수준으로 검사한다. 잘못된 비활성 v2는 구현을 fail-closed로 막고 decision-only 복구만 허용한다.
+2. 8 MiB를 넘는 `PreToolUse` event는 Git root와 활성 정책을 확정할 수 없으므로 전역 deny하지 않는다. 지원되는 `systemMessage`와 `hookSpecificOutput.additionalContext`로 짧게 경고하고 fail-open한다. 정상 event를 파싱한 뒤 활성 정책에서 4 MiB를 넘는 patch를 거부하는 기존 제한은 유지한다.
+3. Python 3.10·3.11 Windows에서 junction은 `stat.S_ISLNK`가 아닌 reparse-point directory로 보인다. 설치기의 모든 기존 container 경로는 `Path.is_junction()`이 있으면 사용하고, 그렇지 않으면 `st_file_attributes & FILE_ATTRIBUTE_REPARSE_POINT`로 junction과 다른 reparse point를 거부한다. 검사 실패도 안전하게 설치를 중단한다.
+
+Codex 공식 Hook 계약상 `PreToolUse`의 `hookSpecificOutput.additionalContext`는 지원되므로 해당 출력 구조는 유지한다.
+
+각 결함은 기존 동작에서 실패하는 회귀 테스트를 먼저 확인한 뒤 최소 수정한다. Windows junction은 실제 directory junction으로 재현하고, 지원되지 않는 환경에서만 명시적으로 skip한다.
+
 ## 파일 소유권
 
 - 구파발클라이언트: `scripts/install-aisupport.mjs`, `scripts/install-caveman.mjs`, `scripts/test-caveman-installer.mjs`, `scripts/merge_gupabal_hooks.py`, `tests/test_gupabal_windows.py`, `README.md`

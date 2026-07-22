@@ -260,6 +260,12 @@ class HookTestCase(unittest.TestCase):
         decision = self.write_policy(status="planning")
         policy = json.loads(decision.read_text(encoding="utf-8"))
         policy["enabled"] = False
+        policy["agreement"]["contract_digest"] = None
+        policy["agreement"]["unresolved"] = ["테스트에서 의도적으로 취소함"]
+        policy["agreement"]["approvals"] = {
+            role: {"status": "PENDING", "revision": 1, "contract_digest": None}
+            for role in ("planner", "art", "client", "server")
+        }
         decision.write_text(json.dumps(policy), encoding="utf-8")
         event = self.patch_event(self.root, "PreToolUse", "*** Begin Patch\n*** Add File: Client/a.cs\n+x\n*** End Patch")
         _, disabled_payload = self.run_hook(event)
@@ -277,6 +283,73 @@ class HookTestCase(unittest.TestCase):
         )
         _, repair_payload = self.run_hook(repair)
         self.assertIsNone(repair_payload)
+
+    def test_inactive_schema_v2_requires_a_valid_closure(self) -> None:
+        implementation = self.patch_event(
+            self.root,
+            "PreToolUse",
+            "*** Begin Patch\n*** Add File: Client/a.cs\n+x\n*** End Patch",
+        )
+        repair = self.patch_event(
+            self.root,
+            "PreToolUse",
+            "*** Begin Patch\n*** Update File: .codex/gupabal/decision.json\n@@\n-x\n+y\n*** End Patch",
+        )
+
+        def closed_policy(status: str, unresolved: list[str]) -> tuple[Path, dict]:
+            decision = self.write_policy(status="planning")
+            policy = json.loads(decision.read_text(encoding="utf-8"))
+            revision = policy["agreement"]["revision"]
+            policy["enabled"] = False
+            policy["agreement"]["status"] = status
+            policy["agreement"]["contract_digest"] = None
+            policy["agreement"]["unresolved"] = unresolved
+            policy["agreement"]["approvals"] = {
+                role: {
+                    "status": "PENDING",
+                    "revision": revision,
+                    "contract_digest": None,
+                }
+                for role in ("planner", "art", "client", "server")
+            }
+            return decision, policy
+
+        invalid_cases: dict[str, dict] = {
+            "truncated": {"schema_version": 2, "enabled": False},
+        }
+        decision, policy = closed_policy("completed", ["아직 끝나지 않음"])
+        invalid_cases["completed with unresolved"] = policy
+        _, policy = closed_policy("planning", [])
+        invalid_cases["cancelled without reason"] = policy
+        _, policy = closed_policy("planning", ["이유 1", "이유 2"])
+        invalid_cases["cancelled with multiple reasons"] = policy
+        _, policy = closed_policy("completed", [])
+        policy["agreement"]["approvals"]["planner"]["status"] = "AGREE"
+        invalid_cases["stale approval"] = policy
+
+        for name, invalid_policy in invalid_cases.items():
+            with self.subTest(name=name):
+                decision.write_text(
+                    json.dumps(invalid_policy, ensure_ascii=False), encoding="utf-8"
+                )
+                _, payload = self.run_hook(implementation)
+                self.assertEqual(
+                    payload["hookSpecificOutput"]["permissionDecision"], "deny"
+                )
+                _, repair_payload = self.run_hook(repair)
+                self.assertIsNone(repair_payload)
+
+        for status, unresolved in (
+            ("completed", []),
+            ("planning", ["사용자가 구현을 취소함"]),
+        ):
+            with self.subTest(valid=status):
+                decision, policy = closed_policy(status, unresolved)
+                decision.write_text(
+                    json.dumps(policy, ensure_ascii=False), encoding="utf-8"
+                )
+                _, payload = self.run_hook(implementation)
+                self.assertIsNone(payload)
 
     def test_nested_decision_does_not_shadow_git_root_policy(self) -> None:
         self.write_policy(status="planning")
@@ -1161,9 +1234,21 @@ class HookTestCase(unittest.TestCase):
                     payload["hookSpecificOutput"]["permissionDecision"], "deny"
                 )
 
-        decision.write_text(
-            json.dumps({"schema_version": 2, "enabled": False}), encoding="utf-8"
-        )
+        decision = self.write_policy()
+        policy = json.loads(decision.read_text(encoding="utf-8"))
+        revision = policy["agreement"]["revision"]
+        policy["enabled"] = False
+        policy["agreement"]["status"] = "completed"
+        policy["agreement"]["contract_digest"] = None
+        policy["agreement"]["approvals"] = {
+            role: {
+                "status": "PENDING",
+                "revision": revision,
+                "contract_digest": None,
+            }
+            for role in ("planner", "art", "client", "server")
+        }
+        decision.write_text(json.dumps(policy), encoding="utf-8")
         _, disabled_payload = self.run_hook(implementation)
         self.assertIsNone(disabled_payload)
 
@@ -1842,7 +1927,7 @@ END_GUPABAL_RESULT
                 self.assertNotIn("permissionDecision", output)
                 self.assertIn("차단하지", output["additionalContext"])
 
-    def test_oversized_pre_tool_event_is_blocked_before_json_parsing(self) -> None:
+    def test_oversized_pre_tool_event_warns_and_fails_open_before_json_parsing(self) -> None:
         completed = subprocess.run(
             [sys.executable, "-X", "utf8", str(HOOK), "PreToolUse"],
             input="x" * 8_388_609,
@@ -1852,7 +1937,12 @@ END_GUPABAL_RESULT
             check=False,
         )
         payload = json.loads(completed.stdout)
-        self.assertEqual(payload["hookSpecificOutput"]["permissionDecision"], "deny")
+        self.assertIn("systemMessage", payload)
+        output = payload["hookSpecificOutput"]
+        self.assertEqual(output["hookEventName"], "PreToolUse")
+        self.assertNotIn("permissionDecision", output)
+        self.assertIn("8MB", output["additionalContext"])
+        self.assertIn("차단하지", output["additionalContext"])
 
     def test_merger_preserves_user_hook_and_is_idempotent(self) -> None:
         target = self.root / "hooks.json"

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.util
 import json
 import os
 import subprocess
@@ -7,12 +8,23 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 
 REPOSITORY = Path(__file__).resolve().parents[1]
 MERGER = REPOSITORY / "scripts" / "merge_gupabal_hooks.py"
+INSTALLER = REPOSITORY / "scripts" / "install_gupabal.py"
 HOOK = REPOSITORY / ".codex" / "hooks" / "gupabal_hooks.py"
 HOOK_TEMPLATE = REPOSITORY / ".codex" / "hooks" / "gupabal-hooks.template.json"
+
+INSTALLER_SPEC = importlib.util.spec_from_file_location(
+    "gupabal_windows_installer_under_test", INSTALLER
+)
+if INSTALLER_SPEC is None or INSTALLER_SPEC.loader is None:
+    raise RuntimeError(f"Could not load installer module: {INSTALLER}")
+INSTALLER_MODULE = importlib.util.module_from_spec(INSTALLER_SPEC)
+sys.modules[INSTALLER_SPEC.name] = INSTALLER_MODULE
+INSTALLER_SPEC.loader.exec_module(INSTALLER_MODULE)
 
 
 @unittest.skipUnless(os.name == "nt", "Windows cmd.exe contract test")
@@ -137,6 +149,74 @@ class GupabalWindowsCommandTests(unittest.TestCase):
         )
 
         self.assertEqual(completed.returncode, 37, completed.stderr)
+
+    def test_installer_rejects_junction_skill_target_before_writes(self) -> None:
+        real_target = self.root / "real skill target"
+        real_target.mkdir()
+        junction_target = self.root / "junction skill target"
+        command_processor = os.environ.get("COMSPEC", "cmd.exe")
+        created = subprocess.run(
+            [
+                command_processor,
+                "/D",
+                "/C",
+                "mklink",
+                "/J",
+                str(junction_target),
+                str(real_target),
+            ],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+        )
+        if created.returncode != 0:
+            self.skipTest(
+                "directory junctions are unavailable: "
+                + (created.stderr or created.stdout).strip()
+            )
+
+        if hasattr(Path, "is_junction"):
+            with mock.patch.object(Path, "is_junction", None):
+                fallback_error = INSTALLER_MODULE._container_error(
+                    junction_target, "Skill target root"
+                )
+        else:
+            fallback_error = INSTALLER_MODULE._container_error(
+                junction_target, "Skill target root"
+            )
+        self.assertIsNotNone(fallback_error)
+        self.assertRegex(fallback_error or "", r"(?i)reparse")
+
+        codex_home = self.root / "codex home"
+        environment = os.environ.copy()
+        environment["PYTHONUTF8"] = "1"
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-X",
+                "utf8",
+                str(INSTALLER),
+                "--target",
+                str(junction_target),
+                "--agents-file",
+                str(codex_home / "AGENTS.md"),
+            ],
+            cwd=REPOSITORY,
+            stdin=subprocess.DEVNULL,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            env=environment,
+            check=False,
+        )
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertRegex(result.stderr, r"(?i)junction|reparse")
+        self.assertEqual(list(real_target.iterdir()), [])
+        self.assertFalse(codex_home.exists())
 
 
 if __name__ == "__main__":

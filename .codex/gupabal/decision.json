@@ -1,14 +1,14 @@
 {
   "schema_version": 2,
-  "enabled": false,
+  "enabled": true,
   "feature": "AISUPPORT 감사 개선사항 1번부터 7번 순차 수정",
   "planning_allow": [
     "docs/superpowers/specs/2026-07-22-aisupport-seven-fixes-design.md",
     "docs/superpowers/plans/2026-07-22-aisupport-seven-fixes.md"
   ],
   "agreement": {
-    "status": "completed",
-    "revision": 5,
+    "status": "approved",
+    "revision": 6,
     "summary": "AISUPPORT의 7개 감사 결함을 순서대로 수정하고 Windows·경로·Hook·합의·완료 검증과 사용자 안내를 이식 가능하게 만든다.",
     "invariants": [
       "실제 AISUPPORT 파일만 수정하고 가상의 게임 기능이나 아트 에셋을 만들지 않는다.",
@@ -23,30 +23,30 @@
         "path": "docs/superpowers/specs/2026-07-22-aisupport-seven-fixes-design.md",
         "owner": "server",
         "schema_version": 1,
-        "sha256": "6246bca085481bfd39705074f55f835d1b3dac02327687319764d2f3caf6de5e"
+        "sha256": "c9a4c8de75553a267abb4e5b9ef2fe78845aa6b6fb67e3a2a270c53b7e23c466"
       }
     ],
-    "contract_digest": null,
+    "contract_digest": "d78a4b622b82c2efde38c81de30d1aab44e1e5ab046186f11d1cd26e7eb3300a",
     "approvals": {
       "planner": {
-        "status": "PENDING",
-        "revision": 5,
-        "contract_digest": null
+        "status": "AGREE",
+        "revision": 6,
+        "contract_digest": "d78a4b622b82c2efde38c81de30d1aab44e1e5ab046186f11d1cd26e7eb3300a"
       },
       "art": {
-        "status": "PENDING",
-        "revision": 5,
-        "contract_digest": null
+        "status": "AGREE",
+        "revision": 6,
+        "contract_digest": "d78a4b622b82c2efde38c81de30d1aab44e1e5ab046186f11d1cd26e7eb3300a"
       },
       "client": {
-        "status": "PENDING",
-        "revision": 5,
-        "contract_digest": null
+        "status": "AGREE",
+        "revision": 6,
+        "contract_digest": "d78a4b622b82c2efde38c81de30d1aab44e1e5ab046186f11d1cd26e7eb3300a"
       },
       "server": {
-        "status": "PENDING",
-        "revision": 5,
-        "contract_digest": null
+        "status": "AGREE",
+        "revision": 6,
+        "contract_digest": "d78a4b622b82c2efde38c81de30d1aab44e1e5ab046186f11d1cd26e7eb3300a"
       }
     },
     "unresolved": []
