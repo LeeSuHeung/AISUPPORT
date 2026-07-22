@@ -1,0 +1,119 @@
+{
+  "schema_version": 2,
+  "enabled": true,
+  "feature": "AISUPPORT 감사 개선사항 1번부터 7번 순차 수정",
+  "planning_allow": [
+    "docs/superpowers/specs/2026-07-22-aisupport-seven-fixes-design.md",
+    "docs/superpowers/plans/2026-07-22-aisupport-seven-fixes.md"
+  ],
+  "agreement": {
+    "status": "approved",
+    "revision": 5,
+    "summary": "AISUPPORT의 7개 감사 결함을 순서대로 수정하고 Windows·경로·Hook·합의·완료 검증과 사용자 안내를 이식 가능하게 만든다.",
+    "invariants": [
+      "실제 AISUPPORT 파일만 수정하고 가상의 게임 기능이나 아트 에셋을 만들지 않는다.",
+      "Git 루트의 단일 decision.json과 파일당 정확히 한 소유 역할을 사용한다.",
+      "계약 변경은 revision과 contract_digest를 갱신하고 네 역할이 같은 값에 재승인한다.",
+      "완료 전 Node·Python·Git Bash·설치 검증·Skill 검증을 모두 통과한다.",
+      "사용자 안내 문서는 실제 schema v2 Hook 정책과 완료 절차를 정확히 설명한다.",
+      "소스 acceptance와 전역 runtime 배포를 구분하고 설치된 verifier가 통과하기 전에는 decision을 완료로 닫지 않는다."
+    ],
+    "spec_refs": [
+      {
+        "path": "docs/superpowers/specs/2026-07-22-aisupport-seven-fixes-design.md",
+        "owner": "server",
+        "schema_version": 1,
+        "sha256": "6246bca085481bfd39705074f55f835d1b3dac02327687319764d2f3caf6de5e"
+      }
+    ],
+    "contract_digest": "1e7d253e8854b624b3cd52efa8b5b1eb361322389ae5f42a4837e67c570ab94f",
+    "approvals": {
+      "planner": {
+        "status": "AGREE",
+        "revision": 5,
+        "contract_digest": "1e7d253e8854b624b3cd52efa8b5b1eb361322389ae5f42a4837e67c570ab94f"
+      },
+      "art": {
+        "status": "AGREE",
+        "revision": 5,
+        "contract_digest": "1e7d253e8854b624b3cd52efa8b5b1eb361322389ae5f42a4837e67c570ab94f"
+      },
+      "client": {
+        "status": "AGREE",
+        "revision": 5,
+        "contract_digest": "1e7d253e8854b624b3cd52efa8b5b1eb361322389ae5f42a4837e67c570ab94f"
+      },
+      "server": {
+        "status": "AGREE",
+        "revision": 5,
+        "contract_digest": "1e7d253e8854b624b3cd52efa8b5b1eb361322389ae5f42a4837e67c570ab94f"
+      }
+    },
+    "unresolved": []
+  },
+  "ownership": {
+    "art": [],
+    "client": [
+      "scripts/install-aisupport.mjs",
+      "scripts/install-caveman.mjs",
+      "scripts/test-caveman-installer.mjs",
+      "scripts/merge_gupabal_hooks.py",
+      "tests/test_gupabal_windows.py",
+      "README.md"
+    ],
+    "server": [
+      ".codex/hooks/gupabal_hooks.py",
+      "tests/test_gupabal_hooks.py",
+      ".agents/skills/gupabal-game/SKILL.md",
+      ".agents/skills/gupabal-game/references/decision-template.json",
+      ".agents/skills/gupabal-game/references/decision-policy.md",
+      "gupabal-manifest.json",
+      "GUPABAL_GAME.md",
+      "docs/superpowers/specs/2026-07-22-aisupport-seven-fixes-design.md",
+      "docs/superpowers/plans/2026-07-22-aisupport-seven-fixes.md"
+    ],
+    "shared": []
+  },
+  "checks": {
+    "exclude": [
+      "**/.git/**",
+      "**/node_modules/**",
+      "**/vendor/**",
+      "**/Library/**",
+      "**/Temp/**",
+      "**/build/**",
+      "**/dist/**"
+    ],
+    "art": {
+      "roots": [],
+      "max_file_bytes": null,
+      "naming_glob": null,
+      "assets": []
+    },
+    "client": {
+      "roots": [
+        "scripts/install-aisupport.mjs",
+        "scripts/install-caveman.mjs",
+        "scripts/test-caveman-installer.mjs",
+        "scripts/merge_gupabal_hooks.py",
+        "tests/test_gupabal_windows.py",
+        "README.md"
+      ],
+      "max_file_bytes": null
+    },
+    "server": {
+      "roots": [
+        ".codex/hooks/gupabal_hooks.py",
+        "tests/test_gupabal_hooks.py",
+        ".agents/skills/gupabal-game/SKILL.md",
+        ".agents/skills/gupabal-game/references/decision-template.json",
+        ".agents/skills/gupabal-game/references/decision-policy.md",
+        "gupabal-manifest.json",
+        "GUPABAL_GAME.md",
+        "docs/superpowers/specs/2026-07-22-aisupport-seven-fixes-design.md",
+        "docs/superpowers/plans/2026-07-22-aisupport-seven-fixes.md"
+      ],
+      "max_file_bytes": null
+    }
+  }
+}

@@ -76,10 +76,26 @@ const repositoryAgentsPath = path.join(repositoryRoot, "AGENTS.md");
 const alwaysOnStartMarker = "<!-- BEGIN CAVEMAN PORTABLE ALWAYS-ON -->";
 const alwaysOnEndMarker = "<!-- END CAVEMAN PORTABLE ALWAYS-ON -->";
 
+function resolveUserPath(value, label) {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    throw new Error(`${label} requires a path`);
+  }
+  let expanded = trimmed;
+  if (trimmed === "~") {
+    expanded = os.homedir();
+  } else if (trimmed.startsWith("~/") || trimmed.startsWith("~\\")) {
+    expanded = path.join(os.homedir(), trimmed.slice(2));
+  } else if (trimmed.startsWith("~")) {
+    throw new Error(`${label} supports only ~, ~/, or ~\\ user-home paths`);
+  }
+  return path.resolve(expanded);
+}
+
 function defaultCodexHome() {
   const configuredHome = process.env.CODEX_HOME?.trim();
   return configuredHome
-    ? path.resolve(configuredHome)
+    ? resolveUserPath(configuredHome, "CODEX_HOME")
     : path.join(os.homedir(), ".codex");
 }
 
@@ -117,7 +133,7 @@ function parseArguments(argumentsList) {
         if (!target || target.startsWith("-")) {
           throw new Error("--target requires a path");
         }
-        options.target = path.resolve(target);
+        options.target = resolveUserPath(target, "--target");
         index += 1;
         break;
       }
@@ -126,7 +142,7 @@ function parseArguments(argumentsList) {
         if (!agentsFile || agentsFile.startsWith("-")) {
           throw new Error("--agents-file requires a path");
         }
-        options.agentsFile = path.resolve(agentsFile);
+        options.agentsFile = resolveUserPath(agentsFile, "--agents-file");
         index += 1;
         break;
       }

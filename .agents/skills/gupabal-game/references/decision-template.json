@@ -1,15 +1,36 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "enabled": true,
   "feature": "사용자가 요청한 실제 기능 이름",
   "planning_allow": [],
   "agreement": {
     "status": "planning",
+    "revision": 1,
+    "summary": "사용자가 요청한 실제 기능의 합의 요약",
+    "invariants": [],
+    "spec_refs": [],
+    "contract_digest": null,
     "approvals": {
-      "planner": "PENDING",
-      "art": "PENDING",
-      "client": "PENDING",
-      "server": "PENDING"
+      "planner": {
+        "status": "PENDING",
+        "revision": 1,
+        "contract_digest": null
+      },
+      "art": {
+        "status": "PENDING",
+        "revision": 1,
+        "contract_digest": null
+      },
+      "client": {
+        "status": "PENDING",
+        "revision": 1,
+        "contract_digest": null
+      },
+      "server": {
+        "status": "PENDING",
+        "revision": 1,
+        "contract_digest": null
+      }
     },
     "unresolved": []
   },

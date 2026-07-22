@@ -19,6 +19,7 @@ import { fileURLToPath } from "node:url";
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = path.resolve(scriptDirectory, "..");
 const installerPath = path.join(scriptDirectory, "install-aisupport.mjs");
+const cavemanInstallerPath = path.join(scriptDirectory, "install-caveman.mjs");
 const skillsLock = JSON.parse(
   await readFile(path.join(repositoryRoot, "skills-lock.json"), "utf8"),
 );
@@ -54,9 +55,10 @@ async function pathExists(targetPath) {
   }
 }
 
-function runInstaller(argumentsList, shouldPass = true) {
+function runInstaller(argumentsList, shouldPass = true, environment = process.env) {
   const result = spawnSync(process.execPath, [installerPath, ...argumentsList], {
     encoding: "utf8",
+    env: environment,
   });
   const passed = result.status === 0;
   if (passed !== shouldPass) {
@@ -311,6 +313,130 @@ async function testOptionCannotBeConsumedAsAPath(root) {
   );
 }
 
+async function testIntegratedPythonUsesUtf8(root) {
+  const unicodeRoot = path.join(root, "한글 경로 🚀");
+  const skillTarget = path.join(unicodeRoot, "사용자 스킬");
+  const agentsFile = path.join(unicodeRoot, "코덱스 홈", "AGENTS.md");
+  const environment = { ...process.env, PYTHONUTF8: "0" };
+  await mkdir(unicodeRoot, { recursive: true });
+
+  const commonArguments = [
+    "--target",
+    skillTarget,
+    "--agents-file",
+    agentsFile,
+  ];
+  runInstaller([...commonArguments, "--dry-run"], true, environment);
+  runInstaller(commonArguments, true, environment);
+  runInstaller([...commonArguments, "--verify"], true, environment);
+}
+
+async function testIntegratedPathsUseOneTildeExpansion(root) {
+  const uniqueName = path.basename(root);
+  const configuredHome = `~/.aisupport-tests/${uniqueName}/코덱스 홈`;
+  const configuredTarget = `~/.aisupport-tests/${uniqueName}/사용자 스킬`;
+  const expectedHome = path.join(
+    os.homedir(),
+    ".aisupport-tests",
+    uniqueName,
+    "코덱스 홈",
+  );
+  const expectedTarget = path.join(
+    os.homedir(),
+    ".aisupport-tests",
+    uniqueName,
+    "사용자 스킬",
+  );
+  const wrongHome = path.resolve(configuredHome);
+  const wrongTarget = path.resolve(configuredTarget);
+  const environment = { ...process.env, CODEX_HOME: configuredHome };
+  await mkdir(root, { recursive: true });
+
+  const result = runInstaller(
+    ["--target", configuredTarget, "--dry-run"],
+    true,
+    environment,
+  );
+  assert(result.stdout.includes(expectedHome), "Expanded CODEX_HOME was not used");
+  assert(result.stdout.includes(expectedTarget), "Expanded skill target was not used");
+  assert(!result.stdout.includes(wrongHome), "CODEX_HOME kept a literal tilde");
+  assert(!result.stdout.includes(wrongTarget), "Skill target kept a literal tilde");
+
+  const explicitAgentsFile = `~/.aisupport-tests/${uniqueName}/명시 경로/AGENTS.md`;
+  const explicitExpected = path.join(
+    os.homedir(),
+    ".aisupport-tests",
+    uniqueName,
+    "명시 경로",
+    "AGENTS.md",
+  );
+  const explicitResult = runInstaller(
+    [
+      "--target",
+      configuredTarget,
+      "--agents-file",
+      explicitAgentsFile,
+      "--dry-run",
+    ],
+    true,
+    environment,
+  );
+  assert(
+    explicitResult.stdout.includes(explicitExpected),
+    "Explicit --agents-file did not override CODEX_HOME",
+  );
+
+  const directResult = spawnSync(
+    process.execPath,
+    [
+      cavemanInstallerPath,
+      "--target",
+      configuredTarget,
+      "--agents-file",
+      explicitAgentsFile,
+      "--dry-run",
+    ],
+    { encoding: "utf8", env: environment },
+  );
+  assert(directResult.status === 0, "Direct Node installer rejected tilde paths");
+  assert(
+    directResult.stdout.includes(expectedTarget)
+      && directResult.stdout.includes(explicitExpected),
+    "Direct Node installer did not expand tilde paths",
+  );
+  assert(
+    !directResult.stdout.includes(wrongTarget),
+    "Direct Node installer kept a literal tilde",
+  );
+
+  runInstaller(
+    [
+      "--target",
+      "~another-user/skills",
+      "--agents-file",
+      explicitAgentsFile,
+      "--dry-run",
+    ],
+    false,
+    environment,
+  );
+}
+
+async function testGupabalFallbackUsesCodexHome() {
+  const skill = await readFile(
+    path.join(repositoryRoot, ".agents", "skills", "gupabal-game", "SKILL.md"),
+    "utf8",
+  );
+  assert(
+    skill.includes("$CODEX_HOME/agents/gupabal_*.toml"),
+    "Gupabal fallback does not use CODEX_HOME",
+  );
+  assert(
+    !skill.includes("$HOME/.codex/agents/gupabal_*.toml"),
+    "Gupabal fallback still hardcodes HOME/.codex",
+  );
+}
+
 const temporaryRoot = await mkdtemp(path.join(os.tmpdir(), "aisupport-installer-test-"));
 try {
   await testPreservationAndConflicts(path.join(temporaryRoot, "main"));
@@ -323,6 +449,13 @@ try {
   await testOptionCannotBeConsumedAsAPath(
     path.join(temporaryRoot, "invalid-arguments"),
   );
+  await testIntegratedPythonUsesUtf8(
+    path.join(temporaryRoot, "integrated-python-utf8"),
+  );
+  await testIntegratedPathsUseOneTildeExpansion(
+    path.join(temporaryRoot, "integrated-path-normalization"),
+  );
+  await testGupabalFallbackUsesCodexHome();
   console.log("AISUPPORT installer tests passed");
 } finally {
   await rm(temporaryRoot, { recursive: true, force: true });

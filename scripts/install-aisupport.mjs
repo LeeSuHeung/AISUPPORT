@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "node:child_process";
+import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
@@ -8,6 +9,22 @@ import { fileURLToPath } from "node:url";
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const cavemanInstaller = path.join(scriptDirectory, "install-caveman.mjs");
 const gupabalInstaller = path.join(scriptDirectory, "install_gupabal.py");
+
+function resolveUserPath(value, label) {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    throw new Error(`${label} requires a path`);
+  }
+  let expanded = trimmed;
+  if (trimmed === "~") {
+    expanded = os.homedir();
+  } else if (trimmed.startsWith("~/") || trimmed.startsWith("~\\")) {
+    expanded = path.join(os.homedir(), trimmed.slice(2));
+  } else if (trimmed.startsWith("~")) {
+    throw new Error(`${label} supports only ~, ~/, or ~\\ user-home paths`);
+  }
+  return path.resolve(expanded);
+}
 
 function assertSupportedNode() {
   const major = Number.parseInt(process.versions.node.split(".")[0], 10);
@@ -82,7 +99,13 @@ function runInstallers(python, argumentsList) {
   );
   runChild(
     python.command,
-    [...python.prefixArguments, gupabalInstaller, ...argumentsList],
+    [
+      ...python.prefixArguments,
+      "-X",
+      "utf8",
+      gupabalInstaller,
+      ...argumentsList,
+    ],
     "Gupabal installer",
   );
 }
@@ -92,6 +115,9 @@ function inspectArguments(argumentsList) {
   let verify = false;
   let dryRun = false;
   let force = false;
+  let hasTarget = false;
+  let hasAgentsFile = false;
+  const normalizedArguments = [];
 
   for (let index = 0; index < argumentsList.length; index += 1) {
     const argument = argumentsList[index];
@@ -100,9 +126,13 @@ function inspectArguments(argumentsList) {
       if (!value || value.startsWith("-")) {
         throw new Error(`${argument} requires a path`);
       }
+      normalizedArguments.push(argument, resolveUserPath(value, argument));
+      hasTarget ||= argument === "--target";
+      hasAgentsFile ||= argument === "--agents-file";
       index += 1;
       continue;
     }
+    normalizedArguments.push(argument);
     if (argument === "--verify") {
       verify = true;
       singlePass = true;
@@ -130,23 +160,36 @@ function inspectArguments(argumentsList) {
   if (verify && dryRun) {
     throw new Error("--verify and --dry-run cannot be used together");
   }
-  return { singlePass };
+  if (!hasTarget) {
+    normalizedArguments.push(
+      "--target",
+      path.join(os.homedir(), ".agents", "skills"),
+    );
+  }
+  if (!hasAgentsFile) {
+    const configuredHome = process.env.CODEX_HOME?.trim();
+    const codexHome = configuredHome
+      ? resolveUserPath(configuredHome, "CODEX_HOME")
+      : path.join(os.homedir(), ".codex");
+    normalizedArguments.push("--agents-file", path.join(codexHome, "AGENTS.md"));
+  }
+  return { singlePass, normalizedArguments };
 }
 
 function main() {
   assertSupportedNode();
   const originalArguments = process.argv.slice(2);
-  const { singlePass } = inspectArguments(originalArguments);
+  const { singlePass, normalizedArguments } = inspectArguments(originalArguments);
   const python = findPython();
 
   if (singlePass) {
-    runInstallers(python, originalArguments);
+    runInstallers(python, normalizedArguments);
     return;
   }
 
-  runInstallers(python, [...originalArguments, "--dry-run"]);
-  runInstallers(python, originalArguments);
-  const verificationArguments = originalArguments.filter(
+  runInstallers(python, [...normalizedArguments, "--dry-run"]);
+  runInstallers(python, normalizedArguments);
+  const verificationArguments = normalizedArguments.filter(
     (argument) => argument !== "--force",
   );
   runInstallers(python, [...verificationArguments, "--verify"]);

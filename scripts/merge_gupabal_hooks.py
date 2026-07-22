@@ -4,13 +4,13 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import hashlib
 import json
 import os
 import re
 import shlex
 import shutil
-import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -44,15 +44,25 @@ def read_json(path: Path) -> dict[str, Any]:
     return value
 
 
-def replace_tokens(value: Any, command: str, windows_command: str) -> Any:
+def replace_tokens(
+    value: Any, command: str, windows_commands: dict[str, str]
+) -> Any:
     if isinstance(value, dict):
-        return {key: replace_tokens(item, command, windows_command) for key, item in value.items()}
+        return {
+            key: replace_tokens(item, command, windows_commands)
+            for key, item in value.items()
+        }
     if isinstance(value, list):
-        return [replace_tokens(item, command, windows_command) for item in value]
+        return [replace_tokens(item, command, windows_commands) for item in value]
     if isinstance(value, str):
-        return value.replace("__GUPABAL_COMMAND__", command).replace(
-            "__GUPABAL_WINDOWS_COMMAND__", windows_command
-        )
+        rendered = value.replace("__GUPABAL_COMMAND__", command)
+        for event_hint, windows_command in windows_commands.items():
+            rendered = rendered.replace(
+                f"__GUPABAL_WINDOWS_COMMAND__ {event_hint}", windows_command
+            )
+        if "__GUPABAL_WINDOWS_COMMAND__" in rendered:
+            raise ValueError("Unsupported Windows Hook command template")
+        return rendered
     return value
 
 
@@ -126,6 +136,25 @@ def merge(
     return result
 
 
+def powershell_literal(value: str) -> str:
+    if "\x00" in value or "\r" in value or "\n" in value:
+        raise ValueError("Windows Hook argument contains an invalid control character")
+    return "'" + value.replace("'", "''") + "'"
+
+
+def windows_hook_command(executable: str, hook_script: str, event_hint: str) -> str:
+    powershell = (
+        f"& {powershell_literal(executable)} -X utf8 "
+        f"{powershell_literal(hook_script)} {powershell_literal(event_hint)}\n"
+        "exit $LASTEXITCODE"
+    )
+    encoded = base64.b64encode(powershell.encode("utf-16-le")).decode("ascii")
+    return (
+        "powershell.exe -NoLogo -NoProfile -NonInteractive "
+        f"-EncodedCommand {encoded}"
+    )
+
+
 def main() -> int:
     args = parse_args()
     source = args.source.resolve(strict=True)
@@ -138,10 +167,11 @@ def main() -> int:
     unix_command = (
         f"{shlex.quote(executable)} -X utf8 {shlex.quote(str(hook_script))}"
     )
-    windows_command = subprocess.list2cmdline(
-        [executable, "-X", "utf8", str(hook_script)]
-    )
-    managed = replace_tokens(read_json(source), unix_command, windows_command)
+    windows_commands = {
+        event_hint: windows_hook_command(executable, str(hook_script), event_hint)
+        for event_hint in ("SubagentStop", "PreToolUse", "PostToolUse")
+    }
+    managed = replace_tokens(read_json(source), unix_command, windows_commands)
     existing = read_json(target) if target.is_file() else {}
     merged = merge(existing, managed, hook_script.parent)
     rendered = json.dumps(merged, ensure_ascii=False, indent=2) + "\n"

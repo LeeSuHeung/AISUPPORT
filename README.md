@@ -39,7 +39,7 @@ sh ./install.sh
 
 설치 전 변경 예정 항목만 확인하려면 `--dry-run` 또는 `-DryRun`, 설치 결과를 다시 검사하려면 `--verify` 또는 `-Verify`를 사용합니다. 기존 관리 파일이 수정돼 있으면 기본적으로 중단하며, 내용을 확인한 뒤 `--force` 또는 `-Force`를 사용하면 백업 후 교체합니다.
 
-설치 후 Codex에서 `/hooks`를 열어 새 command Hook을 검토하고 신뢰한 뒤 새 작업을 시작합니다. 새 Skill이나 전역 지침이 보이지 않으면 Codex를 다시 시작합니다.
+설치 후 Codex CLI의 `/hooks`에서 새 command Hook을 검토하고 신뢰한 뒤 새 작업을 시작합니다. 새 Skill이나 전역 지침이 보이지 않으면 Codex를 다시 시작합니다.
 
 ## 사용
 
@@ -59,5 +59,7 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1 -DryRun
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 powershell -ExecutionPolicy Bypass -File .\install.ps1 -Verify
 ```
+
+`git pull`은 이 저장소의 소스 파일만 갱신하며 Codex가 실제 사용하는 설치본(runtime)은 바꾸지 않습니다. 설치 스크립트를 다시 실행한 뒤 `-Verify`(Windows) 또는 `--verify`(macOS/Linux)로 설치 결과를 확인하세요.
 
 소스 Skill은 `.agents/skills`, 역할과 Hook은 `.codex`, 설치기는 `scripts`에서 관리합니다. 제3자 Skill은 기존 manifest와 `skills-lock.json`, 구파발 자체 파일은 `gupabal-manifest.json`으로 무결성을 확인합니다.
