@@ -26,10 +26,11 @@ class HookTestCase(unittest.TestCase):
 
     def run_hook(self, event: dict) -> tuple[subprocess.CompletedProcess[str], dict | None]:
         completed = subprocess.run(
-            [sys.executable, str(HOOK)],
+            [sys.executable, "-X", "utf8", str(HOOK)],
             input=json.dumps(event, ensure_ascii=False),
             capture_output=True,
             text=True,
+            encoding="utf-8",
             check=False,
         )
         payload = json.loads(completed.stdout) if completed.stdout.strip() else None
@@ -447,10 +448,11 @@ END_GUPABAL_RESULT
 
     def test_malformed_input_fails_open(self) -> None:
         completed = subprocess.run(
-            [sys.executable, str(HOOK)],
+            [sys.executable, "-X", "utf8", str(HOOK)],
             input="not-json",
             capture_output=True,
             text=True,
+            encoding="utf-8",
             check=False,
         )
         self.assertEqual(completed.returncode, 0)
@@ -458,10 +460,11 @@ END_GUPABAL_RESULT
 
     def test_oversized_pre_tool_event_is_blocked_before_json_parsing(self) -> None:
         completed = subprocess.run(
-            [sys.executable, str(HOOK), "PreToolUse"],
+            [sys.executable, "-X", "utf8", str(HOOK), "PreToolUse"],
             input="x" * 8_388_609,
             capture_output=True,
             text=True,
+            encoding="utf-8",
             check=False,
         )
         payload = json.loads(completed.stdout)
@@ -508,6 +511,8 @@ END_GUPABAL_RESULT
         self.assertNotIn("__GUPABAL", installed_handler["command"])
         self.assertNotIn("__GUPABAL", installed_handler["commandWindows"])
         self.assertIn("gupabal_hooks_", installed_handler["commandWindows"])
+        self.assertIn("-X utf8", installed_handler["command"])
+        self.assertIn("-X utf8", installed_handler["commandWindows"])
         installed_script = next((target.parent / "hooks").glob("gupabal_hooks_*.py"))
         self.assertEqual(installed_script.read_bytes(), HOOK.read_bytes())
         second = subprocess.run(command, capture_output=True, text=True, check=False)
@@ -582,7 +587,7 @@ END_GUPABAL_RESULT
 
         verified = subprocess.run(command + ["--verify"], capture_output=True, text=True, check=False)
         self.assertNotEqual(verified.returncode, 0)
-        self.assertIn(f"MISMATCH {installed_script}", verified.stdout)
+        self.assertIn(f"MISMATCH {installed_script.resolve()}", verified.stdout)
 
     def test_merger_verify_fails_when_config_differs(self) -> None:
         target = self.root / "hooks.json"
@@ -606,7 +611,7 @@ END_GUPABAL_RESULT
 
         verified = subprocess.run(command + ["--verify"], capture_output=True, text=True, check=False)
         self.assertNotEqual(verified.returncode, 0)
-        self.assertIn(f"MISMATCH {target}", verified.stdout)
+        self.assertIn(f"MISMATCH {target.resolve()}", verified.stdout)
 
     def test_merger_rejects_invalid_existing_event_without_changes(self) -> None:
         target = self.root / "hooks.json"

@@ -66,9 +66,13 @@ def is_managed_handler(handler: Any, hooks_directory: Path) -> bool:
         arguments = shlex.split(command)
     except ValueError:
         return False
-    if len(arguments) != 3:
+    if len(arguments) == 3:
+        script_argument = arguments[1]
+    elif len(arguments) == 5 and arguments[1:3] == ["-X", "utf8"]:
+        script_argument = arguments[3]
+    else:
         return False
-    script_path = Path(arguments[1]).expanduser().resolve(strict=False)
+    script_path = Path(script_argument).expanduser().resolve(strict=False)
     script_name = script_path.name
     managed_name = script_name == LEGACY_SCRIPT_NAME or bool(
         MANAGED_SCRIPT_PATTERN.fullmatch(script_name)
@@ -131,8 +135,12 @@ def main() -> int:
     hook_script = (target.parent / "hooks" / f"{MANAGED_SCRIPT_MARKER}{script_hash}.py").resolve(strict=False)
 
     executable = str(Path(sys.executable).resolve(strict=False))
-    unix_command = f"{shlex.quote(executable)} {shlex.quote(str(hook_script))}"
-    windows_command = subprocess.list2cmdline([executable, str(hook_script)])
+    unix_command = (
+        f"{shlex.quote(executable)} -X utf8 {shlex.quote(str(hook_script))}"
+    )
+    windows_command = subprocess.list2cmdline(
+        [executable, "-X", "utf8", str(hook_script)]
+    )
     managed = replace_tokens(read_json(source), unix_command, windows_command)
     existing = read_json(target) if target.is_file() else {}
     merged = merge(existing, managed, hook_script.parent)
