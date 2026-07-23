@@ -1,0 +1,973 @@
+{
+  "ok": true,
+  "frames_root": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames",
+  "states": [
+    "idle",
+    "running-right",
+    "running-left",
+    "waving",
+    "jumping",
+    "failed",
+    "waiting",
+    "running",
+    "review"
+  ],
+  "errors": [],
+  "warnings": [],
+  "rows": [
+    {
+      "state": "idle",
+      "expected_frames": 6,
+      "actual_frames": 6,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\idle\\00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19349,
+          "bbox": [
+            27,
+            5,
+            164,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 478
+        },
+        {
+          "index": 1,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\idle\\01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19285,
+          "bbox": [
+            28,
+            5,
+            164,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 480
+        },
+        {
+          "index": 2,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\idle\\02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19223,
+          "bbox": [
+            28,
+            5,
+            164,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 424
+        },
+        {
+          "index": 3,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\idle\\03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19237,
+          "bbox": [
+            28,
+            5,
+            164,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 449
+        },
+        {
+          "index": 4,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\idle\\04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19367,
+          "bbox": [
+            28,
+            5,
+            164,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 563
+        },
+        {
+          "index": 5,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\idle\\05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18925,
+          "bbox": [
+            29,
+            5,
+            163,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 414
+        }
+      ]
+    },
+    {
+      "state": "running-right",
+      "expected_frames": 8,
+      "actual_frames": 8,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-right\\00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18587,
+          "bbox": [
+            32,
+            5,
+            159,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 536
+        },
+        {
+          "index": 1,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-right\\01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18197,
+          "bbox": [
+            32,
+            5,
+            160,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 568
+        },
+        {
+          "index": 2,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-right\\02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 17509,
+          "bbox": [
+            36,
+            5,
+            155,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 468
+        },
+        {
+          "index": 3,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-right\\03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18847,
+          "bbox": [
+            30,
+            5,
+            162,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 551
+        },
+        {
+          "index": 4,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-right\\04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 17618,
+          "bbox": [
+            39,
+            5,
+            152,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 482
+        },
+        {
+          "index": 5,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-right\\05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 17553,
+          "bbox": [
+            37,
+            5,
+            154,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 587
+        },
+        {
+          "index": 6,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-right\\06.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 17783,
+          "bbox": [
+            35,
+            5,
+            157,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 468
+        },
+        {
+          "index": 7,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-right\\07.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 17906,
+          "bbox": [
+            34,
+            5,
+            157,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 463
+        }
+      ]
+    },
+    {
+      "state": "running-left",
+      "expected_frames": 8,
+      "actual_frames": 8,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-left\\00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 17386,
+          "bbox": [
+            35,
+            5,
+            157,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 456
+        },
+        {
+          "index": 1,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-left\\01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 16216,
+          "bbox": [
+            38,
+            5,
+            153,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 430
+        },
+        {
+          "index": 2,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-left\\02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 16257,
+          "bbox": [
+            38,
+            5,
+            154,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 463
+        },
+        {
+          "index": 3,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-left\\03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18449,
+          "bbox": [
+            31,
+            5,
+            161,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 519
+        },
+        {
+          "index": 4,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-left\\04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 17003,
+          "bbox": [
+            37,
+            5,
+            155,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 429
+        },
+        {
+          "index": 5,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-left\\05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 15880,
+          "bbox": [
+            39,
+            5,
+            153,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 462
+        },
+        {
+          "index": 6,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-left\\06.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 16292,
+          "bbox": [
+            38,
+            5,
+            154,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 468
+        },
+        {
+          "index": 7,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-left\\07.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18094,
+          "bbox": [
+            32,
+            5,
+            160,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 473
+        }
+      ]
+    },
+    {
+      "state": "waving",
+      "expected_frames": 4,
+      "actual_frames": 4,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\waving\\00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19394,
+          "bbox": [
+            27,
+            5,
+            164,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 449
+        },
+        {
+          "index": 1,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\waving\\01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 20092,
+          "bbox": [
+            21,
+            5,
+            171,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 495
+        },
+        {
+          "index": 2,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\waving\\02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19968,
+          "bbox": [
+            16,
+            5,
+            176,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 524
+        },
+        {
+          "index": 3,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\waving\\03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18631,
+          "bbox": [
+            30,
+            5,
+            162,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 435
+        }
+      ]
+    },
+    {
+      "state": "jumping",
+      "expected_frames": 5,
+      "actual_frames": 5,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\jumping\\00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19978,
+          "bbox": [
+            25,
+            5,
+            167,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 606
+        },
+        {
+          "index": 1,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\jumping\\01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18790,
+          "bbox": [
+            20,
+            5,
+            171,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 564
+        },
+        {
+          "index": 2,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\jumping\\02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 20674,
+          "bbox": [
+            16,
+            5,
+            175,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 769
+        },
+        {
+          "index": 3,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\jumping\\03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 20038,
+          "bbox": [
+            18,
+            5,
+            174,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 668
+        },
+        {
+          "index": 4,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\jumping\\04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 20068,
+          "bbox": [
+            24,
+            5,
+            167,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 564
+        }
+      ]
+    },
+    {
+      "state": "failed",
+      "expected_frames": 8,
+      "actual_frames": 8,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\failed\\00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18921,
+          "bbox": [
+            32,
+            5,
+            160,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 543
+        },
+        {
+          "index": 1,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\failed\\01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19039,
+          "bbox": [
+            32,
+            5,
+            160,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 513
+        },
+        {
+          "index": 2,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\failed\\02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19232,
+          "bbox": [
+            32,
+            5,
+            160,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 441
+        },
+        {
+          "index": 3,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\failed\\03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 20002,
+          "bbox": [
+            30,
+            5,
+            161,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 479
+        },
+        {
+          "index": 4,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\failed\\04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 23669,
+          "bbox": [
+            19,
+            5,
+            173,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 505
+        },
+        {
+          "index": 5,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\failed\\05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 28932,
+          "bbox": [
+            5,
+            6,
+            187,
+            202
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 761
+        },
+        {
+          "index": 6,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\failed\\06.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 20236,
+          "bbox": [
+            28,
+            5,
+            163,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 385
+        },
+        {
+          "index": 7,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\failed\\07.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19395,
+          "bbox": [
+            31,
+            5,
+            160,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 467
+        }
+      ]
+    },
+    {
+      "state": "waiting",
+      "expected_frames": 6,
+      "actual_frames": 6,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\waiting\\00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18978,
+          "bbox": [
+            29,
+            5,
+            163,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 529
+        },
+        {
+          "index": 1,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\waiting\\01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18785,
+          "bbox": [
+            25,
+            5,
+            166,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 585
+        },
+        {
+          "index": 2,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\waiting\\02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18423,
+          "bbox": [
+            28,
+            5,
+            163,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 497
+        },
+        {
+          "index": 3,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\waiting\\03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18681,
+          "bbox": [
+            29,
+            5,
+            163,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 569
+        },
+        {
+          "index": 4,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\waiting\\04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18382,
+          "bbox": [
+            29,
+            5,
+            162,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 592
+        },
+        {
+          "index": 5,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\waiting\\05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18593,
+          "bbox": [
+            30,
+            5,
+            162,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 524
+        }
+      ]
+    },
+    {
+      "state": "running",
+      "expected_frames": 6,
+      "actual_frames": 6,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running\\00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19243,
+          "bbox": [
+            28,
+            5,
+            164,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 528
+        },
+        {
+          "index": 1,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running\\01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18353,
+          "bbox": [
+            34,
+            5,
+            157,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 562
+        },
+        {
+          "index": 2,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running\\02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18218,
+          "bbox": [
+            26,
+            5,
+            165,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 505
+        },
+        {
+          "index": 3,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running\\03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 17749,
+          "bbox": [
+            38,
+            5,
+            154,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 508
+        },
+        {
+          "index": 4,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running\\04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18638,
+          "bbox": [
+            32,
+            5,
+            160,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 533
+        },
+        {
+          "index": 5,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running\\05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18434,
+          "bbox": [
+            31,
+            5,
+            160,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 523
+        }
+      ]
+    },
+    {
+      "state": "review",
+      "expected_frames": 6,
+      "actual_frames": 6,
+      "extraction_method": "components",
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "frames": [
+        {
+          "index": 0,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\review\\00.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 19361,
+          "bbox": [
+            28,
+            5,
+            164,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 676
+        },
+        {
+          "index": 1,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\review\\01.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 17496,
+          "bbox": [
+            31,
+            5,
+            160,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 533
+        },
+        {
+          "index": 2,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\review\\02.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 17447,
+          "bbox": [
+            40,
+            5,
+            152,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 529
+        },
+        {
+          "index": 3,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\review\\03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 17989,
+          "bbox": [
+            33,
+            5,
+            159,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 571
+        },
+        {
+          "index": 4,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\review\\04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 17395,
+          "bbox": [
+            38,
+            5,
+            153,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 531
+        },
+        {
+          "index": 5,
+          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\review\\05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 18030,
+          "bbox": [
+            32,
+            5,
+            160,
+            203
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 549
+        }
+      ]
+    }
+  ]
+}
