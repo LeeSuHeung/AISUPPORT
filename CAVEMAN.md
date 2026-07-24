@@ -55,7 +55,7 @@ node scripts/install-aisupport.mjs
 Requirements: Git and Node.js 18 or newer. The installer copies only the
 vendored, version-locked files into `$HOME/.agents/skills`; it performs no
 network request and does not execute upstream scripts. It also inserts the
-marker-delimited always-on block into `$CODEX_HOME/AGENTS.md` (normally
+marker-delimited managed instruction block into `$CODEX_HOME/AGENTS.md` (normally
 `$HOME/.codex/AGENTS.md`) while preserving unrelated user instructions.
 Existing differing managed content is left untouched unless `--force`
 (`-Force` in PowerShell) is supplied. Replaced skill folders and AGENTS files
