@@ -484,6 +484,23 @@ async function testGupabalFallbackUsesCodexHome() {
   );
 }
 
+async function testIntegratedHookOptIn(root) {
+  const skillTarget = path.join(root, "skills");
+  const agentsFile = path.join(root, "codex-home", "AGENTS.md");
+  runInstaller([
+    "--target",
+    skillTarget,
+    "--agents-file",
+    agentsFile,
+    "--with-hooks",
+  ]);
+  const hooks = await readFile(
+    path.join(root, "codex-home", "hooks.json"),
+    "utf8",
+  );
+  assert(hooks.includes("gupabal_hooks_"), "Integrated installer dropped --with-hooks");
+}
+
 const temporaryRoot = await mkdtemp(path.join(os.tmpdir(), "aisupport-installer-test-"));
 try {
   await testManualOnlySkillTriggers();
@@ -504,6 +521,7 @@ try {
     path.join(temporaryRoot, "integrated-path-normalization"),
   );
   await testGupabalFallbackUsesCodexHome();
+  await testIntegratedHookOptIn(path.join(temporaryRoot, "integrated-hook-opt-in"));
   console.log("AISUPPORT installer tests passed");
 } finally {
   await rm(temporaryRoot, { recursive: true, force: true });

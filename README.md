@@ -43,6 +43,20 @@ sh ./install.sh
 
 ## 사용
 
+### 구파발 Hook 활성화
+
+구파발 command Hook은 기본으로 비활성화됩니다. 일반 설치는 기존 사용자 Hook을 보존하면서 이전에 설치된 구파발 관리 Hook만 제거합니다. Hook을 사용하려면 설치할 때 명시적으로 선택합니다.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install.ps1 -WithHooks
+```
+
+```sh
+sh ./install.sh --with-hooks
+```
+
+활성화한 Hook은 `SubagentStop`, `PreToolUse`, `PostToolUse` 이벤트마다 자동으로 실행됩니다. `/hooks`에서 경로와 내용을 검토하고 신뢰한 경우에만 활성화하세요.
+
 AISUPPORT Skill은 자동으로 시작하지 않습니다. 새 작업에서도 필요한 Skill 이름을 직접 말해야 합니다.
 
 ```text

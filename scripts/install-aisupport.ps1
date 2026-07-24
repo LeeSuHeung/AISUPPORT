@@ -4,7 +4,8 @@ param(
     [string]$AgentsFile,
     [switch]$Verify,
     [switch]$DryRun,
-    [switch]$Force
+    [switch]$Force,
+    [switch]$WithHooks
 )
 
 $ErrorActionPreference = 'Stop'
@@ -36,6 +37,9 @@ if ($DryRun) {
 }
 if ($Force) {
     $installerArguments += '--force'
+}
+if ($WithHooks) {
+    $installerArguments += '--with-hooks'
 }
 
 & $nodeCommand.Source @installerArguments

@@ -45,6 +45,18 @@ sh ./install.sh
 
 ## 적용된 Hook
 
+구파발 command Hook은 기본으로 비활성화됩니다. 일반 설치는 사용자 Hook을 보존하고 기존 구파발 관리 handler만 제거합니다. Hook을 명시적으로 활성화하려면 Windows에서는 `-WithHooks`, macOS/Linux에서는 `--with-hooks`를 설치 명령에 추가합니다.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install.ps1 -WithHooks
+```
+
+```sh
+sh ./install.sh --with-hooks
+```
+
+활성화한 Hook은 아래 이벤트마다 자동 실행됩니다. `/hooks`에서 command와 버전 경로를 검토하고 신뢰한 뒤에만 사용합니다.
+
 - `SubagentStop`: 네 역할의 결과에 작업 범위, 위험, 검증 방법이 빠졌을 때 한 번만 보완을 요청합니다.
 - `PreToolUse`: 활성 합의가 승인됐는지와 수정 파일에 정확히 한 owner(담당 역할)가 있는지 `apply_patch` 전에 확인합니다.
 - `PostToolUse`: 합의된 경로의 이번 수정 파일만 대상으로 JSON 문법, 병합 충돌 표식, 선언된 이미지 규격 같은 빠르고 확실한 문제를 알려줍니다.

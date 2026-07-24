@@ -31,6 +31,7 @@ def parse_args() -> argparse.Namespace:
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--verify", action="store_true")
     mode.add_argument("--dry-run", action="store_true")
+    mode.add_argument("--remove", action="store_true")
     return parser.parse_args()
 
 
@@ -136,6 +137,20 @@ def merge(
     return result
 
 
+def remove(existing: dict[str, Any], hooks_directory: Path) -> dict[str, Any]:
+    result = dict(existing)
+    existing_hooks = result.get("hooks")
+    if not isinstance(existing_hooks, dict):
+        return result
+    cleaned_hooks = dict(existing_hooks)
+    for event, groups in existing_hooks.items():
+        if not isinstance(groups, list):
+            raise ValueError(f"existing hook event must be a list and was not changed: {event}")
+        cleaned_hooks[event] = remove_managed_handlers(groups, hooks_directory)
+    result["hooks"] = cleaned_hooks
+    return result
+
+
 def powershell_literal(value: str) -> str:
     if "\x00" in value or "\r" in value or "\n" in value:
         raise ValueError("Windows Hook argument contains an invalid control character")
@@ -173,11 +188,37 @@ def main() -> int:
     }
     managed = replace_tokens(read_json(source), unix_command, windows_commands)
     existing = read_json(target) if target.is_file() else {}
-    merged = merge(existing, managed, hook_script.parent)
+    merged = (
+        remove(existing, hook_script.parent)
+        if args.remove
+        else merge(existing, managed, hook_script.parent)
+    )
     rendered = json.dumps(merged, ensure_ascii=False, indent=2) + "\n"
     previous = target.read_text(encoding="utf-8-sig") if target.is_file() else None
     script_matches = hook_script.is_file() and hook_script.read_bytes() == hook_script_source.read_bytes()
     config_matches = previous == rendered
+
+    if args.remove:
+        config_changed = target.is_file() and merged != existing
+        if not config_changed:
+            print(f"Unchanged: {target}")
+            return 0
+        backup = Path(f"{target}.backup-{args.backup_suffix}")
+        shutil.copy2(target, backup)
+        print(f"Backed up: {backup}")
+        file_descriptor, temporary_name = tempfile.mkstemp(
+            prefix=f".{target.name}.", suffix=".tmp", dir=target.parent
+        )
+        temporary = Path(temporary_name)
+        try:
+            with os.fdopen(file_descriptor, "w", encoding="utf-8", newline="\n") as output:
+                output.write(rendered)
+            os.replace(temporary, target)
+        finally:
+            if temporary.exists():
+                temporary.unlink()
+        print(f"Updated: {target}")
+        return 0
 
     if args.verify:
         print(f"{'OK' if script_matches else 'MISMATCH'} {hook_script}")

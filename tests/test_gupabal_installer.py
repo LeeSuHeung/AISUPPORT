@@ -216,8 +216,8 @@ class GupabalInstallerTests(unittest.TestCase):
     def test_install_then_verify_uses_manifest_pinned_sources(self) -> None:
         self.assert_manifest_matches_actual_sources()
 
-        install = self.run_installer()
-        verify = self.run_installer("--verify")
+        install = self.run_installer("--with-hooks")
+        verify = self.run_installer("--with-hooks", "--verify")
 
         self.assert_succeeded(install)
         self.assert_succeeded(verify)
@@ -251,7 +251,7 @@ class GupabalInstallerTests(unittest.TestCase):
         self.codex_home.mkdir(parents=True)
         self.agents_file.write_text("# 사용자 지침\n", encoding="utf-8")
         self.write_user_hooks()
-        first = self.run_installer()
+        first = self.run_installer("--with-hooks")
         self.assert_succeeded(first)
 
         first_configuration_bytes = (self.codex_home / "hooks.json").read_bytes()
@@ -266,7 +266,7 @@ class GupabalInstallerTests(unittest.TestCase):
         self.assertEqual(len(first_scripts), 1)
         self.assertTrue(first_backups)
 
-        second = self.run_installer()
+        second = self.run_installer("--with-hooks")
 
         self.assert_succeeded(second)
         second_configuration_bytes = (self.codex_home / "hooks.json").read_bytes()
@@ -286,7 +286,7 @@ class GupabalInstallerTests(unittest.TestCase):
     def test_existing_user_hooks_are_preserved(self) -> None:
         original = self.write_user_hooks()
 
-        result = self.run_installer()
+        result = self.run_installer("--with-hooks")
 
         self.assert_succeeded(result)
         installed = json.loads((self.codex_home / "hooks.json").read_text(encoding="utf-8"))
@@ -297,6 +297,22 @@ class GupabalInstallerTests(unittest.TestCase):
             installed["hooks"]["PreToolUse"],
         )
         self.assertEqual(installed["hooks"]["SessionStart"], original["hooks"]["SessionStart"])
+        self.assertEqual(count_managed_handlers(installed), 3)
+
+    def test_default_install_removes_managed_hooks_and_preserves_user_hooks(self) -> None:
+        original = self.write_user_hooks()
+        result = self.run_installer()
+        self.assert_succeeded(result)
+        installed = json.loads((self.codex_home / "hooks.json").read_text(encoding="utf-8"))
+        self.assertEqual(count_managed_handlers(installed), 0)
+        self.assertEqual(installed["userSetting"], original["userSetting"])
+
+    def test_with_hooks_installs_and_verifies_three_managed_handlers(self) -> None:
+        install = self.run_installer("--with-hooks")
+        verify = self.run_installer("--with-hooks", "--verify")
+        self.assert_succeeded(install)
+        self.assert_succeeded(verify)
+        installed = json.loads((self.codex_home / "hooks.json").read_text(encoding="utf-8"))
         self.assertEqual(count_managed_handlers(installed), 3)
 
     def test_agent_conflict_without_force_fails_before_any_target_write(self) -> None:

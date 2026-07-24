@@ -141,6 +141,11 @@ def parse_arguments(arguments: Optional[list[str]] = None) -> argparse.Namespace
     parser.add_argument("--verify", action="store_true", help="verify installed content")
     parser.add_argument("--dry-run", action="store_true", help="show actions without writes")
     parser.add_argument(
+        "--with-hooks",
+        action="store_true",
+        help="explicitly install and verify Gupabal command Hooks",
+    )
+    parser.add_argument(
         "--force",
         action="store_true",
         help="back up and replace conflicting managed content",
@@ -700,7 +705,7 @@ def _hook_collision_error(codex_home: Path) -> Optional[str]:
 
 
 def run_hook_merger(mode: str, codex_home: Path, backup_suffix: str) -> HookRun:
-    if mode not in ("--verify", "--dry-run", "install"):
+    if mode not in ("--verify", "--dry-run", "--remove", "install"):
         raise InstallerError(f"Internal error: unsupported Hook merger mode {mode}")
     command = [
         sys.executable,
@@ -797,6 +802,7 @@ def _verify(
     stale_agents: list[StaleAgentState],
     codex_home: Path,
     backup_suffix: str,
+    with_hooks: bool,
 ) -> int:
     failures = 0
     for state in states:
@@ -815,20 +821,29 @@ def _verify(
         print(f"MISMATCH stale agent: {state.path}")
         failures += 1
 
-    collision_error = _hook_collision_error(codex_home)
-    if collision_error:
-        print(f"MISMATCH hooks: {collision_error}")
-        failures += 1
-    else:
-        hook_result = run_hook_merger("--verify", codex_home, backup_suffix)
+    if not with_hooks:
+        hook_result = run_hook_merger("--remove", codex_home, backup_suffix)
         _relay_hook_output(hook_result)
         if hook_result.returncode != 0:
             failures += 1
+    else:
+        collision_error = _hook_collision_error(codex_home)
+        if collision_error:
+            print(f"MISMATCH hooks: {collision_error}")
+            failures += 1
+        else:
+            hook_result = run_hook_merger("--verify", codex_home, backup_suffix)
+            _relay_hook_output(hook_result)
+            if hook_result.returncode != 0:
+                failures += 1
 
     if failures:
         print(f"Gupabal verification failed: {failures} managed item(s) differ", file=sys.stderr)
         return 1
-    print("Verified Gupabal skill, agents, guidance, and hooks")
+    print(
+        "Verified Gupabal skill, agents, guidance, and "
+        f"hooks {'enabled' if with_hooks else 'disabled'}"
+    )
     return 0
 
 
@@ -878,7 +893,14 @@ def run(options: argparse.Namespace) -> int:
     backup_suffix = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S%f")
 
     if options.verify:
-        return _verify(states, guidance, stale_agents, codex_home, backup_suffix)
+        return _verify(
+            states,
+            guidance,
+            stale_agents,
+            codex_home,
+            backup_suffix,
+            options.with_hooks,
+        )
 
     preflight_errors: list[str] = []
     if guidance.status == "malformed":
@@ -886,11 +908,19 @@ def run(options: argparse.Namespace) -> int:
             f"Malformed CODEX GAME TEAM markers in {guidance.path}: {guidance.reason}; "
             "--force cannot repair malformed markers"
         )
-    hook_collision = _hook_collision_error(codex_home)
-    if hook_collision:
-        preflight_errors.append(hook_collision)
-        hook_preflight = None
-    else:
+    hook_preflight = None
+    if options.with_hooks:
+        hook_collision = _hook_collision_error(codex_home)
+        if hook_collision:
+            preflight_errors.append(hook_collision)
+        else:
+            hook_preflight = run_hook_merger("--dry-run", codex_home, backup_suffix)
+            if hook_preflight.returncode != 0:
+                details = (hook_preflight.stderr or hook_preflight.stdout).strip()
+                preflight_errors.append(
+                    "Hook merger dry-run failed" + (f": {details}" if details else "")
+                )
+    elif options.dry_run:
         hook_preflight = run_hook_merger("--dry-run", codex_home, backup_suffix)
         if hook_preflight.returncode != 0:
             details = (hook_preflight.stderr or hook_preflight.stdout).strip()
@@ -924,6 +954,7 @@ def run(options: argparse.Namespace) -> int:
         )
         if hook_preflight is not None:
             _relay_hook_output(hook_preflight)
+        print(f"Hooks {'enabled' if options.with_hooks else 'disabled'}")
         print("Dry run complete; no files were written")
         return 0
 
@@ -960,14 +991,20 @@ def run(options: argparse.Namespace) -> int:
         if guidance_backup:
             print(f"BACKUP {guidance_backup}")
 
-    hook_result = run_hook_merger("install", codex_home, backup_suffix)
+    hook_result = run_hook_merger(
+        "install" if options.with_hooks else "--remove", codex_home, backup_suffix
+    )
     _relay_hook_output(hook_result)
     if hook_result.returncode != 0:
         raise InstallerError(
             f"Hook merger failed with exit status {hook_result.returncode}"
         )
-    print(f"Installed Gupabal support into {target_root} and {codex_home}")
-    print("Review command Hooks in /hooks, then start a new Codex task")
+    print(
+        f"Installed Gupabal support into {target_root} and {codex_home} "
+        f"(hooks {'enabled' if options.with_hooks else 'disabled'})"
+    )
+    if options.with_hooks:
+        print("Review command Hooks in /hooks, then start a new Codex task")
     return 0
 
 

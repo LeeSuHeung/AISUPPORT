@@ -37,6 +37,17 @@ import sys
 
 test_user_path = pathlib.Path(sys.argv[1])
 hooks_path = test_user_path / ".codex" / "hooks.json"
+assert not hooks_path.exists()
+PY
+
+sh "$repository/install.sh" --target "$skill_target" --agents-file "$agents_file" --with-hooks >/dev/null
+python3 - "$test_user_path" <<'PY'
+import json
+import pathlib
+import sys
+
+test_user_path = pathlib.Path(sys.argv[1])
+hooks_path = test_user_path / ".codex" / "hooks.json"
 hooks = json.loads(hooks_path.read_text(encoding="utf-8-sig"))
 for event_name in ("SubagentStop", "PreToolUse", "PostToolUse"):
     assert len(hooks["hooks"][event_name]) == 1
@@ -44,4 +55,4 @@ versioned_scripts = list((test_user_path / ".codex" / "hooks").glob("gupabal_hoo
 assert len(versioned_scripts) == 1
 PY
 
-printf '%s\n' 'AISUPPORT install.sh x2 with spaced Unicode targets OK'
+printf '%s\n' 'POSIX install wrapper tests passed'

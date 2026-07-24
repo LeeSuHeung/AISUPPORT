@@ -4,7 +4,8 @@ param(
     [string]$AgentsFile,
     [switch]$Verify,
     [switch]$DryRun,
-    [switch]$Force
+    [switch]$Force,
+    [switch]$WithHooks
 )
 
 $ErrorActionPreference = 'Stop'

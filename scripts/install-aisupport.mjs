@@ -92,9 +92,12 @@ function runChild(command, argumentsList, displayName) {
 }
 
 function runInstallers(python, argumentsList) {
+  const cavemanArguments = argumentsList.filter(
+    (argument) => argument !== "--with-hooks",
+  );
   runChild(
     process.execPath,
-    [cavemanInstaller, ...argumentsList],
+    [cavemanInstaller, ...cavemanArguments],
     "Skill installer",
   );
   runChild(
@@ -145,6 +148,9 @@ function inspectArguments(argumentsList) {
     }
     if (argument === "--force") {
       force = true;
+      continue;
+    }
+    if (argument === "--with-hooks") {
       continue;
     }
     if (argument === "--help" || argument === "-h") {

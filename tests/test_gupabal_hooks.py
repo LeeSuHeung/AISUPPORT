@@ -1905,6 +1905,57 @@ END_GUPABAL_RESULT
         self.assertEqual(second.returncode, 0, second.stderr)
         self.assertIn("Unchanged", second.stdout)
 
+    def test_merger_remove_preserves_user_handlers_and_removes_managed_handlers(self) -> None:
+        target = self.root / "hooks.json"
+        target.write_text(
+            json.dumps(
+                {
+                    "hooks": {
+                        "Stop": [
+                            {
+                                "hooks": [
+                                    {"type": "command", "command": "python user_stop.py"}
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ),
+            encoding="utf-8",
+        )
+        command = [
+            sys.executable,
+            str(MERGER),
+            "--source",
+            str(HOOK_SOURCE),
+            "--hook-script-source",
+            str(HOOK),
+            "--target",
+            str(target),
+            "--backup-suffix",
+            "remove-test",
+        ]
+        installed = subprocess.run(command, capture_output=True, text=True, check=False)
+        self.assertEqual(installed.returncode, 0, installed.stderr)
+
+        removed = subprocess.run(
+            command + ["--remove"], capture_output=True, text=True, check=False
+        )
+        self.assertEqual(removed.returncode, 0, removed.stderr)
+        configuration = json.loads(target.read_text(encoding="utf-8"))
+        rendered = json.dumps(configuration, ensure_ascii=False)
+        self.assertNotIn("gupabal_hooks_", rendered)
+        self.assertIn("python user_stop.py", rendered)
+
+        bytes_after_remove = target.read_bytes()
+        backups_after_remove = sorted(self.root.glob("hooks.json.backup-*"))
+        removed_again = subprocess.run(
+            command + ["--remove"], capture_output=True, text=True, check=False
+        )
+        self.assertEqual(removed_again.returncode, 0, removed_again.stderr)
+        self.assertEqual(target.read_bytes(), bytes_after_remove)
+        self.assertEqual(sorted(self.root.glob("hooks.json.backup-*")), backups_after_remove)
+
     def test_merger_dry_run_does_not_create_config_or_script(self) -> None:
         target = self.root / "config" / "hooks.json"
         completed = subprocess.run(
