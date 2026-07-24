@@ -6,119 +6,119 @@
       "ref": "v1.9.1",
       "sourceType": "github",
       "skillPath": "skills/caveman/SKILL.md",
-      "computedHash": "caf4f57b2e16d284d49719021cd486b5468ae86eeaff67ef4e09aa728dd69b40"
+      "computedHash": "f0b5e0d6a60aa93b3fd69718c285acfb7774e2541a6c7af671d1933e853363f9"
     },
     "caveman-commit": {
       "source": "JuliusBrussee/caveman",
       "ref": "v1.9.1",
       "sourceType": "github",
       "skillPath": "skills/caveman-commit/SKILL.md",
-      "computedHash": "84b99925ff3c014fb2e26d6c999bb3d3e2ff4e562b11b90544de199e9114b2f6"
+      "computedHash": "f7aa9a35c907ab1e8ac447c2cdf5f842420732f271907a8cad26de07b447b506"
     },
     "caveman-review": {
       "source": "JuliusBrussee/caveman",
       "ref": "v1.9.1",
       "sourceType": "github",
       "skillPath": "skills/caveman-review/SKILL.md",
-      "computedHash": "8c0ee954480ddf3113b224ef6a72d2dcea3bc6e5a3bb8d5dc86be044f0a13125"
+      "computedHash": "cab3eb70c9fc36420b65ea67561f212fe34cdb4d91a8572c32fdb2df6321c0b5"
     },
     "brainstorming": {
       "source": "obra/superpowers",
       "ref": "v6.1.1",
       "sourceType": "github",
       "skillPath": "skills/brainstorming/SKILL.md",
-      "computedHash": "a600c9a9e6548c314c0c7f517df21a18fa977817b26b1f97193731271031b25e"
+      "computedHash": "faf759ac1e1544ff3f9b78e5a9ae04168ad15ea2da15be5fa166aebb1a0c3860"
     },
     "dispatching-parallel-agents": {
       "source": "obra/superpowers",
       "ref": "v6.1.1",
       "sourceType": "github",
       "skillPath": "skills/dispatching-parallel-agents/SKILL.md",
-      "computedHash": "b748ea8ed970eacbb5d9f35354e2fa8e07460a723ba4394b322bc6262b8f7f3c"
+      "computedHash": "8d618afb1f02e5526856135357fac49c8d7f8331df5a037960b978b10098a8fe"
     },
     "executing-plans": {
       "source": "obra/superpowers",
       "ref": "v6.1.1",
       "sourceType": "github",
       "skillPath": "skills/executing-plans/SKILL.md",
-      "computedHash": "c1ddb154cb1b92fdfdd982a49f57576258ee370194549fc2c85a84b3f06d1303"
+      "computedHash": "8276bb14d651371dc48b8c978b5f87eac494bd775f1efc1f066deeb1410960d1"
     },
     "finishing-a-development-branch": {
       "source": "obra/superpowers",
       "ref": "v6.1.1",
       "sourceType": "github",
       "skillPath": "skills/finishing-a-development-branch/SKILL.md",
-      "computedHash": "ef3c8cbe03d7d3f5d129aa929ccb0fa1c978eaa1687298816f856869af155e17"
+      "computedHash": "106a3b1e5000f709824c43c5fede3cd2ea0f032c44ac51f161a10cd915cddc31"
     },
     "receiving-code-review": {
       "source": "obra/superpowers",
       "ref": "v6.1.1",
       "sourceType": "github",
       "skillPath": "skills/receiving-code-review/SKILL.md",
-      "computedHash": "cbf02b6f975871f49b858e6c405eda79007cb38bef81e2c896572fbb9f30dc88"
+      "computedHash": "cbc23722e6a2fba1adbaa9a845eebc93f5499cb0e1ba0d228b04a3b5e9055d49"
     },
     "requesting-code-review": {
       "source": "obra/superpowers",
       "ref": "v6.1.1",
       "sourceType": "github",
       "skillPath": "skills/requesting-code-review/SKILL.md",
-      "computedHash": "bda7b83235f9ef505a8fe0b32e4af8b561701f867c88b49c57f8fc4698e98de1"
+      "computedHash": "90d3ce1382ddadcb2a8c20fba90102082cfe92e2da3ae6a43d8de3a6d4342c9b"
     },
     "subagent-driven-development": {
       "source": "obra/superpowers",
       "ref": "v6.1.1",
       "sourceType": "github",
       "skillPath": "skills/subagent-driven-development/SKILL.md",
-      "computedHash": "7c8df9200c7a0f18cf776276e7c45f5c7c974aeb961647a6713559496a59303f"
+      "computedHash": "225744712514649cbfba3758ef812b166ab9b9f05aa8333129366039e2b138d0"
     },
     "systematic-debugging": {
       "source": "obra/superpowers",
       "ref": "v6.1.1",
       "sourceType": "github",
       "skillPath": "skills/systematic-debugging/SKILL.md",
-      "computedHash": "45b003ee6385c4d21fd92c55e28843dbdd7ea9e9149f352034843a5907ef5a9b"
+      "computedHash": "dc0095fe993416ec363908e0375830b03e7b8ed62026b330c70c8fcfadaa6b7d"
     },
     "test-driven-development": {
       "source": "obra/superpowers",
       "ref": "v6.1.1",
       "sourceType": "github",
       "skillPath": "skills/test-driven-development/SKILL.md",
-      "computedHash": "ae474f5240ac565869df292c4e02660d2004abe17a911e423439b6bd3f8b0509"
+      "computedHash": "5b5b97ebe629620478a021899cc321f8a4a365849759c128fca2820e1948bd8d"
     },
     "using-git-worktrees": {
       "source": "obra/superpowers",
       "ref": "v6.1.1",
       "sourceType": "github",
       "skillPath": "skills/using-git-worktrees/SKILL.md",
-      "computedHash": "660b468d1290ee0b8709078da11fc198d94e9b39f9d162d0dabbc7a807b8eb13"
+      "computedHash": "0755745adb2522e09e79a9e67a49c7fafb8232cad314760985232b33abca91bd"
     },
     "using-superpowers": {
       "source": "obra/superpowers",
       "ref": "v6.1.1",
       "sourceType": "github",
       "skillPath": "skills/using-superpowers/SKILL.md",
-      "computedHash": "e1b8889d561d48c3cb518e370a9b34f802d85ed10062aa023ac715e679b3bcda"
+      "computedHash": "a6f833323d51c27574442e9bdfa5cc4e6267309305d5176663b155694155cc29"
     },
     "verification-before-completion": {
       "source": "obra/superpowers",
       "ref": "v6.1.1",
       "sourceType": "github",
       "skillPath": "skills/verification-before-completion/SKILL.md",
-      "computedHash": "7138b7938dadeeec5191c6bde7ea2eb22e3db22923554fe2e0e5946fd882199c"
+      "computedHash": "7419b762c4c06d18b10a6382976c187b99f376a244460dc68a05c7604d274919"
     },
     "writing-plans": {
       "source": "obra/superpowers",
       "ref": "v6.1.1",
       "sourceType": "github",
       "skillPath": "skills/writing-plans/SKILL.md",
-      "computedHash": "cf4748f0ecb70a652ddf1c630d88ab74b5441682e7cf9b1b329649afbaf21a87"
+      "computedHash": "b3c20f5f5be8ab096eaeca1dfd8e358d65cadcae2614ba5a98406bb9ce234bb6"
     },
     "writing-skills": {
       "source": "obra/superpowers",
       "ref": "v6.1.1",
       "sourceType": "github",
       "skillPath": "skills/writing-skills/SKILL.md",
-      "computedHash": "504406969e1740c639d91aa748e755c03a7fc36ca39580d1ebeaea0b1078d2a8"
+      "computedHash": "ed91929a603adfd9a4f0a861b9243e2b15c80835fcf27b00378ec8068bbed722"
     }
   }
 }

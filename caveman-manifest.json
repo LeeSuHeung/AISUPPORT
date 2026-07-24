@@ -5,10 +5,10 @@
   "executables": [],
   "files": {
     ".agents/skills/caveman/README.md": "9369b69197e5d07e0c56679f9fc346f3539f58537c17f4e804a44612f086dc73",
-    ".agents/skills/caveman/SKILL.md": "5e30bb56afbd0b01bd736f2da84180e76f18db4a64de8e124525d5c8dc2e8605",
+    ".agents/skills/caveman/SKILL.md": "6c52213604fd0a567da906b0934f0dd0dd4692fe90dc0982eaa84f09d76b5805",
     ".agents/skills/caveman-commit/README.md": "a2e82924b487fc1845114c247b47c2d3c2d1bd60f90bbfa60e9831319eb964fa",
-    ".agents/skills/caveman-commit/SKILL.md": "58db7b8efab911a629c26e7132517d9076e4e3645009eb604cb8c25663477841",
+    ".agents/skills/caveman-commit/SKILL.md": "3fa3dc983ee8336433ca5f3ea1ee850c3b29e99bb79219f38ea3b24bd4d4cf12",
     ".agents/skills/caveman-review/README.md": "a06403b2722a069a9a2b0011772ae73296e68b4e46ace2f4b42b4ea546052b64",
-    ".agents/skills/caveman-review/SKILL.md": "9ef09065f26b9781275b5a4775e14870e331fab833efb2a2aa33f3205a2b83c3"
+    ".agents/skills/caveman-review/SKILL.md": "82c6c6f0f0a36d147d751b6a9ffdc5d5280683f3763f8479806bed2a46cefbb5"
   }
 }

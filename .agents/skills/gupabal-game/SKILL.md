@@ -1,6 +1,6 @@
 ---
 name: gupabal-game
-description: Coordinate 구파발기획자, 구파발아트디자이너, 구파발클라이언트, and 구파발서버 through proposal, cross-review, agreement, implementation, and verification. Use when the user says 구파발게임 or requests game feature work spanning gameplay rules, balance, visual direction or assets, client behavior, and server APIs or authoritative state across two or more roles.
+description: Use only when the user explicitly invokes $gupabal-game or says 구파발게임.
 ---
 
 # 구파발게임

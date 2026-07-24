@@ -1,6 +1,6 @@
 ---
 name: dispatching-parallel-agents
-description: Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies
+description: Use only when the user explicitly invokes $dispatching-parallel-agents.
 ---
 
 # Dispatching Parallel Agents

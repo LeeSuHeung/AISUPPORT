@@ -12,7 +12,7 @@ version can be reproduced without running an upstream installer.
 - Project skills: `.agents/skills/`
 - Reproducibility lock: `skills-lock.json`
 - File integrity manifest: `superpowers-manifest.json`
-- Automatic root-task activation: `AGENTS.md`
+- Manual activation guidance: `AGENTS.md`
 
 All 14 upstream Codex skills are included: brainstorming, parallel-agent
 dispatch, plan writing and execution, subagent-driven development, TDD,
@@ -42,6 +42,11 @@ Superpowers skills to `$HOME/.agents/skills` and installs the marker-delimited
 defaults from `AGENTS.md` into `$CODEX_HOME/AGENTS.md` (normally
 `$HOME/.codex/AGENTS.md`). It makes no network request and executes no vendored
 Superpowers helper script. Existing unrelated user instructions are preserved.
+
+Skills do not start automatically, including in a new task. Invoke
+`$using-superpowers` explicitly, for example: `$using-superpowers를 사용해서 이
+작업 절차를 진행해줘.` Invoke another named Superpowers skill explicitly when
+that specific workflow is needed.
 
 An older Caveman-only installation contains a previous managed block, so the
 installer intentionally stops. Review the migration, then let it back up and

@@ -10,7 +10,7 @@ This repository vendors the Caveman skill suite for Codex from
 - Project skills: `.agents/skills/`
 - Reproducibility lock: `skills-lock.json`
 - File integrity manifest: `caveman-manifest.json`
-- Repository always-on rule: `AGENTS.md`
+- Manual activation guidance: `AGENTS.md`
 
 The files are copied instead of symlinked so they work reliably on Windows and
 can be committed to Git. `skills-lock.json` records the upstream tag, source
@@ -21,8 +21,7 @@ path, and content hash for every installed skill.
 Codex automatically scans `.agents/skills` from the current directory up to
 the Git repository root. After cloning this repository, these skills therefore
 work without downloading or installing anything. Start a new Codex task from
-any directory inside the repository. Root `AGENTS.md` activates Caveman `full`
-for every new task and response automatically.
+any directory inside the repository, then explicitly invoke the needed skill.
 
 Choose one scope:
 
@@ -95,10 +94,10 @@ to `origin` unless the requested task is explicitly local-only.
 
 ## Usage
 
-Caveman `full` starts automatically in every new Codex task. No invocation is
-required. Ask for `caveman lite`, `caveman full`, or `caveman ultra` to change
-intensity. Say `normal mode` or `stop caveman` to disable it for the current
-task; the next new task starts in `full` again.
+Invoke Caveman explicitly for each new task, for example: `$caveman`을 사용해서
+답변을 짧게 정리해줘. After activation, ask for `caveman lite`, `caveman full`,
+or `caveman ultra` to change intensity. Say `normal mode` or `stop caveman` to
+disable it for the current task.
 
 Additional project skills:
 

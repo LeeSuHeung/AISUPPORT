@@ -1,6 +1,6 @@
 ---
 name: systematic-debugging
-description: Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes
+description: Use only when the user explicitly invokes $systematic-debugging.
 ---
 
 # Systematic Debugging

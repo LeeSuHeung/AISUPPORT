@@ -43,6 +43,50 @@ function assert(condition, message) {
   }
 }
 
+function frontmatterValue(contents, key) {
+  const normalized = contents.replace(/\r\n/g, "\n");
+  const closing = normalized.indexOf("\n---\n", 4);
+  const frontmatter = normalized.slice(4, closing);
+  const match = frontmatter.match(new RegExp(`^${key}:\\s*(.+)$`, "m"));
+  return match?.[1].trim();
+}
+
+async function testManualOnlySkillTriggers() {
+  for (const skillName of expectedSkillNames) {
+    const skill = await readFile(
+      path.join(repositoryRoot, ".agents", "skills", skillName, "SKILL.md"),
+      "utf8",
+    );
+    const description = frontmatterValue(skill, "description");
+    assert(
+      description === `Use only when the user explicitly invokes $${skillName}.`,
+      `Automatic trigger allowed: ${skillName}`,
+    );
+  }
+
+  const gupabalSkill = await readFile(
+    path.join(repositoryRoot, ".agents", "skills", "gupabal-game", "SKILL.md"),
+    "utf8",
+  );
+  assert(
+    frontmatterValue(gupabalSkill, "description") ===
+      "Use only when the user explicitly invokes $gupabal-game or says 구파발게임.",
+    "Automatic trigger allowed: gupabal-game",
+  );
+
+  const rootGuidance = await readFile(
+    path.join(repositoryRoot, "AGENTS.md"),
+    "utf8",
+  );
+  for (const forbidden of [
+    "Apply the available `caveman` skill to every response",
+    "Apply the available `using-superpowers` skill at the start",
+    "Invoke each relevant Superpowers process skill before implementation",
+  ]) {
+    assert(!rootGuidance.includes(forbidden), `Automatic guidance remains: ${forbidden}`);
+  }
+}
+
 async function pathExists(targetPath) {
   try {
     await stat(targetPath);
@@ -167,7 +211,10 @@ async function testPreservationAndConflicts(root) {
   backups = await listAgentBackups(agentsFile);
   assert(backups.length === 1, "Idempotent reinstall created another backup");
 
-  const conflicting = installed.replace("`full` intensity", "`lite` intensity");
+  const conflicting = installed.replace(
+    "Do not invoke AISUPPORT skills unless the user explicitly names the skill.",
+    "Do not invoke AISUPPORT skills unless the user explicitly names a different skill.",
+  );
   assert(conflicting !== installed, "Conflict fixture was not created");
   await writeFile(agentsFile, conflicting, "utf8");
   const conflictingHash = digest(await readFile(agentsFile));
@@ -439,6 +486,7 @@ async function testGupabalFallbackUsesCodexHome() {
 
 const temporaryRoot = await mkdtemp(path.join(os.tmpdir(), "aisupport-installer-test-"));
 try {
+  await testManualOnlySkillTriggers();
   await testPreservationAndConflicts(path.join(temporaryRoot, "main"));
   await testSuperpowersConflictAndBackup(
     path.join(temporaryRoot, "superpowers-conflict"),
