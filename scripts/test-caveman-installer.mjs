@@ -87,6 +87,24 @@ async function testManualOnlySkillTriggers() {
   }
 }
 
+async function testManualOnlyGitHubWorkflow() {
+  const workflow = (
+    await readFile(
+      path.join(repositoryRoot, ".github", "workflows", "verify-aisupport.yml"),
+      "utf8",
+    )
+  ).replace(/\r\n/g, "\n");
+  const triggerBlock = workflow.match(/^on:\n([\s\S]*?)^jobs:\n/m)?.[1];
+  assert(triggerBlock, "GitHub Actions trigger block is missing");
+  const topLevelTriggers = [...triggerBlock.matchAll(/^  ([\w-]+):\s*$/gm)].map(
+    (match) => match[1],
+  );
+  assert(
+    topLevelTriggers.length === 1 && topLevelTriggers[0] === "workflow_dispatch",
+    `Automatic GitHub trigger allowed: ${topLevelTriggers.join(", ") || "none"}`,
+  );
+}
+
 async function pathExists(targetPath) {
   try {
     await stat(targetPath);
@@ -504,6 +522,7 @@ async function testIntegratedHookOptIn(root) {
 const temporaryRoot = await mkdtemp(path.join(os.tmpdir(), "aisupport-installer-test-"));
 try {
   await testManualOnlySkillTriggers();
+  await testManualOnlyGitHubWorkflow();
   await testPreservationAndConflicts(path.join(temporaryRoot, "main"));
   await testSuperpowersConflictAndBackup(
     path.join(temporaryRoot, "superpowers-conflict"),

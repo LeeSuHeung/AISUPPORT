@@ -1,46 +1,7 @@
 name: Verify AISUPPORT portability
 
 on:
-  push:
-    paths:
-      - ".gitattributes"
-      - ".agents/skills/**"
-      - ".codex/**"
-      - "AGENTS.md"
-      - "GUPABAL_GAME.md"
-      - "README.md"
-      - ".github/workflows/verify-aisupport.yml"
-      - "install.*"
-      - "scripts/install-caveman.*"
-      - "scripts/install-aisupport.*"
-      - "scripts/install_gupabal.py"
-      - "scripts/merge_gupabal_hooks.py"
-      - "scripts/test-caveman-installer.mjs"
-      - "caveman-manifest.json"
-      - "gupabal-manifest.json"
-      - "superpowers-manifest.json"
-      - "skills-lock.json"
-      - "tests/**"
-  pull_request:
-    paths:
-      - ".gitattributes"
-      - ".agents/skills/**"
-      - ".codex/**"
-      - "AGENTS.md"
-      - "GUPABAL_GAME.md"
-      - "README.md"
-      - ".github/workflows/verify-aisupport.yml"
-      - "install.*"
-      - "scripts/install-caveman.*"
-      - "scripts/install-aisupport.*"
-      - "scripts/install_gupabal.py"
-      - "scripts/merge_gupabal_hooks.py"
-      - "scripts/test-caveman-installer.mjs"
-      - "caveman-manifest.json"
-      - "gupabal-manifest.json"
-      - "superpowers-manifest.json"
-      - "skills-lock.json"
-      - "tests/**"
+  workflow_dispatch:
 
 jobs:
   portable-install:

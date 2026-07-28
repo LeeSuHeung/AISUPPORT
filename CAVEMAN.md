@@ -74,10 +74,11 @@ Verify an installation without changing it:
 ```
 
 If Codex does not immediately show a changed skill, restart Codex. The GitHub
-Actions workflow verifies install, verification, idempotency, instruction and
-encoding preservation, backups, and conflict handling on Windows, macOS, and
-Linux. The legacy `install-caveman.*` entry points remain compatible aliases
-and now install the same complete AISUPPORT suite.
+Actions workflow never starts automatically from a push or pull request. When
+explicitly dispatched, it verifies install, verification, idempotency,
+instruction and encoding preservation, backups, and conflict handling on
+Windows, macOS, and Linux. The legacy `install-caveman.*` entry points remain
+compatible aliases and now install the same complete AISUPPORT suite.
 
 ## AISUPPORT extension policy
 
