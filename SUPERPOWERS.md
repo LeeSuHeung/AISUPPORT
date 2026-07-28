@@ -48,6 +48,11 @@ Skills do not start automatically, including in a new task. Invoke
 작업 절차를 진행해줘.` Invoke another named Superpowers skill explicitly when
 that specific workflow is needed.
 
+Subagents also stay off by default. The user must explicitly request delegation
+or invoke a workflow that requires it, and Codex's `multi_agent` feature must be
+explicitly enabled for that task. Branches, commits, pushes, pull requests,
+background helpers, and recurring checks require their own explicit request.
+
 An older Caveman-only installation contains a previous managed block, so the
 installer intentionally stops. Review the migration, then let it back up and
 replace only AISUPPORT-managed content:

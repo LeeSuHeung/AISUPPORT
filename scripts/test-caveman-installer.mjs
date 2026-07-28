@@ -85,6 +85,15 @@ async function testManualOnlySkillTriggers() {
   ]) {
     assert(!rootGuidance.includes(forbidden), `Automatic guidance remains: ${forbidden}`);
   }
+  for (const required of [
+    "Do not spawn subagents or delegate work unless the user explicitly requests",
+    "Do not create or switch branches, create commits or pull requests, push,",
+    "When the user does not request another branch, stay on `master`.",
+    "Never schedule or repeat them in the background.",
+    "commit or push completed skill or hook changes only when",
+  ]) {
+    assert(rootGuidance.includes(required), `Manual execution rule missing: ${required}`);
+  }
 }
 
 async function testManualOnlyGitHubWorkflow() {

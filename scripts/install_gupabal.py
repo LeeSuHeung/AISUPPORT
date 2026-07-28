@@ -717,7 +717,14 @@ def _hook_collision_error(codex_home: Path) -> Optional[str]:
 
 
 def run_hook_merger(mode: str, codex_home: Path, backup_suffix: str) -> HookRun:
-    if mode not in ("--verify", "--dry-run", "--remove", "install"):
+    if mode not in (
+        "--verify",
+        "--verify-removed",
+        "--dry-run",
+        "--dry-run-removed",
+        "--remove",
+        "install",
+    ):
         raise InstallerError(f"Internal error: unsupported Hook merger mode {mode}")
     command = [
         sys.executable,
@@ -834,7 +841,7 @@ def _verify(
         failures += 1
 
     if not with_hooks:
-        hook_result = run_hook_merger("--remove", codex_home, backup_suffix)
+        hook_result = run_hook_merger("--verify-removed", codex_home, backup_suffix)
         _relay_hook_output(hook_result)
         if hook_result.returncode != 0:
             failures += 1
@@ -933,7 +940,9 @@ def run(options: argparse.Namespace) -> int:
                     "Hook merger dry-run failed" + (f": {details}" if details else "")
                 )
     elif options.dry_run:
-        hook_preflight = run_hook_merger("--dry-run", codex_home, backup_suffix)
+        hook_preflight = run_hook_merger(
+            "--dry-run-removed", codex_home, backup_suffix
+        )
         if hook_preflight.returncode != 0:
             details = (hook_preflight.stderr or hook_preflight.stdout).strip()
             preflight_errors.append(

@@ -17,9 +17,18 @@
 - 마지막에는 변경한 내용, 검증 결과, 남은 위험이나 확인하지 못한 부분을 쉬운 말로 정리한다.
 
 <!-- BEGIN CAVEMAN PORTABLE ALWAYS-ON -->
-## Manual skill activation
+## Manual execution defaults
 
 - Do not invoke AISUPPORT skills unless the user explicitly names the skill.
+- Do not spawn subagents or delegate work unless the user explicitly requests
+  delegation or explicitly invokes a workflow that requires it.
+- Do not create or switch branches, create commits or pull requests, push,
+  dispatch workflows, enable lifecycle hooks, start background helpers, or
+  create scheduled or recurring automations unless the user explicitly
+  requests that exact action.
+- When the user does not request another branch, stay on `master`.
+- Tests and verification needed to finish an explicitly requested change may
+  run once in that task. Never schedule or repeat them in the background.
 - After explicit invocation, follow that skill for the current task within the user's scope.
 
 ## AISUPPORT skill and hook policy
@@ -36,7 +45,7 @@
 - When a skill or hook must run outside AISUPPORT, update the checked-in
   bootstrap and integrity metadata so the runtime copy is reproducible from
   this repository.
-- After validation, commit and push completed skill or hook changes only when
-  publishing is within the user's current request; otherwise leave the
-  validated changes ready and report their state.
+- After validation, commit or push completed skill or hook changes only when
+  the user explicitly requests that exact publishing action; otherwise leave
+  the validated changes ready and report their state.
 <!-- END CAVEMAN PORTABLE ALWAYS-ON -->

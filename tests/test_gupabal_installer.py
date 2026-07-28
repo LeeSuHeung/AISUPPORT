@@ -29,7 +29,7 @@ INSTALLER_SPEC.loader.exec_module(INSTALLER_MODULE)
 
 
 def snapshot_tree(root: Path) -> dict[str, tuple[str, bytes | None]]:
-    """Return a content snapshot suitable for proving a dry run made no writes."""
+    """Return a content snapshot suitable for proving an operation made no writes."""
     if not root.exists():
         return {}
 
@@ -198,6 +198,8 @@ class GupabalInstallerTests(unittest.TestCase):
         self.assertEqual(snapshot_tree(self.sandbox), before)
         self.assertFalse(self.skills_root.exists())
         self.assertIn("no files were written", result.stdout)
+        self.assertIn(f"KEEP {self.codex_home / 'hooks.json'}", result.stdout)
+        self.assertNotIn("gupabal_hooks_", result.stdout)
 
     def test_manifest_rejects_an_entry_whose_source_was_removed(self) -> None:
         canonical_files, _ = INSTALLER_MODULE.collect_canonical_sources()
@@ -314,6 +316,33 @@ class GupabalInstallerTests(unittest.TestCase):
         self.assert_succeeded(verify)
         installed = json.loads((self.codex_home / "hooks.json").read_text(encoding="utf-8"))
         self.assertEqual(count_managed_handlers(installed), 3)
+
+    def test_verify_disabled_hooks_is_read_only(self) -> None:
+        install_with_hooks = self.run_installer("--with-hooks")
+        self.assert_succeeded(install_with_hooks)
+        before_mismatch = snapshot_tree(self.sandbox)
+
+        dry_run = self.run_installer("--dry-run")
+
+        self.assert_succeeded(dry_run)
+        self.assertIn("REMOVE MANAGED", dry_run.stdout)
+        self.assertNotIn("INSTALL", dry_run.stdout)
+        self.assertEqual(snapshot_tree(self.sandbox), before_mismatch)
+
+        mismatch = self.run_installer("--verify")
+
+        self.assert_failed(mismatch)
+        self.assertIn("MISMATCH", mismatch.stdout)
+        self.assertEqual(snapshot_tree(self.sandbox), before_mismatch)
+
+        remove_hooks = self.run_installer()
+        self.assert_succeeded(remove_hooks)
+        before_success = snapshot_tree(self.sandbox)
+
+        verified = self.run_installer("--verify")
+
+        self.assert_succeeded(verified)
+        self.assertEqual(snapshot_tree(self.sandbox), before_success)
 
     def test_agent_conflict_without_force_fails_before_any_target_write(self) -> None:
         conflicting_agent = self.codex_home / "agents" / "gupabal_client.toml"

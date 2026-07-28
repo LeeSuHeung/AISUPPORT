@@ -2046,6 +2046,79 @@ END_GUPABAL_RESULT
         self.assertEqual(target.read_bytes(), bytes_after_remove)
         self.assertEqual(sorted(self.root.glob("hooks.json.backup-*")), backups_after_remove)
 
+    def test_merger_verify_removed_is_read_only(self) -> None:
+        target = self.root / "hooks.json"
+        command = [
+            sys.executable,
+            str(MERGER),
+            "--source",
+            str(HOOK_SOURCE),
+            "--hook-script-source",
+            str(HOOK),
+            "--target",
+            str(target),
+            "--backup-suffix",
+            "verify-removed",
+        ]
+        installed = subprocess.run(command, capture_output=True, text=True, check=False)
+        self.assertEqual(installed.returncode, 0, installed.stderr)
+        def snapshot_files() -> dict[str, bytes]:
+            return {
+                path.relative_to(self.root).as_posix(): path.read_bytes()
+                for path in self.root.rglob("*")
+                if path.is_file()
+            }
+
+        before_mismatch = snapshot_files()
+
+        dry_run_mismatch = subprocess.run(
+            command + ["--dry-run-removed"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(dry_run_mismatch.returncode, 0, dry_run_mismatch.stderr)
+        self.assertIn(f"REMOVE MANAGED {target.resolve()}", dry_run_mismatch.stdout)
+        self.assertEqual(snapshot_files(), before_mismatch)
+
+        mismatch = subprocess.run(
+            command + ["--verify-removed"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertNotEqual(mismatch.returncode, 0)
+        self.assertIn(f"MISMATCH {target.resolve()}", mismatch.stdout)
+        self.assertEqual(snapshot_files(), before_mismatch)
+
+        removed = subprocess.run(
+            command + ["--remove"], capture_output=True, text=True, check=False
+        )
+        self.assertEqual(removed.returncode, 0, removed.stderr)
+        before_success = snapshot_files()
+
+        dry_run_success = subprocess.run(
+            command + ["--dry-run-removed"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(dry_run_success.returncode, 0, dry_run_success.stderr)
+        self.assertIn(f"KEEP {target.resolve()}", dry_run_success.stdout)
+        self.assertEqual(snapshot_files(), before_success)
+
+        verified = subprocess.run(
+            command + ["--verify-removed"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(verified.returncode, 0, verified.stderr)
+        self.assertIn(f"OK {target.resolve()}", verified.stdout)
+        self.assertEqual(snapshot_files(), before_success)
+
     def test_merger_dry_run_does_not_create_config_or_script(self) -> None:
         target = self.root / "config" / "hooks.json"
         completed = subprocess.run(

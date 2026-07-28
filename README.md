@@ -11,6 +11,25 @@ Codex에서 여러 PC에 동일한 작업 방식과 에이전트를 설치하기
 
 자세한 내용은 [CAVEMAN.md](CAVEMAN.md), [SUPERPOWERS.md](SUPERPOWERS.md), [GUPABAL_GAME.md](GUPABAL_GAME.md)에서 확인할 수 있습니다.
 
+## 수동 기본 정책
+
+별도 요청이 없으면 Skill, 역할 에이전트, 하위 에이전트, 브랜치·커밋·push·PR, GitHub 검사, lifecycle Hook, 백그라운드 도우미, 예약·반복 작업을 시작하지 않습니다. 브랜치를 따로 지정하지 않으면 `master`에서만 작업합니다. 사용자가 구현이나 설치를 요청한 작업 안에서 완료 여부를 확인하는 일회성 테스트만 실행할 수 있으며, 이를 예약하거나 백그라운드에서 반복하지 않습니다.
+
+이 PC의 Codex 사용자 설정은 자동 계속(`goals`), lifecycle Hook(`hooks`), 자동 하위 에이전트(`multi_agent`), 기억 기능(`memories`), 후속 작업 제안(`ambient-suggestions-enabled`)을 꺼 두고, 턴 종료 때 외부 프로그램을 호출하는 `notify`도 제거합니다. 이 설정은 저장소 복제만으로 다른 PC에 자동 적용되지 않습니다. 다른 PC에서도 같은 동작이 필요하면 `$CODEX_HOME/config.toml`에 아래 값을 직접 적용하고 Codex를 다시 시작합니다.
+
+```toml
+[features]
+goals = false
+hooks = false
+multi_agent = false
+memories = false
+
+[desktop]
+ambient-suggestions-enabled = false
+```
+
+`notify = [...]` 항목이 있으면 삭제합니다. 플러그인과 도구는 설치돼 있어도 스스로 작업을 시작하지 않으므로 그대로 두며, 사용자가 명시적으로 요청한 경우에만 호출합니다.
+
 ## 준비물
 
 - Node.js 18 이상
@@ -39,13 +58,13 @@ sh ./install.sh
 
 설치 전 변경 예정 항목만 확인하려면 `--dry-run` 또는 `-DryRun`, 설치 결과를 다시 검사하려면 `--verify` 또는 `-Verify`를 사용합니다. 기존 관리 파일이 수정돼 있으면 기본적으로 중단하며, 내용을 확인한 뒤 `--force` 또는 `-Force`를 사용하면 백업 후 교체합니다.
 
-설치 후 Codex CLI의 `/hooks`에서 새 command Hook을 검토하고 신뢰한 뒤 새 작업을 시작합니다. 새 Skill이나 전역 지침이 보이지 않으면 Codex를 다시 시작합니다.
+`-WithHooks` 또는 `--with-hooks`를 직접 선택한 경우에만 Codex CLI의 `/hooks`에서 새 command Hook을 검토하고 신뢰합니다. 새 Skill이나 전역 지침이 보이지 않으면 Codex를 다시 시작합니다.
 
 ## 사용
 
 ### 구파발 Hook 활성화
 
-구파발 command Hook은 기본으로 비활성화됩니다. 일반 설치는 기존 사용자 Hook을 보존하면서 이전에 설치된 구파발 관리 Hook만 제거합니다. Hook을 사용하려면 설치할 때 명시적으로 선택합니다.
+구파발 command Hook은 기본으로 비활성화됩니다. 일반 설치는 기존 사용자 Hook을 보존하면서 이전에 설치된 구파발 관리 Hook만 제거합니다. Hook을 사용하려면 설치 옵션과 Codex 기능을 모두 명시적으로 켜야 합니다.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\install.ps1 -WithHooks
@@ -54,6 +73,8 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1 -WithHooks
 ```sh
 sh ./install.sh --with-hooks
 ```
+
+또한 `$CODEX_HOME/config.toml`의 `[features]` 아래에서 `hooks = true`로 바꾼 뒤 Codex를 다시 시작해야 합니다. 사용을 마치면 `hooks = false`로 되돌리고 일반 설치를 다시 실행합니다.
 
 활성화한 Hook은 `SubagentStop`, `PreToolUse`, `PostToolUse` 이벤트마다 자동으로 실행됩니다. `/hooks`에서 경로와 내용을 검토하고 신뢰한 경우에만 활성화하세요.
 
@@ -89,6 +110,6 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 powershell -ExecutionPolicy Bypass -File .\install.ps1 -Verify
 ```
 
-`git pull`은 이 저장소의 소스 파일만 갱신하며 Codex가 실제 사용하는 설치본(runtime)은 바꾸지 않습니다. 설치 스크립트를 다시 실행한 뒤 `-Verify`(Windows) 또는 `--verify`(macOS/Linux)로 설치 결과를 확인하세요.
+`git pull`은 이 저장소의 소스 파일만 갱신하며 Codex가 실제 사용하는 설치본(runtime)은 바꾸지 않습니다. 설치 스크립트를 다시 실행한 뒤 `-Verify`(Windows) 또는 `--verify`(macOS/Linux)로 설치 결과를 확인하세요. 검증 모드는 설치 파일이나 Hook 설정을 수정하지 않는 읽기 전용 작업입니다.
 
 소스 Skill은 `.agents/skills`, 역할과 Hook은 `.codex`, 설치기는 `scripts`에서 관리합니다. 제3자 Skill은 기존 manifest와 `skills-lock.json`, 구파발 자체 파일은 `gupabal-manifest.json`으로 무결성을 확인합니다.

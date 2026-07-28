@@ -90,8 +90,8 @@ source of truth.
 
 When a new skill or hook needs user-wide activation, extend the checked-in
 bootstrap and integrity metadata so another computer can reproduce the same
-installation from this repository. Validate the change, then commit and push it
-to `origin` unless the requested task is explicitly local-only.
+installation from this repository. Validate the change, then commit or push it
+only when the user explicitly requests that exact publishing action.
 
 ## Usage
 
@@ -99,6 +99,12 @@ Invoke Caveman explicitly for each new task, for example: `$caveman`을 사용�
 답변을 짧게 정리해줘. After activation, ask for `caveman lite`, `caveman full`,
 or `caveman ultra` to change intensity. Say `normal mode` or `stop caveman` to
 disable it for the current task.
+
+Do not start subagents, background helpers, scheduled work, branches, commits,
+pushes, pull requests, Hooks, or GitHub workflows merely because a skill makes
+them available. Each action requires an explicit user request. A one-time test
+needed to finish an explicitly requested change is allowed, but it is never
+scheduled or repeated in the background.
 
 Additional project skills:
 

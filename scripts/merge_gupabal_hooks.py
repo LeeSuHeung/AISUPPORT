@@ -30,7 +30,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--backup-suffix", required=True)
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--verify", action="store_true")
+    mode.add_argument("--verify-removed", action="store_true")
     mode.add_argument("--dry-run", action="store_true")
+    mode.add_argument("--dry-run-removed", action="store_true")
     mode.add_argument("--remove", action="store_true")
     return parser.parse_args()
 
@@ -190,13 +192,23 @@ def main() -> int:
     existing = read_json(target) if target.is_file() else {}
     merged = (
         remove(existing, hook_script.parent)
-        if args.remove
+        if args.remove or args.verify_removed or args.dry_run_removed
         else merge(existing, managed, hook_script.parent)
     )
     rendered = json.dumps(merged, ensure_ascii=False, indent=2) + "\n"
     previous = target.read_text(encoding="utf-8-sig") if target.is_file() else None
     script_matches = hook_script.is_file() and hook_script.read_bytes() == hook_script_source.read_bytes()
     config_matches = previous == rendered
+
+    if args.verify_removed:
+        removal_matches = merged == existing
+        print(f"{'OK' if removal_matches else 'MISMATCH'} {target}")
+        return 0 if removal_matches else 1
+
+    if args.dry_run_removed:
+        removal_matches = merged == existing
+        print(f"{'KEEP' if removal_matches else 'REMOVE MANAGED'} {target}")
+        return 0
 
     if args.remove:
         config_changed = target.is_file() and merged != existing

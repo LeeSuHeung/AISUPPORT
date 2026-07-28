@@ -41,11 +41,11 @@ sh ./install.sh
 
 설치 프로그램은 기존 관리 파일의 내용이 다르면 안전을 위해 중단합니다. 내용을 확인한 뒤 `-Force` 또는 `--force`를 사용하면 `.backup-날짜` 백업을 만들고 교체합니다. 전역 `AGENTS.md`의 다른 지침과 사용자 Hook은 보존하고, 이 팀의 관리 구역만 추가하거나 갱신합니다.
 
-설치 후 Codex CLI의 `/hooks`를 열어 새 command Hook의 경로와 내용을 검토한 뒤 신뢰합니다. Codex는 보안을 위해 command Hook의 정확한 버전이 신뢰되기 전에는 실행하지 않습니다. 그다음 새 Codex 작업을 시작합니다. 바로 표시되지 않으면 Codex를 다시 시작합니다.
+`-WithHooks` 또는 `--with-hooks`를 직접 선택한 경우에만 Codex CLI의 `/hooks`를 열어 새 command Hook의 경로와 내용을 검토한 뒤 신뢰합니다. Codex는 보안을 위해 command Hook의 정확한 버전이 신뢰되기 전에는 실행하지 않습니다. 그다음 새 Codex 작업을 시작합니다. 바로 표시되지 않으면 Codex를 다시 시작합니다.
 
 ## 적용된 Hook
 
-구파발 command Hook은 기본으로 비활성화됩니다. 일반 설치는 사용자 Hook을 보존하고 기존 구파발 관리 handler만 제거합니다. Hook을 명시적으로 활성화하려면 Windows에서는 `-WithHooks`, macOS/Linux에서는 `--with-hooks`를 설치 명령에 추가합니다.
+구파발 command Hook은 기본으로 비활성화됩니다. 일반 설치는 사용자 Hook을 보존하고 기존 구파발 관리 handler만 제거합니다. Hook을 명시적으로 활성화하려면 Windows에서는 `-WithHooks`, macOS/Linux에서는 `--with-hooks`를 설치 명령에 추가하고, `$CODEX_HOME/config.toml`의 `[features]` 아래에서 `hooks = true`로 바꾼 뒤 Codex를 다시 시작합니다.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\install.ps1 -WithHooks
@@ -77,7 +77,7 @@ decision이 잘못된 JSON이거나 1 MiB를 넘거나, symlink이거나, 지원
 
 ## source와 runtime 검증
 
-Git에서 받은 AISUPPORT source가 올바르다는 검사와 이 PC의 Codex runtime에 설치된 결과가 올바르다는 검사는 다릅니다. `git pull`만으로 runtime은 갱신되지 않습니다. 설치 후 canonical AISUPPORT 폴더에서, 설치 때 사용한 것과 같은 custom `CODEX_HOME`, `--target`, `--agents-file` 값으로 통합 installer verify를 먼저 실행합니다.
+Git에서 받은 AISUPPORT source가 올바르다는 검사와 이 PC의 Codex runtime에 설치된 결과가 올바르다는 검사는 다릅니다. `git pull`만으로 runtime은 갱신되지 않습니다. 설치 후 canonical AISUPPORT 폴더에서, 설치 때 사용한 것과 같은 custom `CODEX_HOME`, `--target`, `--agents-file` 값으로 통합 installer verify를 먼저 실행합니다. verify는 Hook을 제거하거나 설치 파일을 바꾸지 않는 읽기 전용 검사입니다.
 
 Windows에서는 설치 때와 같은 `CODEX_HOME` 환경을 유지하고 다음 명령을 실행합니다.
 
