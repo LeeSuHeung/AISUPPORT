@@ -11,7 +11,7 @@
     ".codex/agents/gupabal_server.toml": "d92294922b63621897e879696f3cca63ed9950fca08b013ae5d7d38e6d6bd435",
     ".codex/gupabal/AGENTS.md": "d7d80edba7b12ebd0864a3f0cbfdcce81a23725a965436d35166d193629c3f9d",
     ".codex/hooks/gupabal-hooks.template.json": "2f87f4d53ceea4c568553b3bba121c22b5916061c435cdb38c20cfe3d3dab683",
-    ".codex/hooks/gupabal_hooks.py": "6fdc5d4c9bcc727b6ec515df968b5dfb3baac1e9342891e06ae74e4dc39976ff",
+    ".codex/hooks/gupabal_hooks.py": "ddeb96a152b721724430f624fbb67e4bed633296aa8aa7da21d46c1983ea79ef",
     "scripts/merge_gupabal_hooks.py": "749e6f544922d2ab84b56ec11f8f059c26bb8eb52cb4e049bdeeb0a341317537"
   }
 }

@@ -192,6 +192,17 @@ def load_policy(cwd: str) -> tuple[Path | None, Path | None, dict[str, Any] | No
     if schema_version != SCHEMA_VERSION:
         return root, decision_path, None, "지원하지 않는 decision.json 버전입니다."
     if enabled is False:
+        closure_errors = validate_contract_schema(policy, inactive_closure=True)
+        if not closure_errors:
+            closure_errors.extend(validate_spec_refs(policy, root))
+        if closure_errors:
+            return (
+                root,
+                decision_path,
+                None,
+                "비활성 decision.json 종료 상태가 올바르지 않습니다: "
+                + ", ".join(closure_errors),
+            )
         return root, decision_path, None, None
     return root, decision_path, policy, None
 
@@ -422,7 +433,9 @@ def find_float(value: Any, location: str = "contract") -> str | None:
     return None
 
 
-def validate_contract_schema(policy: dict[str, Any]) -> list[str]:
+def validate_contract_schema(
+    policy: dict[str, Any], *, inactive_closure: bool = False
+) -> list[str]:
     errors: list[str] = []
     allowed_top = {
         "schema_version",
@@ -487,11 +500,30 @@ def validate_contract_schema(policy: dict[str, Any]) -> list[str]:
         errors.append("spec_refs 형식")
         spec_refs = []
     digest = agreement.get("contract_digest")
-    if not isinstance(digest, str) or re.fullmatch(r"[0-9a-f]{64}", digest) is None:
+    if inactive_closure:
+        if digest is not None:
+            errors.append("비활성 contract_digest는 null")
+    elif not isinstance(digest, str) or re.fullmatch(r"[0-9a-f]{64}", digest) is None:
         errors.append("contract_digest 형식")
     unresolved = agreement.get("unresolved")
     if not isinstance(unresolved, list):
         errors.append("unresolved 형식")
+
+    if inactive_closure:
+        status = agreement.get("status")
+        if status == "completed":
+            if unresolved != []:
+                errors.append("완료 상태의 unresolved는 빈 배열")
+        elif status == "planning":
+            if (
+                not isinstance(unresolved, list)
+                or len(unresolved) != 1
+                or not isinstance(unresolved[0], str)
+                or not unresolved[0].strip()
+            ):
+                errors.append("취소 상태의 unresolved는 사유 한 건")
+        else:
+            errors.append("비활성 agreement status")
 
     approvals = agreement.get("approvals")
     required_roles = set(REQUIRED_APPROVALS)
@@ -508,15 +540,26 @@ def validate_contract_schema(policy: dict[str, Any]) -> list[str]:
             allowed_approval = {"status", "revision", "contract_digest"}
             if set(approval) != allowed_approval:
                 errors.append(f"{role} approval 필드")
-            if approval.get("status") not in {"PENDING", "AGREE", "CONFLICT"}:
+            if inactive_closure and approval.get("status") != "PENDING":
+                errors.append(f"{role} approval status")
+            elif not inactive_closure and approval.get("status") not in {
+                "PENDING",
+                "AGREE",
+                "CONFLICT",
+            }:
                 errors.append(f"{role} approval status")
             approval_revision = approval.get("revision")
             if type(approval_revision) is not int or approval_revision <= 0:
                 errors.append(f"{role} approval revision")
+            elif inactive_closure and approval_revision != revision:
+                errors.append(f"{role} approval revision")
             approval_digest = approval.get("contract_digest")
-            if not isinstance(approval_digest, str) or re.fullmatch(
-                r"[0-9a-f]{64}", approval_digest
-            ) is None:
+            if inactive_closure and approval_digest is not None:
+                errors.append(f"{role} approval contract_digest")
+            elif not inactive_closure and (
+                not isinstance(approval_digest, str)
+                or re.fullmatch(r"[0-9a-f]{64}", approval_digest) is None
+            ):
                 errors.append(f"{role} approval contract_digest")
 
     allowed_spec_ref = {"path", "owner", "schema_version", "sha256"}
@@ -1828,21 +1871,13 @@ def main() -> int:
     event_hint = sys.argv[1] if len(sys.argv) > 1 else None
     raw_input = sys.stdin.read(MAX_EVENT_CHARS + 1)
     if len(raw_input) > MAX_EVENT_CHARS:
-        if event_hint == "PreToolUse":
-            emit(
-                deny_pre_tool(
-                    "구파발게임 Hook 입력이 8MB를 넘어 안전하게 검사할 수 없습니다. "
-                    "변경을 작은 패치로 나눠 다시 실행하세요."
-                )
+        emit(
+            fail_open_context(
+                event_hint,
+                "구파발게임 Hook 입력이 8MB를 넘어 검사하지 못했습니다. "
+                "이번 변경은 차단하지 않았습니다.",
             )
-        else:
-            emit(
-                fail_open_context(
-                    event_hint,
-                    "구파발게임 Hook 입력이 8MB를 넘어 검사하지 못했습니다. "
-                    "이번 변경은 차단하지 않았습니다.",
-                )
-            )
+        )
         return 0
     try:
         event = json.loads(raw_input)

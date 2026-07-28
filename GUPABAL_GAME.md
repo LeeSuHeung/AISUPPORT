@@ -61,11 +61,11 @@ sh ./install.sh --with-hooks
 - `PreToolUse`: 활성 합의가 승인됐는지와 수정 파일에 정확히 한 owner(담당 역할)가 있는지 `apply_patch` 전에 확인합니다.
 - `PostToolUse`: 합의된 경로의 이번 수정 파일만 대상으로 JSON 문법, 병합 충돌 표식, 선언된 이미지 규격 같은 빠르고 확실한 문제를 알려줍니다.
 
-Hook은 현재 작업 위치에서 위로 올라가 처음 만나는, 즉 가장 가까운 Git 저장소를 정확한 Git 루트로 선택합니다. 그 루트의 `.codex/gupabal/decision.json` 하나만 읽습니다. Git 루트나 합의 파일이 없거나, 지원하는 비활성 합의라면 조용히 종료합니다.
+Hook은 현재 작업 위치에서 위로 올라가 처음 만나는, 즉 가장 가까운 Git 저장소를 정확한 Git 루트로 선택합니다. 그 루트의 `.codex/gupabal/decision.json` 하나만 읽습니다. Git 루트나 합의 파일이 없거나, 아래 완료·취소 규칙을 모두 만족하는 비활성 합의라면 조용히 종료합니다.
 
-활성 decision이 잘못된 JSON이거나 1 MiB를 넘거나, symlink이거나, 지원하지 않는 버전이거나, `enabled` 또는 `schema_version`의 형식이 잘못되면 `PreToolUse`는 fail-closed로 구현 변경을 막습니다. 복구할 때만 4 MiB 이하의 작은 `decision-only` 패치 하나를 허용합니다. 일반 파일은 Add 또는 Update만, symlink decision은 Delete만 허용합니다. decision과 구현 파일을 섞거나 Move하거나 4 MiB를 넘기면 막습니다.
+decision이 잘못된 JSON이거나 1 MiB를 넘거나, symlink이거나, 지원하지 않는 버전이거나, `enabled` 또는 `schema_version`의 형식이 잘못되면 `PreToolUse`는 fail-closed로 구현 변경을 막습니다. 잘린 비활성 schema v2, 잘못된 완료·취소 상태, 초기화되지 않은 approval도 같은 방식으로 막습니다. 복구할 때만 4 MiB 이하의 작은 `decision-only` 패치 하나를 허용합니다. 일반 파일은 Add 또는 Update만, symlink decision은 Delete만 허용합니다. decision과 구현 파일을 섞거나 Move하거나 4 MiB를 넘기면 막습니다.
 
-이 fail-closed 규칙은 저장소의 활성 decision을 해석하지 못한 경우에 적용됩니다. 반대로 Codex가 Hook에 보낸 event 자체가 잘못된 JSON이거나 Hook 내부 예외가 발생하면, Hook은 구조화된 경고를 남기고 fail-open으로 종료합니다. 이 경우 변경을 막았다고 가정하지 말고 경고 원인을 확인해야 합니다. 단, `PreToolUse` event가 8 MiB를 넘으면 안전하게 검사할 수 없어 변경을 막습니다.
+이 fail-closed 규칙은 저장소의 decision을 안전하게 해석하지 못한 경우에 적용됩니다. 반대로 Codex가 Hook에 보낸 event 자체가 잘못된 JSON이거나 Hook 내부 예외가 발생하면, Hook은 구조화된 경고를 남기고 fail-open으로 종료합니다. `PreToolUse` event가 8 MiB를 넘어 Git 루트와 정책을 확인할 수 없는 경우도 `systemMessage`와 `hookSpecificOutput.additionalContext`에 경고만 남기고 변경을 차단하지 않습니다. 이 경우 정책 검사가 끝났다고 가정하지 말고 경고 원인을 확인해야 합니다. 정상 event를 해석한 뒤 활성 정책에서 4 MiB를 넘는 patch를 막는 제한은 그대로 적용됩니다.
 
 `PostToolUse` 경고가 나올 때는 변경이 이미 적용된 뒤이므로 다음 작업 전에 내용을 고쳐야 합니다. 엔진별 빌드나 클라이언트·서버 전체 테스트는 파일을 고칠 때마다 돌리지 않고, 기능 구현이 끝난 뒤 프로젝트의 실제 명령으로 검증합니다. Hook은 실수를 일찍 발견하는 보조 안전장치이며 보안 경계는 아닙니다.
 

@@ -150,3 +150,24 @@
 8. 사용자 승인을 받은 뒤 canonical AISUPPORT 설치기를 전역 runtime에 적용한다. 최초 설치와 같은 target·agents-file·`CODEX_HOME`으로 실제 `-Verify` 또는 `--verify`를 실행하고 `MISMATCH`가 없는지 확인한다.
 9. verify 출력의 정확한 versioned Hook을 성공한 Python 3.10+로 실행해 `--verify-project <정확한 Git root>` exit `0`을 확인한다. 에셋 범위가 비어 `checked: 0`이면 시각 품질 통과로 표현하지 않는다.
 10. 전역 runtime 검증까지 끝난 뒤에만 decision을 `enabled: false`, `agreement.status: completed`, 빈 unresolved, null digest와 초기화된 approvals로 별도 patch한다. 전역 변경 승인이 없으면 소스 준비 완료와 배포 대기를 분리 보고하고 decision은 닫지 않는다.
+
+## Task 10: Revision 6 독립 리뷰 보강
+
+**파일:**
+
+- 수정: `tests/test_gupabal_hooks.py`
+- 수정: `.codex/hooks/gupabal_hooks.py`
+- 수정: `tests/test_gupabal_windows.py`
+- 수정: `scripts/install_gupabal.py`
+- 수정: `GUPABAL_GAME.md`
+- 수정: `gupabal-manifest.json`
+- 수정: `.codex/gupabal/decision.json`
+- 수정: 본 설계와 실행 계획
+
+1. 잘린 비활성 v2, 잘못된 완료·취소 상태, stale approval을 거부하고 정상 완료·취소만 조용히 통과하는 RED 테스트를 추가한다.
+2. 비활성 v2의 전체 구조와 종료 규칙을 검사하고, 오류는 decision-only 복구 외 구현 patch를 fail-closed로 막는다.
+3. 8 MiB 초과 `PreToolUse` 입력이 전역 deny되는 RED를 확인하고, 지원되는 경고 출력만 남기는 fail-open으로 바꾼다. 파싱된 활성 정책의 4 MiB patch 제한은 유지한다.
+4. 실제 Windows junction을 skill target으로 전달했을 때 설치기가 쓰기를 시작하는 RED를 확인한다.
+5. Python 3.10·3.11에서도 reparse-point attribute를 검사해 symlink·junction container를 모두 거부한다.
+6. `GUPABAL_GAME.md`의 oversize event 안내를 fail-open 계약과 동기화하고 manifest hash를 갱신한다.
+7. 관련 테스트를 각각 RED→GREEN으로 확인한 뒤 전체 Node·Python·Git Bash·Skill·runtime 검증과 독립 재리뷰를 실행한다.
