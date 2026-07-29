@@ -1,6 +1,6 @@
 {
   "ok": true,
-  "frames_root": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames",
+  "frames_root": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames",
   "states": [
     "idle",
     "running-right",
@@ -13,7 +13,9 @@
     "review"
   ],
   "errors": [],
-  "warnings": [],
+  "warnings": [
+    "failed used extraction method stable-slots; component extraction is preferred"
+  ],
   "rows": [
     {
       "state": "idle",
@@ -26,93 +28,93 @@
       "frames": [
         {
           "index": 0,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\idle\\00.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\idle\\00.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 19349,
+          "nontransparent_pixels": 21338,
           "bbox": [
-            27,
+            21,
             5,
-            164,
+            171,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 478
+          "chroma_adjacent_pixels": 812
         },
         {
           "index": 1,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\idle\\01.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\idle\\01.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 19285,
+          "nontransparent_pixels": 21113,
           "bbox": [
-            28,
+            22,
             5,
-            164,
+            169,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 480
+          "chroma_adjacent_pixels": 760
         },
         {
           "index": 2,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\idle\\02.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\idle\\02.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 19223,
+          "nontransparent_pixels": 21095,
           "bbox": [
-            28,
+            22,
             5,
-            164,
+            169,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 424
+          "chroma_adjacent_pixels": 769
         },
         {
           "index": 3,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\idle\\03.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\idle\\03.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 19237,
+          "nontransparent_pixels": 20951,
           "bbox": [
-            28,
+            23,
             5,
-            164,
+            169,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 449
+          "chroma_adjacent_pixels": 789
         },
         {
           "index": 4,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\idle\\04.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\idle\\04.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 19367,
+          "nontransparent_pixels": 20936,
           "bbox": [
-            28,
+            23,
             5,
-            164,
+            169,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 563
+          "chroma_adjacent_pixels": 790
         },
         {
           "index": 5,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\idle\\05.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\idle\\05.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 18925,
+          "nontransparent_pixels": 20891,
           "bbox": [
-            29,
+            23,
             5,
-            163,
+            169,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 414
+          "chroma_adjacent_pixels": 782
         }
       ]
     },
@@ -127,10 +129,10 @@
       "frames": [
         {
           "index": 0,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-right\\00.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\running-right\\00.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 18587,
+          "nontransparent_pixels": 17897,
           "bbox": [
             32,
             5,
@@ -138,14 +140,14 @@
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 536
+          "chroma_adjacent_pixels": 357
         },
         {
           "index": 1,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-right\\01.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\running-right\\01.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 18197,
+          "nontransparent_pixels": 17515,
           "bbox": [
             32,
             5,
@@ -153,14 +155,14 @@
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 568
+          "chroma_adjacent_pixels": 370
         },
         {
           "index": 2,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-right\\02.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\running-right\\02.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 17509,
+          "nontransparent_pixels": 16915,
           "bbox": [
             36,
             5,
@@ -168,14 +170,14 @@
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 468
+          "chroma_adjacent_pixels": 311
         },
         {
           "index": 3,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-right\\03.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\running-right\\03.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 18847,
+          "nontransparent_pixels": 18165,
           "bbox": [
             30,
             5,
@@ -183,14 +185,14 @@
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 551
+          "chroma_adjacent_pixels": 359
         },
         {
           "index": 4,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-right\\04.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\running-right\\04.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 17618,
+          "nontransparent_pixels": 17036,
           "bbox": [
             39,
             5,
@@ -198,14 +200,14 @@
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 482
+          "chroma_adjacent_pixels": 301
         },
         {
           "index": 5,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-right\\05.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\running-right\\05.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 17553,
+          "nontransparent_pixels": 16888,
           "bbox": [
             37,
             5,
@@ -213,14 +215,14 @@
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 587
+          "chroma_adjacent_pixels": 383
         },
         {
           "index": 6,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-right\\06.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\running-right\\06.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 17783,
+          "nontransparent_pixels": 17143,
           "bbox": [
             35,
             5,
@@ -228,14 +230,14 @@
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 468
+          "chroma_adjacent_pixels": 312
         },
         {
           "index": 7,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-right\\07.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\running-right\\07.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 17906,
+          "nontransparent_pixels": 17260,
           "bbox": [
             34,
             5,
@@ -243,7 +245,7 @@
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 463
+          "chroma_adjacent_pixels": 298
         }
       ]
     },
@@ -258,10 +260,10 @@
       "frames": [
         {
           "index": 0,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-left\\00.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\running-left\\00.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 17386,
+          "nontransparent_pixels": 16643,
           "bbox": [
             35,
             5,
@@ -269,14 +271,14 @@
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 456
+          "chroma_adjacent_pixels": 258
         },
         {
           "index": 1,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-left\\01.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\running-left\\01.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 16216,
+          "nontransparent_pixels": 15514,
           "bbox": [
             38,
             5,
@@ -284,14 +286,14 @@
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 430
+          "chroma_adjacent_pixels": 271
         },
         {
           "index": 2,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-left\\02.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\running-left\\02.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 16257,
+          "nontransparent_pixels": 15596,
           "bbox": [
             38,
             5,
@@ -299,14 +301,14 @@
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 463
+          "chroma_adjacent_pixels": 245
         },
         {
           "index": 3,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-left\\03.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\running-left\\03.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 18449,
+          "nontransparent_pixels": 17802,
           "bbox": [
             31,
             5,
@@ -314,14 +316,14 @@
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 519
+          "chroma_adjacent_pixels": 283
         },
         {
           "index": 4,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-left\\04.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\running-left\\04.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 17003,
+          "nontransparent_pixels": 16275,
           "bbox": [
             37,
             5,
@@ -329,14 +331,14 @@
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 429
+          "chroma_adjacent_pixels": 221
         },
         {
           "index": 5,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-left\\05.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\running-left\\05.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 15880,
+          "nontransparent_pixels": 15216,
           "bbox": [
             39,
             5,
@@ -344,14 +346,14 @@
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 462
+          "chroma_adjacent_pixels": 278
         },
         {
           "index": 6,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-left\\06.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\running-left\\06.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 16292,
+          "nontransparent_pixels": 15601,
           "bbox": [
             38,
             5,
@@ -359,14 +361,14 @@
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 468
+          "chroma_adjacent_pixels": 264
         },
         {
           "index": 7,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running-left\\07.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\running-left\\07.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 18094,
+          "nontransparent_pixels": 17469,
           "bbox": [
             32,
             5,
@@ -374,7 +376,7 @@
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 473
+          "chroma_adjacent_pixels": 252
         }
       ]
     },
@@ -389,63 +391,63 @@
       "frames": [
         {
           "index": 0,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\waving\\00.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\waving\\00.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 19394,
+          "nontransparent_pixels": 22306,
           "bbox": [
-            27,
+            17,
             5,
-            164,
+            174,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 449
+          "chroma_adjacent_pixels": 786
         },
         {
           "index": 1,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\waving\\01.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\waving\\01.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 20092,
+          "nontransparent_pixels": 22809,
           "bbox": [
-            21,
+            10,
             5,
-            171,
+            182,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 495
+          "chroma_adjacent_pixels": 769
         },
         {
           "index": 2,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\waving\\02.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\waving\\02.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 19968,
+          "nontransparent_pixels": 22613,
           "bbox": [
-            16,
+            7,
             5,
-            176,
+            185,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 524
+          "chroma_adjacent_pixels": 786
         },
         {
           "index": 3,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\waving\\03.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\waving\\03.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 18631,
+          "nontransparent_pixels": 21923,
           "bbox": [
-            30,
+            18,
             5,
-            162,
+            173,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 435
+          "chroma_adjacent_pixels": 779
         }
       ]
     },
@@ -460,78 +462,78 @@
       "frames": [
         {
           "index": 0,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\jumping\\00.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\jumping\\00.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 19978,
+          "nontransparent_pixels": 23605,
           "bbox": [
-            25,
             5,
-            167,
-            203
+            11,
+            187,
+            197
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 606
+          "chroma_adjacent_pixels": 613
         },
         {
           "index": 1,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\jumping\\01.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\jumping\\01.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 18790,
+          "nontransparent_pixels": 21725,
           "bbox": [
-            20,
+            10,
             5,
-            171,
+            181,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 564
+          "chroma_adjacent_pixels": 613
         },
         {
           "index": 2,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\jumping\\02.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\jumping\\02.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 20674,
+          "nontransparent_pixels": 23230,
           "bbox": [
-            16,
+            7,
             5,
-            175,
+            184,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 769
+          "chroma_adjacent_pixels": 721
         },
         {
           "index": 3,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\jumping\\03.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\jumping\\03.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 20038,
+          "nontransparent_pixels": 21548,
           "bbox": [
-            18,
+            11,
             5,
-            174,
+            181,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 668
+          "chroma_adjacent_pixels": 568
         },
         {
           "index": 4,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\jumping\\04.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\jumping\\04.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 20068,
+          "nontransparent_pixels": 25664,
           "bbox": [
-            24,
             5,
-            167,
+            5,
+            187,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 564
+          "chroma_adjacent_pixels": 796
         }
       ]
     },
@@ -539,62 +541,19 @@
       "state": "failed",
       "expected_frames": 8,
       "actual_frames": 8,
-      "extraction_method": "components",
+      "extraction_method": "stable-slots",
       "ok": true,
       "errors": [],
-      "warnings": [],
+      "warnings": [
+        "failed used extraction method stable-slots; component extraction is preferred"
+      ],
       "frames": [
         {
           "index": 0,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\failed\\00.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\failed\\00.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 18921,
-          "bbox": [
-            32,
-            5,
-            160,
-            203
-          ],
-          "edge_pixels": 0,
-          "chroma_adjacent_pixels": 543
-        },
-        {
-          "index": 1,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\failed\\01.png",
-          "width": 192,
-          "height": 208,
-          "nontransparent_pixels": 19039,
-          "bbox": [
-            32,
-            5,
-            160,
-            203
-          ],
-          "edge_pixels": 0,
-          "chroma_adjacent_pixels": 513
-        },
-        {
-          "index": 2,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\failed\\02.png",
-          "width": 192,
-          "height": 208,
-          "nontransparent_pixels": 19232,
-          "bbox": [
-            32,
-            5,
-            160,
-            203
-          ],
-          "edge_pixels": 0,
-          "chroma_adjacent_pixels": 441
-        },
-        {
-          "index": 3,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\failed\\03.png",
-          "width": 192,
-          "height": 208,
-          "nontransparent_pixels": 20002,
+          "nontransparent_pixels": 18191,
           "bbox": [
             30,
             5,
@@ -602,67 +561,112 @@
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 479
+          "chroma_adjacent_pixels": 643
         },
         {
-          "index": 4,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\failed\\04.png",
+          "index": 1,
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\failed\\01.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 23669,
+          "nontransparent_pixels": 17021,
           "bbox": [
-            19,
-            5,
-            173,
+            33,
+            11,
+            157,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 505
+          "chroma_adjacent_pixels": 575
         },
         {
-          "index": 5,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\failed\\05.png",
+          "index": 2,
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\failed\\02.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 28932,
+          "nontransparent_pixels": 16056,
           "bbox": [
-            5,
-            6,
-            187,
+            34,
+            24,
+            157,
             202
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 761
+          "chroma_adjacent_pixels": 496
+        },
+        {
+          "index": 3,
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\failed\\03.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 14921,
+          "bbox": [
+            35,
+            36,
+            156,
+            202
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 501
+        },
+        {
+          "index": 4,
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\failed\\04.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 13726,
+          "bbox": [
+            34,
+            51,
+            157,
+            202
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 485
+        },
+        {
+          "index": 5,
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\failed\\05.png",
+          "width": 192,
+          "height": 208,
+          "nontransparent_pixels": 12244,
+          "bbox": [
+            35,
+            67,
+            155,
+            202
+          ],
+          "edge_pixels": 0,
+          "chroma_adjacent_pixels": 451
         },
         {
           "index": 6,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\failed\\06.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\failed\\06.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 20236,
+          "nontransparent_pixels": 15077,
           "bbox": [
-            28,
-            5,
-            163,
+            33,
+            36,
+            158,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 385
+          "chroma_adjacent_pixels": 481
         },
         {
           "index": 7,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\failed\\07.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\failed\\07.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 19395,
+          "nontransparent_pixels": 16576,
           "bbox": [
-            31,
-            5,
-            160,
+            34,
+            14,
+            157,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 467
+          "chroma_adjacent_pixels": 573
         }
       ]
     },
@@ -677,93 +681,93 @@
       "frames": [
         {
           "index": 0,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\waiting\\00.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\waiting\\00.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 18978,
+          "nontransparent_pixels": 21777,
           "bbox": [
-            29,
+            19,
             5,
-            163,
+            173,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 529
+          "chroma_adjacent_pixels": 949
         },
         {
           "index": 1,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\waiting\\01.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\waiting\\01.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 18785,
+          "nontransparent_pixels": 21906,
           "bbox": [
-            25,
+            15,
             5,
-            166,
+            177,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 585
+          "chroma_adjacent_pixels": 971
         },
         {
           "index": 2,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\waiting\\02.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\waiting\\02.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 18423,
+          "nontransparent_pixels": 21752,
           "bbox": [
-            28,
+            10,
             5,
-            163,
+            181,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 497
+          "chroma_adjacent_pixels": 958
         },
         {
           "index": 3,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\waiting\\03.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\waiting\\03.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 18681,
+          "nontransparent_pixels": 22027,
           "bbox": [
-            29,
+            17,
             5,
-            163,
+            174,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 569
+          "chroma_adjacent_pixels": 760
         },
         {
           "index": 4,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\waiting\\04.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\waiting\\04.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 18382,
+          "nontransparent_pixels": 19875,
           "bbox": [
-            29,
+            23,
             5,
-            162,
+            168,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 592
+          "chroma_adjacent_pixels": 743
         },
         {
           "index": 5,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\waiting\\05.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\waiting\\05.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 18593,
+          "nontransparent_pixels": 21463,
           "bbox": [
-            30,
+            19,
             5,
-            162,
+            172,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 524
+          "chroma_adjacent_pixels": 841
         }
       ]
     },
@@ -778,93 +782,93 @@
       "frames": [
         {
           "index": 0,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running\\00.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\running\\00.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 19243,
+          "nontransparent_pixels": 20642,
           "bbox": [
-            28,
+            24,
             5,
-            164,
+            168,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 528
+          "chroma_adjacent_pixels": 560
         },
         {
           "index": 1,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running\\01.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\running\\01.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 18353,
+          "nontransparent_pixels": 20340,
           "bbox": [
-            34,
+            24,
             5,
-            157,
+            167,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 562
+          "chroma_adjacent_pixels": 462
         },
         {
           "index": 2,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running\\02.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\running\\02.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 18218,
+          "nontransparent_pixels": 19980,
           "bbox": [
-            26,
+            27,
             5,
             165,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 505
+          "chroma_adjacent_pixels": 609
         },
         {
           "index": 3,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running\\03.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\running\\03.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 17749,
+          "nontransparent_pixels": 19976,
           "bbox": [
-            38,
+            26,
             5,
-            154,
+            166,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 508
+          "chroma_adjacent_pixels": 565
         },
         {
           "index": 4,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running\\04.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\running\\04.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 18638,
+          "nontransparent_pixels": 19988,
           "bbox": [
-            32,
+            26,
             5,
-            160,
+            166,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 533
+          "chroma_adjacent_pixels": 484
         },
         {
           "index": 5,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\running\\05.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\running\\05.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 18434,
+          "nontransparent_pixels": 20154,
           "bbox": [
-            31,
+            25,
             5,
-            160,
+            167,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 523
+          "chroma_adjacent_pixels": 468
         }
       ]
     },
@@ -879,93 +883,93 @@
       "frames": [
         {
           "index": 0,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\review\\00.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\review\\00.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 19361,
+          "nontransparent_pixels": 22328,
           "bbox": [
-            28,
+            18,
             5,
-            164,
+            174,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 676
+          "chroma_adjacent_pixels": 833
         },
         {
           "index": 1,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\review\\01.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\review\\01.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 17496,
+          "nontransparent_pixels": 20732,
           "bbox": [
-            31,
+            26,
             5,
-            160,
+            166,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 533
+          "chroma_adjacent_pixels": 704
         },
         {
           "index": 2,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\review\\02.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\review\\02.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 17447,
+          "nontransparent_pixels": 20699,
           "bbox": [
-            40,
+            26,
             5,
-            152,
+            165,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 529
+          "chroma_adjacent_pixels": 690
         },
         {
           "index": 3,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\review\\03.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\review\\03.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 17989,
+          "nontransparent_pixels": 21696,
           "bbox": [
-            33,
+            20,
             5,
-            159,
+            171,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 571
+          "chroma_adjacent_pixels": 772
         },
         {
           "index": 4,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\review\\04.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\review\\04.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 17395,
+          "nontransparent_pixels": 20446,
           "bbox": [
-            38,
+            24,
             5,
-            153,
+            168,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 531
+          "chroma_adjacent_pixels": 705
         },
         {
           "index": 5,
-          "file": "C:\\Users\\BP\\Documents\\Codex\\2026-07-23\\hatch-pet-c-users-bp-codex-2\\work\\professor-pore-square\\frames\\review\\05.png",
+          "file": "C:\\Users\\gupab\\.codex\\pet-runs\\professor-pore-smile\\frames\\review\\05.png",
           "width": 192,
           "height": 208,
-          "nontransparent_pixels": 18030,
+          "nontransparent_pixels": 21768,
           "bbox": [
-            32,
+            19,
             5,
-            160,
+            172,
             203
           ],
           "edge_pixels": 0,
-          "chroma_adjacent_pixels": 549
+          "chroma_adjacent_pixels": 827
         }
       ]
     }

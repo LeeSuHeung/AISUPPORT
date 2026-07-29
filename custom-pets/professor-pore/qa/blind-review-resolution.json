@@ -2,6 +2,6 @@
   "decision": "accept",
   "severity": "minor",
   "failed_checks": ["intermediate blind-axis warnings", "continuity metric outliers"],
-  "evidence": "Independent final visual QA confirmed every labeled intermediate remains in its intended quadrant, all four cardinals pass, and the ordered loop has no reversal, snap, scale pop, registration jump, identity change, or broken silhouette.",
-  "reviewed_by": "final_visual_qa"
+  "evidence": "Independent final visual QA confirmed every labeled intermediate stays in its intended quadrant, all four cardinals pass, and the ordered loop has no reversal, snap, scale pop, registration jump, identity change, or broken silhouette. Standard rows also pass after restoring viewer-coordinate eye colors in running-left.",
+  "reviewed_by": "final_pet_visual_qa"
 }

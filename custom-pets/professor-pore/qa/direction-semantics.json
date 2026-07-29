@@ -1,21 +1,22 @@
 {
   "ok": true,
+  "overall": "warning",
   "directions": [
-    {"direction":"000","expected":"up","observed":"pupils raised, horizontal centered","verdict":"pass","reason":"Unmistakable up cardinal."},
-    {"direction":"022.5","expected":"up-right","observed":"pupils right and high","verdict":"pass","reason":"Both axes visible."},
-    {"direction":"045","expected":"up-right","observed":"labeled pose right-biased and high","verdict":"warning","reason":"Correct labeled quadrant; blind horizontal pair reversed."},
-    {"direction":"067.5","expected":"up-right","observed":"pupils right and above center","verdict":"pass","reason":"Both axes visible."},
-    {"direction":"090","expected":"right","observed":"pupils unmistakably right, vertical centered","verdict":"pass","reason":"Unmistakable right cardinal."},
-    {"direction":"112.5","expected":"down-right","observed":"pupils right and below center","verdict":"pass","reason":"Both axes visible."},
-    {"direction":"135","expected":"down-right","observed":"subtle right cue, clear down cue","verdict":"warning","reason":"Correct labeled quadrant; blind horizontal uncertainty."},
-    {"direction":"157.5","expected":"down-right","observed":"subtle right cue, clear down cue","verdict":"warning","reason":"Correct labeled quadrant; blind horizontal uncertainty."},
-    {"direction":"180","expected":"down","observed":"pupils unmistakably lowered, horizontal centered","verdict":"pass","reason":"Unmistakable down cardinal."},
-    {"direction":"202.5","expected":"down-left","observed":"subtle left cue, labeled pose reads down","verdict":"warning","reason":"Correct labeled quadrant despite blind uncertainty."},
-    {"direction":"225","expected":"down-left","observed":"pupils left and down","verdict":"pass","reason":"Both axes visible."},
-    {"direction":"247.5","expected":"down-left","observed":"pupils left, subtle down cue","verdict":"warning","reason":"Correct labeled quadrant; blind vertical uncertainty."},
-    {"direction":"270","expected":"left","observed":"pupils unmistakably left, vertical centered","verdict":"pass","reason":"Unmistakable left cardinal."},
-    {"direction":"292.5","expected":"up-left","observed":"pupils left, subtle up cue","verdict":"warning","reason":"Correct labeled quadrant; blind vertical uncertainty."},
-    {"direction":"315","expected":"up-left","observed":"labeled pose left-biased and high","verdict":"warning","reason":"Correct labeled quadrant; blind horizontal pair reversed."},
-    {"direction":"337.5","expected":"up-left","observed":"pupils left and raised","verdict":"pass","reason":"Both axes visible."}
+    {"direction":"000","verdict":"pass","expected":"up","observed":"up","reason":"Vertical: both irises sit clearly above center; blind hard gate confirms up. Open smile, exactly two adjacent front teeth, correct eye colors, screen-left test tube, stable identity, and no clipping."},
+    {"direction":"022.5","verdict":"pass","expected":"up-right","observed":"up-right","reason":"Horizontal: gaze moves screen-right. Vertical: irises remain above center. Blind review confirms both axes; identity and facial rules remain stable."},
+    {"direction":"045","verdict":"pass","expected":"up-right","observed":"up-right","reason":"Horizontal: gaze is screen-right. Vertical: gaze is above center. Blind review confirms both axes; no clipping, pop, identity drift, tooth error, or prop-side change."},
+    {"direction":"067.5","verdict":"warning","expected":"up-right","observed":"up-right in labeled ordered loop; vertical axis uncertain blind","reason":"Horizontal: gaze reads screen-right and blind review confirms it. Vertical: labeled pose remains on the upward arc, but blind review found the cue ambiguous. No wrong quadrant or reversal."},
+    {"direction":"090","verdict":"pass","expected":"right","observed":"right","reason":"Horizontal: both irises sit unmistakably screen-right; blind hard gate confirms right. Required identity and prop traits pass."},
+    {"direction":"112.5","verdict":"warning","expected":"down-right","observed":"down-right in labeled ordered loop; vertical axis uncertain blind","reason":"Horizontal: gaze remains screen-right and blind review confirms it. Vertical: labeled pose starts the downward arc, but blind review found the cue ambiguous. No wrong quadrant or reversal."},
+    {"direction":"135","verdict":"pass","expected":"down-right","observed":"down-right","reason":"Horizontal: gaze reads screen-right. Vertical: gaze is below center. Blind review confirms both axes; the continuity outlier causes no visible snap or scale pop."},
+    {"direction":"157.5","verdict":"warning","expected":"down-right","observed":"down-right in labeled ordered loop; horizontal axis uncertain blind","reason":"Horizontal: labeled pose retains a subtle screen-right component, but blind review found it ambiguous. Vertical: gaze is clearly low and blind review confirms down. No reversal or identity drift."},
+    {"direction":"180","verdict":"pass","expected":"down","observed":"down","reason":"Vertical: both irises sit unmistakably below center; blind hard gate confirms down. The continuity outlier produces no visible snap or scale pop."},
+    {"direction":"202.5","verdict":"warning","expected":"down-left","observed":"down-left in labeled ordered loop; horizontal axis uncertain blind","reason":"Horizontal: labeled pose starts moving screen-left, but blind review found the cue ambiguous. Vertical: gaze remains below center and blind review confirms down. No wrong quadrant or reversal."},
+    {"direction":"225","verdict":"warning","expected":"down-left","observed":"down-left in labeled ordered loop; vertical axis uncertain blind","reason":"Horizontal: gaze is screen-left and blind review confirms it. Vertical: labeled pose remains on the downward arc, but blind review found the cue ambiguous. No wrong quadrant or reversal."},
+    {"direction":"247.5","verdict":"warning","expected":"down-left","observed":"down-left in labeled ordered loop; vertical axis uncertain blind","reason":"Horizontal: gaze remains screen-left and blind review confirms it. Vertical: labeled pose retains a subtle downward component, but blind review found it ambiguous. The continuity outlier has no visible snap."},
+    {"direction":"270","verdict":"pass","expected":"left","observed":"left","reason":"Horizontal: both irises sit unmistakably screen-left; blind hard gate confirms left. Identity, teeth, eye colors, test-tube side, and registration pass."},
+    {"direction":"292.5","verdict":"warning","expected":"up-left","observed":"up-left in labeled ordered loop; vertical axis uncertain blind","reason":"Horizontal: gaze remains screen-left and blind review confirms it. Vertical: labeled pose begins the upward arc, but blind review found the cue ambiguous. No wrong quadrant or reversal."},
+    {"direction":"315","verdict":"warning","expected":"up-left","observed":"up-left in labeled ordered loop; blind horizontal vote conflicts","reason":"Horizontal: labeled pose and neighboring loop context show screen-left progression, while blind review voted screen-right. Vertical: gaze is above center and blind review confirms up. No visible reversal or scale pop."},
+    {"direction":"337.5","verdict":"warning","expected":"up-left","observed":"up-left in labeled ordered loop; blind horizontal vote conflicts","reason":"Horizontal: labeled pose remains one step left of 000, while blind review voted screen-right. Vertical: gaze is clearly above center and blind review confirms up. No visible snap or reversal."}
   ]
 }

@@ -1,6 +1,6 @@
 # Professor Pore
 
-Original Codex v2 custom pet: a square-bodied eccentric sea-sponge scientist with teal-and-amber heterochromia.
+Original Codex v2 custom pet: a square-bodied eccentric sea-sponge scientist with teal-and-amber heterochromia and a cheerful two-front-tooth smile.
 
 Install by copying this folder to `$CODEX_HOME/pets/professor-pore/`.
 
