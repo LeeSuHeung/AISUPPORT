@@ -1,19 +1,20 @@
 # AISUPPORT
 
-Codex에서 여러 PC에 동일한 작업 방식과 에이전트를 설치하기 위한 비공개 구성 저장소입니다. 외부에서 검토해 고정한 Caveman·Superpowers Skill과 직접 관리하는 구파발게임 팀을 한 번에 설치합니다.
+Codex에서 여러 PC에 동일한 작업 방식과 에이전트를 설치하기 위한 비공개 구성 저장소입니다. 외부에서 검토해 고정한 Caveman·Ponytail·Superpowers Skill과 직접 관리하는 구파발게임 팀을 한 번에 설치합니다.
 
 ## 포함된 구성
 
 - **Caveman**: 답변을 짧고 명확하게 정리하는 표현 방식
+- **Ponytail**: 기존 코드·표준 기능을 우선해 가장 작은 올바른 구현을 선택하는 코딩 방식
 - **Superpowers**: 기획, 테스트 주도 개발, 디버깅, 검토 같은 작업 절차
 - **구파발게임**: 기획자·아트디자이너·클라이언트·서버 역할의 합의형 게임 개발팀
 - **구파발 Hook**: 명시적으로 활성화한 경우 합의 상태, 파일 담당 범위, 변경 파일의 확실한 오류를 자동 확인하는 안전장치
 
-자세한 내용은 [CAVEMAN.md](CAVEMAN.md), [SUPERPOWERS.md](SUPERPOWERS.md), [GUPABAL_GAME.md](GUPABAL_GAME.md)에서 확인할 수 있습니다.
+자세한 내용은 [CAVEMAN.md](CAVEMAN.md), [PONYTAIL.md](PONYTAIL.md), [SUPERPOWERS.md](SUPERPOWERS.md), [GUPABAL_GAME.md](GUPABAL_GAME.md)에서 확인할 수 있습니다.
 
 ## 수동 기본 정책
 
-별도 요청이 없으면 Skill, 역할 에이전트, 하위 에이전트, 브랜치·커밋·push·PR, GitHub 검사, lifecycle Hook, 백그라운드 도우미, 예약·반복 작업을 시작하지 않습니다. 브랜치를 따로 지정하지 않으면 `master`에서만 작업합니다. 사용자가 구현이나 설치를 요청한 작업 안에서 완료 여부를 확인하는 일회성 테스트만 실행할 수 있으며, 이를 예약하거나 백그라운드에서 반복하지 않습니다.
+Caveman과 Ponytail 외에는 별도 요청 없이 Skill, 역할 에이전트, 하위 에이전트, 브랜치·커밋·push·PR, GitHub 검사, lifecycle Hook, 백그라운드 도우미, 예약·반복 작업을 시작하지 않습니다. 브랜치를 따로 지정하지 않으면 `master`에서만 작업합니다. 사용자가 구현이나 설치를 요청한 작업 안에서 완료 여부를 확인하는 일회성 테스트만 실행할 수 있으며, 이를 예약하거나 백그라운드에서 반복하지 않습니다.
 
 이 PC의 Codex 사용자 설정은 자동 계속(`goals`), lifecycle Hook(`hooks`), 자동 하위 에이전트(`multi_agent`), 기억 기능(`memories`), 후속 작업 제안(`ambient-suggestions-enabled`)을 꺼 두고, 턴 종료 때 외부 프로그램을 호출하는 `notify`도 제거합니다. 이 설정은 저장소 복제만으로 다른 PC에 자동 적용되지 않습니다. 다른 PC에서도 같은 동작이 필요하면 `$CODEX_HOME/config.toml`에 아래 값을 직접 적용하고 Codex를 다시 시작합니다.
 
@@ -28,7 +29,7 @@ memories = false
 ambient-suggestions-enabled = false
 ```
 
-`notify = [...]` 항목이 있으면 삭제합니다. 플러그인과 도구는 설치돼 있어도 스스로 작업을 시작하지 않으므로 그대로 두며, 사용자가 명시적으로 요청한 경우에만 호출합니다.
+`notify = [...]` 항목이 있으면 삭제합니다. 상시 정책으로 지정한 Caveman과 Ponytail 외의 플러그인·도구는 설치돼 있어도 사용자가 명시적으로 요청한 경우에만 호출합니다.
 
 ## 준비물
 
@@ -78,10 +79,11 @@ sh ./install.sh --with-hooks
 
 활성화한 Hook은 `SubagentStop`, `PreToolUse`, `PostToolUse` 이벤트마다 자동으로 실행됩니다. `/hooks`에서 경로와 내용을 검토하고 신뢰한 경우에만 활성화하세요.
 
-AISUPPORT Skill은 자동으로 시작하지 않습니다. 새 작업에서도 필요한 Skill 이름을 직접 말해야 합니다.
+`caveman` Skill은 모든 응답에, `ponytail` Skill은 모든 코딩 작업에 자동으로 적용됩니다. 상시 적용되는 기능은 이 둘뿐입니다. 다른 AISUPPORT Skill은 필요한 이름을 직접 말해야 시작됩니다.
 
 ```text
-$caveman을 사용해서 답변을 짧게 정리해줘.
+caveman lite로 답변해줘.
+normal mode로 전환해줘.
 $using-superpowers를 사용해서 이 작업 절차를 진행해줘.
 ```
 

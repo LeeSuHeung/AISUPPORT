@@ -32,6 +32,21 @@ const SKILL_BUNDLES = Object.freeze([
     ]),
   }),
   Object.freeze({
+    displayName: "Ponytail",
+    source: "DietrichGebert/ponytail",
+    ref: "v4.8.4",
+    manifestFile: "ponytail-manifest.json",
+    executables: Object.freeze([]),
+    skillNames: Object.freeze([
+      "ponytail",
+      "ponytail-audit",
+      "ponytail-debt",
+      "ponytail-gain",
+      "ponytail-help",
+      "ponytail-review",
+    ]),
+  }),
+  Object.freeze({
     displayName: "Superpowers",
     source: "obra/superpowers",
     ref: "v6.1.1",

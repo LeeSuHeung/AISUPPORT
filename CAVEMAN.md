@@ -10,7 +10,7 @@ This repository vendors the Caveman skill suite for Codex from
 - Project skills: `.agents/skills/`
 - Reproducibility lock: `skills-lock.json`
 - File integrity manifest: `caveman-manifest.json`
-- Manual activation guidance: `AGENTS.md`
+- Default activation guidance: `AGENTS.md`
 
 The files are copied instead of symlinked so they work reliably on Windows and
 can be committed to Git. `skills-lock.json` records the upstream tag, source
@@ -21,7 +21,8 @@ path, and content hash for every installed skill.
 Codex automatically scans `.agents/skills` from the current directory up to
 the Git repository root. After cloning this repository, these skills therefore
 work without downloading or installing anything. Start a new Codex task from
-any directory inside the repository, then explicitly invoke the needed skill.
+any directory inside the repository. Caveman starts on every task and Ponytail
+on every coding task; invoke all other skills explicitly when needed.
 
 Choose one scope:
 
@@ -32,9 +33,9 @@ When the user-level copy is installed, Codex may display both the repository
 and user copies while working inside this repository. Codex does not merge
 same-named skills; both copies are intentionally identical and verified.
 
-To make the reviewed AISUPPORT skill suite (Caveman plus Superpowers) available
-in every repository for the current user, run the included offline bootstrap
-after cloning:
+To make the reviewed AISUPPORT skill suite (Caveman, Ponytail, and Superpowers)
+available in every repository for the current user, run the included offline
+bootstrap after cloning:
 
 ```powershell
 # Windows PowerShell
@@ -95,10 +96,9 @@ only when the user explicitly requests that exact publishing action.
 
 ## Usage
 
-Invoke Caveman explicitly for each new task, for example: `$caveman`을 사용해서
-답변을 짧게 정리해줘. After activation, ask for `caveman lite`, `caveman full`,
-or `caveman ultra` to change intensity. Say `normal mode` or `stop caveman` to
-disable it for the current task.
+Caveman starts in full mode for every new task and applies to every response.
+Ask for `caveman lite`, `caveman full`, or `caveman ultra` to change intensity.
+Say `normal mode` or `stop caveman` to disable it for the current task.
 
 Do not start subagents, background helpers, scheduled work, branches, commits,
 pushes, pull requests, Hooks, or GitHub workflows merely because a skill makes

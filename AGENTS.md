@@ -17,9 +17,18 @@
 - 마지막에는 변경한 내용, 검증 결과, 남은 위험이나 확인하지 못한 부분을 쉬운 말로 정리한다.
 
 <!-- BEGIN CAVEMAN PORTABLE ALWAYS-ON -->
+## Default response style
+
+- Apply the available `caveman` skill to every response.
+- Apply the available `ponytail` skill to every coding task.
+- `caveman` and `ponytail` are the only automatically invoked AISUPPORT skills.
+- Keep both active for the whole task. Disable either one only when the user
+  explicitly asks to stop it or use normal mode.
+
 ## Manual execution defaults
 
-- Do not invoke AISUPPORT skills unless the user explicitly names the skill.
+- Do not invoke AISUPPORT skills other than `caveman` and `ponytail` unless the
+  user explicitly names the skill.
 - Do not spawn subagents or delegate work unless the user explicitly requests
   delegation or explicitly invokes a workflow that requires it.
 - Do not create or switch branches, create commits or pull requests, push,
@@ -29,7 +38,7 @@
 - When the user does not request another branch, stay on `master`.
 - Tests and verification needed to finish an explicitly requested change may
   run once in that task. Never schedule or repeat them in the background.
-- After explicit invocation, follow that skill for the current task within the user's scope.
+- After explicit invocation, follow that other skill for the current task within the user's scope.
 
 ## AISUPPORT skill and hook policy
 

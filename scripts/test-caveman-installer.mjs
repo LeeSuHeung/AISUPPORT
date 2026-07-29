@@ -51,8 +51,30 @@ function frontmatterValue(contents, key) {
   return match?.[1].trim();
 }
 
-async function testManualOnlySkillTriggers() {
-  for (const skillName of expectedSkillNames) {
+async function testSkillTriggers() {
+  const cavemanSkill = await readFile(
+    path.join(repositoryRoot, ".agents", "skills", "caveman", "SKILL.md"),
+    "utf8",
+  );
+  assert(
+    frontmatterValue(cavemanSkill, "description") ===
+      "Apply automatically to every response unless the user says stop caveman or normal mode.",
+    "Caveman automatic trigger missing",
+  );
+
+  const ponytailSkill = await readFile(
+    path.join(repositoryRoot, ".agents", "skills", "ponytail", "SKILL.md"),
+    "utf8",
+  );
+  assert(
+    frontmatterValue(ponytailSkill, "description") ===
+      "Apply automatically to every coding task. Prefer YAGNI, existing code, standard library, native features, and the smallest correct implementation.",
+    "Ponytail automatic trigger missing",
+  );
+
+  for (const skillName of expectedSkillNames.filter(
+    (name) => name !== "caveman" && name !== "ponytail",
+  )) {
     const skill = await readFile(
       path.join(repositoryRoot, ".agents", "skills", skillName, "SKILL.md"),
       "utf8",
@@ -79,13 +101,16 @@ async function testManualOnlySkillTriggers() {
     "utf8",
   );
   for (const forbidden of [
-    "Apply the available `caveman` skill to every response",
     "Apply the available `using-superpowers` skill at the start",
     "Invoke each relevant Superpowers process skill before implementation",
   ]) {
     assert(!rootGuidance.includes(forbidden), `Automatic guidance remains: ${forbidden}`);
   }
   for (const required of [
+    "Apply the available `caveman` skill to every response.",
+    "Apply the available `ponytail` skill to every coding task.",
+    "`caveman` and `ponytail` are the only automatically invoked AISUPPORT skills.",
+    "Do not invoke AISUPPORT skills other than `caveman` and `ponytail` unless the",
     "Do not spawn subagents or delegate work unless the user explicitly requests",
     "Do not create or switch branches, create commits or pull requests, push,",
     "When the user does not request another branch, stay on `master`.",
@@ -239,8 +264,8 @@ async function testPreservationAndConflicts(root) {
   assert(backups.length === 1, "Idempotent reinstall created another backup");
 
   const conflicting = installed.replace(
-    "Do not invoke AISUPPORT skills unless the user explicitly names the skill.",
-    "Do not invoke AISUPPORT skills unless the user explicitly names a different skill.",
+    "Apply the available `caveman` skill to every response.",
+    "Apply the available `caveman` skill to every other response.",
   );
   assert(conflicting !== installed, "Conflict fixture was not created");
   await writeFile(agentsFile, conflicting, "utf8");
@@ -530,7 +555,7 @@ async function testIntegratedHookOptIn(root) {
 
 const temporaryRoot = await mkdtemp(path.join(os.tmpdir(), "aisupport-installer-test-"));
 try {
-  await testManualOnlySkillTriggers();
+  await testSkillTriggers();
   await testManualOnlyGitHubWorkflow();
   await testPreservationAndConflicts(path.join(temporaryRoot, "main"));
   await testSuperpowersConflictAndBackup(

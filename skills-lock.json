@@ -6,7 +6,7 @@
       "ref": "v1.9.1",
       "sourceType": "github",
       "skillPath": "skills/caveman/SKILL.md",
-      "computedHash": "f0b5e0d6a60aa93b3fd69718c285acfb7774e2541a6c7af671d1933e853363f9"
+      "computedHash": "121ba4a0d35fdabbbb85bd55993d3d1b231d4c7f78452200f3aa2d4083fca492"
     },
     "caveman-commit": {
       "source": "JuliusBrussee/caveman",
@@ -21,6 +21,48 @@
       "sourceType": "github",
       "skillPath": "skills/caveman-review/SKILL.md",
       "computedHash": "cab3eb70c9fc36420b65ea67561f212fe34cdb4d91a8572c32fdb2df6321c0b5"
+    },
+    "ponytail": {
+      "source": "DietrichGebert/ponytail",
+      "ref": "v4.8.4",
+      "sourceType": "github",
+      "skillPath": "skills/ponytail/SKILL.md",
+      "computedHash": "40f7926b267d0e2cd60fce10b163a068cb15b2c37f50ea429ee9c7a264fe9e52"
+    },
+    "ponytail-audit": {
+      "source": "DietrichGebert/ponytail",
+      "ref": "v4.8.4",
+      "sourceType": "github",
+      "skillPath": "skills/ponytail-audit/SKILL.md",
+      "computedHash": "c336357b3a4ee4f548bb57f7fdb95b6450a9283cfc444b0f98be926252eb0966"
+    },
+    "ponytail-debt": {
+      "source": "DietrichGebert/ponytail",
+      "ref": "v4.8.4",
+      "sourceType": "github",
+      "skillPath": "skills/ponytail-debt/SKILL.md",
+      "computedHash": "1f9e3c20a168475d926c40d31f7d3e4c206b7e746b0f86cf3b098061a0fbfca8"
+    },
+    "ponytail-gain": {
+      "source": "DietrichGebert/ponytail",
+      "ref": "v4.8.4",
+      "sourceType": "github",
+      "skillPath": "skills/ponytail-gain/SKILL.md",
+      "computedHash": "39344703bbf40c29bdf337450a0ee283f89a30ae00eb8f759d0e186ad32d8c0c"
+    },
+    "ponytail-help": {
+      "source": "DietrichGebert/ponytail",
+      "ref": "v4.8.4",
+      "sourceType": "github",
+      "skillPath": "skills/ponytail-help/SKILL.md",
+      "computedHash": "b0715fe7197ee24d5c1f0a5bfe5be46ba31458e80c9c2ed954d57dd3ac67e3d1"
+    },
+    "ponytail-review": {
+      "source": "DietrichGebert/ponytail",
+      "ref": "v4.8.4",
+      "sourceType": "github",
+      "skillPath": "skills/ponytail-review/SKILL.md",
+      "computedHash": "3353b790175b290df15d4233f46d1a6a726dd5da343ee83d3922b0de935e79c1"
     },
     "brainstorming": {
       "source": "obra/superpowers",
