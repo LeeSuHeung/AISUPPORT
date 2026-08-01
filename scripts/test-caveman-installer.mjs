@@ -553,6 +553,28 @@ async function testIntegratedHookOptIn(root) {
   assert(hooks.includes("gupabal_hooks_"), "Integrated installer dropped --with-hooks");
 }
 
+async function testIntegratedTelegramOptIn(root) {
+  const skillTarget = path.join(root, "skills");
+  const codexHome = path.join(root, "codex-home");
+  const agentsFile = path.join(codexHome, "AGENTS.md");
+  await mkdir(codexHome, { recursive: true });
+  await writeFile(
+    path.join(codexHome, "config.toml"),
+    'notify = ["existing-notifier", "turn-ended"]\n\n[features]\nhooks = false\n',
+    "utf8",
+  );
+  runInstaller([
+    "--target",
+    skillTarget,
+    "--agents-file",
+    agentsFile,
+    "--with-telegram",
+  ]);
+  const config = await readFile(path.join(codexHome, "config.toml"), "utf8");
+  assert(config.includes("telegram_notify_"), "Telegram notifier was not installed");
+  assert(config.includes("existing-notifier"), "Existing notifier was not preserved");
+}
+
 const temporaryRoot = await mkdtemp(path.join(os.tmpdir(), "aisupport-installer-test-"));
 try {
   await testSkillTriggers();
@@ -575,6 +597,9 @@ try {
   );
   await testGupabalFallbackUsesCodexHome();
   await testIntegratedHookOptIn(path.join(temporaryRoot, "integrated-hook-opt-in"));
+  await testIntegratedTelegramOptIn(
+    path.join(temporaryRoot, "integrated-telegram-opt-in"),
+  );
   console.log("AISUPPORT installer tests passed");
 } finally {
   await rm(temporaryRoot, { recursive: true, force: true });

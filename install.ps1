@@ -5,7 +5,8 @@ param(
     [switch]$Verify,
     [switch]$DryRun,
     [switch]$Force,
-    [switch]$WithHooks
+    [switch]$WithHooks,
+    [switch]$WithTelegram
 )
 
 $ErrorActionPreference = 'Stop'

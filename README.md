@@ -9,6 +9,7 @@ Codex에서 여러 PC에 동일한 작업 방식과 에이전트를 설치하기
 - **Superpowers**: 기획, 테스트 주도 개발, 디버깅, 검토 같은 작업 절차
 - **구파발게임**: 기획자·아트디자이너·클라이언트·서버 역할의 합의형 게임 개발팀
 - **구파발 Hook**: 명시적으로 활성화한 경우 합의 상태, 파일 담당 범위, 변경 파일의 확실한 오류를 자동 확인하는 안전장치
+- **텔레그램 완료 알림**: 명시적으로 설치한 경우 Codex 작업 완료를 개인 텔레그램으로 알리는 기능
 
 자세한 내용은 [CAVEMAN.md](CAVEMAN.md), [PONYTAIL.md](PONYTAIL.md), [SUPERPOWERS.md](SUPERPOWERS.md), [GUPABAL_GAME.md](GUPABAL_GAME.md)에서 확인할 수 있습니다.
 
@@ -16,7 +17,7 @@ Codex에서 여러 PC에 동일한 작업 방식과 에이전트를 설치하기
 
 Caveman과 Ponytail 외에는 별도 요청 없이 Skill, 역할 에이전트, 하위 에이전트, 브랜치·커밋·push·PR, GitHub 검사, lifecycle Hook, 백그라운드 도우미, 예약·반복 작업을 시작하지 않습니다. 브랜치를 따로 지정하지 않으면 `master`에서만 작업합니다. 사용자가 구현이나 설치를 요청한 작업 안에서 완료 여부를 확인하는 일회성 테스트만 실행할 수 있으며, 이를 예약하거나 백그라운드에서 반복하지 않습니다.
 
-이 PC의 Codex 사용자 설정은 자동 계속(`goals`), lifecycle Hook(`hooks`), 자동 하위 에이전트(`multi_agent`), 기억 기능(`memories`), 후속 작업 제안(`ambient-suggestions-enabled`)을 꺼 두고, 턴 종료 때 외부 프로그램을 호출하는 `notify`도 제거합니다. 이 설정은 저장소 복제만으로 다른 PC에 자동 적용되지 않습니다. 다른 PC에서도 같은 동작이 필요하면 `$CODEX_HOME/config.toml`에 아래 값을 직접 적용하고 Codex를 다시 시작합니다.
+이 PC의 Codex 사용자 설정은 자동 계속(`goals`), lifecycle Hook(`hooks`), 자동 하위 에이전트(`multi_agent`), 기억 기능(`memories`), 후속 작업 제안(`ambient-suggestions-enabled`)을 꺼 둡니다. 텔레그램 완료 알림은 사용자가 설치 옵션을 직접 지정한 경우에만 `notify`에 연결합니다. 이 설정은 저장소 복제만으로 다른 PC에 자동 적용되지 않습니다. 다른 PC에서도 같은 동작이 필요하면 `$CODEX_HOME/config.toml`에 아래 값을 직접 적용하고 Codex를 다시 시작합니다.
 
 ```toml
 [features]
@@ -29,7 +30,7 @@ memories = false
 ambient-suggestions-enabled = false
 ```
 
-`notify = [...]` 항목이 있으면 삭제합니다. 상시 정책으로 지정한 Caveman과 Ponytail 외의 플러그인·도구는 설치돼 있어도 사용자가 명시적으로 요청한 경우에만 호출합니다.
+일반 설치는 기존 `notify = [...]` 항목을 변경하지 않습니다. 상시 정책으로 지정한 Caveman과 Ponytail 외의 플러그인·도구는 설치돼 있어도 사용자가 명시적으로 요청한 경우에만 호출합니다.
 
 ## 준비물
 
@@ -59,9 +60,20 @@ sh ./install.sh
 
 설치 전 변경 예정 항목만 확인하려면 `--dry-run` 또는 `-DryRun`, 설치 결과를 다시 검사하려면 `--verify` 또는 `-Verify`를 사용합니다. 기존 관리 파일이 수정돼 있으면 기본적으로 중단하며, 내용을 확인한 뒤 `--force` 또는 `-Force`를 사용하면 백업 후 교체합니다.
 
-`-WithHooks` 또는 `--with-hooks`를 직접 선택한 경우에만 Codex CLI의 `/hooks`에서 새 command Hook을 검토하고 신뢰합니다. 새 Skill이나 전역 지침이 보이지 않으면 Codex를 다시 시작합니다.
+`-WithHooks` 또는 `--with-hooks`를 직접 선택한 경우에만 Codex CLI의 `/hooks`에서 새 command Hook을 검토하고 신뢰합니다. `-WithTelegram` 또는 `--with-telegram`을 직접 선택한 경우에만 텔레그램 알림을 설치합니다. 새 Skill이나 전역 지침이 보이지 않으면 Codex를 다시 시작합니다.
 
 ## 사용
+
+### 텔레그램 완료 알림 활성화
+
+기존 Codex 완료 알림을 보존하면서 텔레그램 알림을 추가합니다. 대화 내용은 보내지 않고 완료 문구와 프로젝트 이름만 보냅니다.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install.ps1 -WithTelegram
+py -3 -X utf8 .\.codex\hooks\telegram_notify.py --configure
+```
+
+macOS 또는 Linux에서는 `sh ./install.sh --with-telegram`과 `python3 -X utf8 ./.codex/hooks/telegram_notify.py --configure`를 사용합니다. 설정 명령은 토큰을 화면에 표시하지 않으며 `$CODEX_HOME/telegram-notify.json`에 저장합니다. 연결 성공 메시지를 확인한 뒤 Codex를 다시 시작합니다.
 
 ### 구파발 Hook 활성화
 

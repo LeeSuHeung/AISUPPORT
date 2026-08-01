@@ -127,6 +127,8 @@ Options:
   --verify              Verify skills and the managed always-on block
   --dry-run             Show actions without writing files
   --force               Back up and replace conflicting managed content
+  --with-hooks          Install opt-in Gupabal command Hooks
+  --with-telegram       Install opt-in Telegram completion notifications
   --help                Show this help
 `);
 }

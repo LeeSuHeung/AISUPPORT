@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "files": {
+    ".codex/hooks/telegram_notify.py": "00930e0d4d3531a9a5334e2b203741825caf94b2b2fab131df292f23a3433266",
+    "scripts/install-telegram-notify.py": "19987ef17315fb59628c09440e84c819f3a1325086dabed1c18605af4f834ec9"
+  }
+}

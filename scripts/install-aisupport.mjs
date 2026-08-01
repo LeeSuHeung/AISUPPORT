@@ -9,6 +9,7 @@ import { fileURLToPath } from "node:url";
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const cavemanInstaller = path.join(scriptDirectory, "install-caveman.mjs");
 const gupabalInstaller = path.join(scriptDirectory, "install_gupabal.py");
+const telegramInstaller = path.join(scriptDirectory, "install-telegram-notify.py");
 
 function resolveUserPath(value, label) {
   const trimmed = value.trim();
@@ -92,7 +93,11 @@ function runChild(command, argumentsList, displayName) {
 }
 
 function runInstallers(python, argumentsList) {
-  const cavemanArguments = argumentsList.filter(
+  const withTelegram = argumentsList.includes("--with-telegram");
+  const sharedArguments = argumentsList.filter(
+    (argument) => argument !== "--with-telegram",
+  );
+  const cavemanArguments = sharedArguments.filter(
     (argument) => argument !== "--with-hooks",
   );
   runChild(
@@ -107,10 +112,31 @@ function runInstallers(python, argumentsList) {
       "-X",
       "utf8",
       gupabalInstaller,
-      ...argumentsList,
+      ...sharedArguments,
     ],
     "Gupabal installer",
   );
+  if (withTelegram) {
+    const agentsFileIndex = sharedArguments.indexOf("--agents-file");
+    const codexHome = path.dirname(sharedArguments[agentsFileIndex + 1]);
+    const telegramArguments = ["--codex-home", codexHome];
+    for (const mode of ["--verify", "--dry-run"]) {
+      if (sharedArguments.includes(mode)) {
+        telegramArguments.push(mode);
+      }
+    }
+    runChild(
+      python.command,
+      [
+        ...python.prefixArguments,
+        "-X",
+        "utf8",
+        telegramInstaller,
+        ...telegramArguments,
+      ],
+      "Telegram notifier installer",
+    );
+  }
 }
 
 function inspectArguments(argumentsList) {
@@ -151,6 +177,9 @@ function inspectArguments(argumentsList) {
       continue;
     }
     if (argument === "--with-hooks") {
+      continue;
+    }
+    if (argument === "--with-telegram") {
       continue;
     }
     if (argument === "--help" || argument === "-h") {
