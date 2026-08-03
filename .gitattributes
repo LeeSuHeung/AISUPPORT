@@ -21,6 +21,7 @@
 /scripts/install-caveman.mjs text eol=lf
 /scripts/install-caveman.ps1 text eol=lf
 /scripts/install-caveman.sh text eol=lf
+/scripts/install-telegram-notify.py text eol=lf
 /scripts/install_gupabal.py text eol=lf
 /scripts/merge_gupabal_hooks.py text eol=lf
 /scripts/test-caveman-installer.mjs text eol=lf
