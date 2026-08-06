@@ -19,7 +19,7 @@ import { fileURLToPath } from "node:url";
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = path.resolve(scriptDirectory, "..");
 const installerPath = path.join(scriptDirectory, "install-aisupport.mjs");
-const cavemanInstallerPath = path.join(scriptDirectory, "install-caveman.mjs");
+const skillInstallerPath = path.join(scriptDirectory, "install-skills.mjs");
 const skillsLock = JSON.parse(
   await readFile(path.join(repositoryRoot, "skills-lock.json"), "utf8"),
 );
@@ -30,8 +30,8 @@ const superpowersManifest = JSON.parse(
   ),
 );
 const expectedSkillNames = Object.keys(skillsLock.skills).sort();
-const startMarker = "<!-- BEGIN CAVEMAN PORTABLE ALWAYS-ON -->";
-const endMarker = "<!-- END CAVEMAN PORTABLE ALWAYS-ON -->";
+const startMarker = "<!-- BEGIN SHORT PORTABLE ALWAYS-ON -->";
+const endMarker = "<!-- END SHORT PORTABLE ALWAYS-ON -->";
 const glifStartMarker = "# BEGIN AISUPPORT GLIF MCP";
 const glifEndMarker = "# END AISUPPORT GLIF MCP";
 
@@ -54,42 +54,29 @@ function frontmatterValue(contents, key) {
 }
 
 async function testSkillTriggers() {
-  const cavemanSkill = await readFile(
-    path.join(repositoryRoot, ".agents", "skills", "caveman", "SKILL.md"),
+  const shortSkill = await readFile(
+    path.join(repositoryRoot, ".agents", "skills", "short", "SKILL.md"),
     "utf8",
   );
   assert(
-    frontmatterValue(cavemanSkill, "description") ===
-      "Apply automatically to every response unless the user says stop caveman or normal mode.",
-    "Caveman automatic trigger missing",
+    frontmatterValue(shortSkill, "description") ===
+      "Apply automatically to every response and coding task unless the user says stop short or normal mode. Keep communication concise and coding changes small, correct, and maintainable.",
+    "Short automatic trigger missing",
   );
   for (const required of [
-    "Switch: `/caveman lite|full|ultra|wenyan-lite|wenyan-full|wenyan-ultra|off`.",
-    "Never drop not/never/no/only/except",
-    "Numbers, units exact.",
-    "Tool calls: keep host-required status updates terse.",
-    "'Drop articles' = article languages only.",
-    "Classical chars = wenyan modes only.",
-    "Persisted outside chat: write normal prose",
+    "Preserve negation, numbers, units, paths, commands, code and API names, and exact error text.",
+    "Make the smallest maintainable change that satisfies the full request.",
+    "Use the repository's existing test system and verify in proportion to risk.",
+    "Persisted content uses normal, complete prose.",
   ]) {
     assert(
-      cavemanSkill.includes(required),
-      `Caveman v1.10 rule missing: ${required}`,
+      shortSkill.includes(required),
+      `Short rule missing: ${required}`,
     );
   }
 
-  const ponytailSkill = await readFile(
-    path.join(repositoryRoot, ".agents", "skills", "ponytail", "SKILL.md"),
-    "utf8",
-  );
-  assert(
-    frontmatterValue(ponytailSkill, "description") ===
-      "Apply automatically to every coding task. Prefer YAGNI, existing code, standard library, native features, and the smallest correct implementation.",
-    "Ponytail automatic trigger missing",
-  );
-
   for (const skillName of expectedSkillNames.filter(
-    (name) => name !== "caveman" && name !== "ponytail" && name !== "glif",
+    (name) => name !== "short" && name !== "glif",
   )) {
     const skill = await readFile(
       path.join(repositoryRoot, ".agents", "skills", skillName, "SKILL.md"),
@@ -133,10 +120,9 @@ async function testSkillTriggers() {
     assert(!rootGuidance.includes(forbidden), `Automatic guidance remains: ${forbidden}`);
   }
   for (const required of [
-    "Apply the available `caveman` skill to every response.",
-    "Apply the available `ponytail` skill to every coding task.",
-    "`caveman` and `ponytail` are the only automatically invoked AISUPPORT skills.",
-    "Do not invoke AISUPPORT skills other than `caveman` and `ponytail` unless the",
+    "Apply the available `short` skill to every response and coding task.",
+    "`short` is the only automatically invoked AISUPPORT skill.",
+    "Do not invoke AISUPPORT skills other than `short` unless the",
     "Do not spawn subagents or delegate work unless the user explicitly requests",
     "Do not create or switch branches, create commits or pull requests, push,",
     "When the user does not request another branch, stay on `master`.",
@@ -317,8 +303,8 @@ async function testPreservationAndConflicts(root) {
   assert(configBackups.length === 1, "Idempotent reinstall created config backup");
 
   const conflicting = installed.replace(
-    "Apply the available `caveman` skill to every response.",
-    "Apply the available `caveman` skill to every other response.",
+    "Apply the available `short` skill to every response and coding task.",
+    "Apply the available `short` skill to every other response and coding task.",
   );
   assert(conflicting !== installed, "Conflict fixture was not created");
   await writeFile(agentsFile, conflicting, "utf8");
@@ -335,7 +321,7 @@ async function testPreservationAndConflicts(root) {
   backups = await listAgentBackups(agentsFile);
   assert(backups.length === 2, "Forced update did not create a backup");
 
-  const skillFile = path.join(skillTarget, "caveman", "SKILL.md");
+  const skillFile = path.join(skillTarget, "short", "SKILL.md");
   const brokenSkill = Buffer.concat([
     await readFile(skillFile),
     Buffer.from("\nBROKEN FIXTURE\n", "utf8"),
@@ -433,7 +419,7 @@ async function testSuperpowersConflictAndBackup(root) {
     "Superpowers conflict was overwritten without --force",
   );
   assert(
-    !(await pathExists(path.join(skillTarget, "caveman"))),
+    !(await pathExists(path.join(skillTarget, "short"))),
     "Superpowers conflict preflight installed another managed skill",
   );
 
@@ -594,7 +580,7 @@ async function testIntegratedPathsUseOneTildeExpansion(root) {
   const directResult = spawnSync(
     process.execPath,
     [
-      cavemanInstallerPath,
+      skillInstallerPath,
       "--target",
       configuredTarget,
       "--agents-file",

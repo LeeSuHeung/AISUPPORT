@@ -1,6 +1,8 @@
 # Third-Party Notices
 
-## Caveman
+## Short source attribution: Caveman
+
+AISUPPORT's `short` Skill incorporates adapted communication principles from this project.
 
 Source: https://github.com/JuliusBrussee/caveman
 
@@ -28,7 +30,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-## Ponytail
+## Short source attribution: Ponytail
+
+AISUPPORT's `short` Skill incorporates adapted implementation principles from this project.
 
 Source: https://github.com/DietrichGebert/ponytail
 

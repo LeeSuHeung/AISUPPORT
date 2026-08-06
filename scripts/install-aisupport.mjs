@@ -7,7 +7,7 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
-const cavemanInstaller = path.join(scriptDirectory, "install-caveman.mjs");
+const skillInstaller = path.join(scriptDirectory, "install-skills.mjs");
 const gupabalInstaller = path.join(scriptDirectory, "install_gupabal.py");
 const telegramInstaller = path.join(scriptDirectory, "install-telegram-notify.py");
 
@@ -97,12 +97,12 @@ function runInstallers(python, argumentsList) {
   const sharedArguments = argumentsList.filter(
     (argument) => argument !== "--with-telegram",
   );
-  const cavemanArguments = sharedArguments.filter(
+  const skillArguments = sharedArguments.filter(
     (argument) => argument !== "--with-hooks",
   );
   runChild(
     process.execPath,
-    [cavemanInstaller, ...cavemanArguments],
+    [skillInstaller, ...skillArguments],
     "Skill installer",
   );
   runChild(

@@ -26,7 +26,7 @@ sh "$repository/install.sh" --target "$skill_target" --agents-file "$agents_file
 sh "$repository/install.sh" --target "$skill_target" --agents-file "$agents_file" --verify >/dev/null
 
 grep -Eq 'UP-TO-DATE|Unchanged:' "$second_log"
-test -f "$skill_target/caveman/SKILL.md"
+test -f "$skill_target/short/SKILL.md"
 test -f "$skill_target/gupabal-game/references/decision-policy.md"
 test -f "$test_user_path/.codex/agents/gupabal_planner.toml"
 

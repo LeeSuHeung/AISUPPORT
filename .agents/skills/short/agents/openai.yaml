@@ -1,0 +1,7 @@
+interface:
+  display_name: "Short"
+  short_description: "Concise answers and minimal correct code changes"
+  default_prompt: "Use $short to answer concisely and make the smallest clear, correct implementation."
+
+policy:
+  allow_implicit_invocation: true

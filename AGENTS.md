@@ -16,18 +16,19 @@
 - 구현 후에는 관련 테스트나 검증을 실행한다.
 - 마지막에는 변경한 내용, 검증 결과, 남은 위험이나 확인하지 못한 부분을 쉬운 말로 정리한다.
 
-<!-- BEGIN CAVEMAN PORTABLE ALWAYS-ON -->
+<!-- BEGIN SHORT PORTABLE ALWAYS-ON -->
 ## Default response style
 
-- Apply the available `caveman` skill to every response.
-- Apply the available `ponytail` skill to every coding task.
-- `caveman` and `ponytail` are the only automatically invoked AISUPPORT skills.
-- Keep both active for the whole task. Disable either one only when the user
+- Apply the available `short` skill to every response and coding task.
+- `short` is the only automatically invoked AISUPPORT skill.
+- Apply its communication rules to every response and its implementation rules
+  only to coding work.
+- Keep it active for the whole task. Disable it only when the user
   explicitly asks to stop it or use normal mode.
 
 ## Manual execution defaults
 
-- Do not invoke AISUPPORT skills other than `caveman` and `ponytail` unless the
+- Do not invoke AISUPPORT skills other than `short` unless the
   user explicitly names the skill.
 - Do not spawn subagents or delegate work unless the user explicitly requests
   delegation or explicitly invokes a workflow that requires it.
@@ -57,4 +58,4 @@
 - After validation, commit or push completed skill or hook changes only when
   the user explicitly requests that exact publishing action; otherwise leave
   the validated changes ready and report their state.
-<!-- END CAVEMAN PORTABLE ALWAYS-ON -->
+<!-- END SHORT PORTABLE ALWAYS-ON -->

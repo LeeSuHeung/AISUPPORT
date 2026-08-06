@@ -55,7 +55,9 @@ jobs:
 
       - name: Test preservation and conflict handling
         shell: bash
-        run: node scripts/test-caveman-installer.mjs
+        run: |
+          node scripts/test-aisupport-installer.mjs
+          node scripts/test-short-policy.mjs
 
       - name: Test Gupabal Hooks
         shell: bash

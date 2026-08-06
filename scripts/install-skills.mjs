@@ -20,33 +20,13 @@ import { fileURLToPath } from "node:url";
 
 const SKILL_BUNDLES = Object.freeze([
   Object.freeze({
-    displayName: "Caveman",
-    source: "JuliusBrussee/caveman",
-    ref: "v1.10.0",
-    sourceType: "github",
-    manifestFile: "caveman-manifest.json",
+    displayName: "Short",
+    source: "LeeSuHeung/AISUPPORT",
+    ref: "v1",
+    sourceType: "local",
+    manifestFile: "short-manifest.json",
     executables: Object.freeze([]),
-    skillNames: Object.freeze([
-      "caveman",
-      "caveman-commit",
-      "caveman-review",
-    ]),
-  }),
-  Object.freeze({
-    displayName: "Ponytail",
-    source: "DietrichGebert/ponytail",
-    ref: "v4.8.4",
-    sourceType: "github",
-    manifestFile: "ponytail-manifest.json",
-    executables: Object.freeze([]),
-    skillNames: Object.freeze([
-      "ponytail",
-      "ponytail-audit",
-      "ponytail-debt",
-      "ponytail-gain",
-      "ponytail-help",
-      "ponytail-review",
-    ]),
+    skillNames: Object.freeze(["short"]),
   }),
   Object.freeze({
     displayName: "Superpowers",
@@ -95,13 +75,27 @@ const SKILL_NAMES = Object.freeze(
   SKILL_BUNDLES.flatMap((bundle) => bundle.skillNames),
 );
 
+const RETIRED_SKILL_NAMES = Object.freeze([
+  "caveman",
+  "caveman-commit",
+  "caveman-review",
+  "ponytail",
+  "ponytail-audit",
+  "ponytail-debt",
+  "ponytail-gain",
+  "ponytail-help",
+  "ponytail-review",
+]);
+
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = path.resolve(scriptDirectory, "..");
 const sourceRoot = path.join(repositoryRoot, ".agents", "skills");
 const lockPath = path.join(repositoryRoot, "skills-lock.json");
 const repositoryAgentsPath = path.join(repositoryRoot, "AGENTS.md");
-const alwaysOnStartMarker = "<!-- BEGIN CAVEMAN PORTABLE ALWAYS-ON -->";
-const alwaysOnEndMarker = "<!-- END CAVEMAN PORTABLE ALWAYS-ON -->";
+const alwaysOnStartMarker = "<!-- BEGIN SHORT PORTABLE ALWAYS-ON -->";
+const alwaysOnEndMarker = "<!-- END SHORT PORTABLE ALWAYS-ON -->";
+const legacyAlwaysOnStartMarker = "<!-- BEGIN CAVEMAN PORTABLE ALWAYS-ON -->";
+const legacyAlwaysOnEndMarker = "<!-- END CAVEMAN PORTABLE ALWAYS-ON -->";
 const glifMcpStartMarker = "# BEGIN AISUPPORT GLIF MCP";
 const glifMcpEndMarker = "# END AISUPPORT GLIF MCP";
 const glifMcpBlock = `${glifMcpStartMarker}
@@ -318,7 +312,7 @@ async function readAlwaysOnBlock() {
   const startIndex = contents.indexOf(alwaysOnStartMarker);
   const endIndex = contents.indexOf(alwaysOnEndMarker, startIndex);
   if (endIndex < startIndex) {
-    throw new Error(`Invalid Caveman marker order in ${repositoryAgentsPath}`);
+    throw new Error(`Invalid Short marker order in ${repositoryAgentsPath}`);
   }
   return contents
     .slice(startIndex, endIndex + alwaysOnEndMarker.length)
@@ -393,6 +387,48 @@ async function inspectAlwaysOnFile(
   };
 }
 
+async function inspectManagedAlwaysOnFile(agentsFile, expectedBlock) {
+  const current = await inspectAlwaysOnFile(agentsFile, expectedBlock);
+  const legacyStartCount = countOccurrences(
+    current.contents,
+    legacyAlwaysOnStartMarker,
+  );
+  const legacyEndCount = countOccurrences(
+    current.contents,
+    legacyAlwaysOnEndMarker,
+  );
+
+  if (current.status !== "missing") {
+    if (legacyStartCount > 0 || legacyEndCount > 0) {
+      return {
+        ...current,
+        status: "conflict",
+        reason: "current and legacy managed blocks both exist",
+        replaceable: false,
+      };
+    }
+    return current;
+  }
+  if (legacyStartCount === 0 && legacyEndCount === 0) {
+    return current;
+  }
+
+  const legacy = await inspectAlwaysOnFile(
+    agentsFile,
+    expectedBlock,
+    legacyAlwaysOnStartMarker,
+    legacyAlwaysOnEndMarker,
+  );
+  if (legacy.status === "conflict" && legacy.replaceable) {
+    return {
+      ...legacy,
+      status: "legacy",
+      reason: "legacy managed block requires migration",
+    };
+  }
+  return legacy;
+}
+
 function findGlifMcpSection(contents) {
   const header = /^\s*\[mcp_servers\.glif\]\s*(?:#.*)?$/m;
   const match = header.exec(contents);
@@ -455,7 +491,7 @@ function buildAlwaysOnContents(guidanceState, expectedBlock) {
     return `${guidanceState.contents}${separator}${localizedBlock}${newline}`;
   }
 
-  if (guidanceState.status === "conflict") {
+  if (["conflict", "legacy"].includes(guidanceState.status)) {
     if (!Number.isInteger(guidanceState.startIndex) || !Number.isInteger(guidanceState.endIndex)) {
       throw new Error(`Cannot safely replace malformed AISUPPORT markers`);
     }
@@ -820,6 +856,19 @@ async function copySkillAtomically(source, destination, expectedHash, force) {
   return backupPath;
 }
 
+async function retireSkill(destination) {
+  if (!(await getPathState(destination))) {
+    return null;
+  }
+  const backupRoot = path.join(
+    path.dirname(path.dirname(destination)),
+    "skill-backups",
+  );
+  const backupPath = await findBackupPath(backupRoot, path.basename(destination));
+  await rename(destination, backupPath);
+  return backupPath;
+}
+
 async function main() {
   const nodeMajor = Number.parseInt(process.versions.node.split(".")[0], 10);
   if (!Number.isInteger(nodeMajor) || nodeMajor < 18) {
@@ -832,7 +881,7 @@ async function main() {
   const configFile = path.join(path.dirname(agentsFile), "config.toml");
   const { release, sourceHashes } = await validateSources();
   const alwaysOnBlock = await readAlwaysOnBlock();
-  const guidanceState = await inspectAlwaysOnFile(agentsFile, alwaysOnBlock);
+  const guidanceState = await inspectManagedAlwaysOnFile(agentsFile, alwaysOnBlock);
   const glifMcpState = await inspectGlifMcpFile(configFile);
   if (guidanceState.status === "conflict" && !guidanceState.replaceable) {
     throw new Error(
@@ -863,19 +912,37 @@ async function main() {
     }
     states.push({ skillName, source, destination, exists: Boolean(destinationState), matches });
   }
+  const retiredStates = [];
+  for (const skillName of RETIRED_SKILL_NAMES) {
+    const destination = path.join(targetRoot, skillName);
+    retiredStates.push({
+      skillName,
+      destination,
+      exists: Boolean(await getPathState(destination)),
+    });
+  }
 
   if (options.verify) {
     const failures = states.filter((state) => !state.matches);
+    const retiredFailures = retiredStates.filter((state) => state.exists);
     for (const state of states) {
       console.log(`${state.matches ? "OK" : "MISMATCH"} ${state.skillName}`);
+    }
+    for (const state of retiredStates) {
+      console.log(`${state.exists ? "MISMATCH" : "OK"} retired ${state.skillName}`);
     }
     const guidanceMatches = guidanceState.status === "current";
     const glifMcpMatches = ["current", "external"].includes(glifMcpState.status);
     console.log(`${guidanceMatches ? "OK" : "MISMATCH"} always-on ${agentsFile}`);
     console.log(`${glifMcpMatches ? "OK" : "MISMATCH"} Glif MCP ${configFile}`);
-    if (failures.length > 0 || !guidanceMatches || !glifMcpMatches) {
+    if (
+      failures.length > 0 ||
+      retiredFailures.length > 0 ||
+      !guidanceMatches ||
+      !glifMcpMatches
+    ) {
       throw new Error(
-        `Verification failed for ${failures.length} skill(s), ${guidanceMatches ? 0 : 1} always-on file(s), and ${glifMcpMatches ? 0 : 1} Glif MCP file(s)`,
+        `Verification failed for ${failures.length} skill(s), ${retiredFailures.length} retired skill(s), ${guidanceMatches ? 0 : 1} always-on file(s), and ${glifMcpMatches ? 0 : 1} Glif MCP file(s)`,
       );
     }
     console.log(
@@ -909,6 +976,11 @@ async function main() {
       const action = state.matches ? "KEEP" : state.exists ? "BACKUP+REPLACE" : "INSTALL";
       console.log(`${action} ${state.skillName} -> ${state.destination}`);
     }
+    for (const state of retiredStates) {
+      if (state.exists) {
+        console.log(`BACKUP+REMOVE retired ${state.skillName} -> ${state.destination}`);
+      }
+    }
     const guidanceAction = guidanceState.status === "current"
       ? "KEEP"
       : guidanceState.exists
@@ -941,6 +1013,14 @@ async function main() {
     if (backupPath) {
       console.log(`BACKUP ${backupPath}`);
     }
+  }
+  for (const state of retiredStates) {
+    if (!state.exists) {
+      continue;
+    }
+    const backupPath = await retireSkill(state.destination);
+    console.log(`REMOVED retired ${state.skillName}`);
+    console.log(`BACKUP ${backupPath}`);
   }
 
   if (guidanceState.status === "current") {
