@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "release": "v1",
+  "release": "v2",
   "sourceUrl": "https://github.com/LeeSuHeung/AISUPPORT",
   "reviewedAt": "2026-08-06",
   "derivedFrom": [
@@ -9,7 +9,7 @@
   ],
   "executables": [],
   "files": {
-    ".agents/skills/short/SKILL.md": "2436f6292a857315b7d937928cbecd9040d5b5f3746fcbd703aa2469f994001f",
+    ".agents/skills/short/SKILL.md": "cf3a8918715152fb54e6529f591f7055da441ea05a77f2d1a1f0f493882f7fed",
     ".agents/skills/short/agents/openai.yaml": "c86cee436196ea2c3a75a41cefb964428b682c40eecfead277b28bf008ce5d20"
   }
 }

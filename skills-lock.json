@@ -3,10 +3,10 @@
   "skills": {
     "short": {
       "source": "LeeSuHeung/AISUPPORT",
-      "ref": "v1",
+      "ref": "v2",
       "sourceType": "local",
       "skillPath": "skills/short/SKILL.md",
-      "computedHash": "2531628dba082b012782343bc346575f50025aad84419e472b783dab38c79ddc"
+      "computedHash": "e03d04ab290a8e4a82b39f35370f2ab7c5f46db1b3f4e433823c26bfaa44d797"
     },
     "glif": {
       "source": "LeeSuHeung/AISUPPORT",

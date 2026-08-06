@@ -66,12 +66,30 @@ async function testShortSource() {
   );
   for (const required of [
     "User scope, repository instructions, safety, and correctness outrank all Short rules.",
-    "Preserve negation, numbers, units, paths, commands, code and API names, and exact error text.",
+    "Treat information-only requests as read-only.",
+    "Change state only when the user's execution intent, target, and scope are clear.",
+    "When the user's latest instruction conflicts with earlier instructions, replace only the conflict and keep compatible constraints.",
+    "Never undo completed work without an explicit request; report its state instead.",
+    "Use secrets only for the user's authorized purpose and minimum necessary scope.",
+    "Redact secrets when exact reproduction would reveal them.",
+    "Modify only authorized targets and scope.",
+    "Preserve out-of-scope content and existing user changes.",
+    "Never return an empty response or claim completion when work failed",
     "Prefer, in order: existing code, standard library, native platform features, installed dependencies, then new code.",
     "Use the repository's existing test system and verify in proportion to risk.",
     "Persisted content uses normal, complete prose.",
   ]) {
     assert(skill.includes(required), `Short rule missing: ${required}`);
+  }
+  for (const excluded of [
+    "short-guard",
+    "official source verification",
+    "Excel",
+    "VBA",
+    "Telegram",
+    "Slack",
+  ]) {
+    assert(!skill.includes(excluded), `Short must stay domain-neutral: ${excluded}`);
   }
 
   const openai = await readFile(

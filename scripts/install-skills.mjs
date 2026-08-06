@@ -22,7 +22,7 @@ const SKILL_BUNDLES = Object.freeze([
   Object.freeze({
     displayName: "Short",
     source: "LeeSuHeung/AISUPPORT",
-    ref: "v1",
+    ref: "v2",
     sourceType: "local",
     manifestFile: "short-manifest.json",
     executables: Object.freeze([]),
