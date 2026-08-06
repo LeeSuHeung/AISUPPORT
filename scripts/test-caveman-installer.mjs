@@ -63,6 +63,20 @@ async function testSkillTriggers() {
       "Apply automatically to every response unless the user says stop caveman or normal mode.",
     "Caveman automatic trigger missing",
   );
+  for (const required of [
+    "Switch: `/caveman lite|full|ultra|wenyan-lite|wenyan-full|wenyan-ultra|off`.",
+    "Never drop not/never/no/only/except",
+    "Numbers, units exact.",
+    "Tool calls: keep host-required status updates terse.",
+    "'Drop articles' = article languages only.",
+    "Classical chars = wenyan modes only.",
+    "Persisted outside chat: write normal prose",
+  ]) {
+    assert(
+      cavemanSkill.includes(required),
+      `Caveman v1.10 rule missing: ${required}`,
+    );
+  }
 
   const ponytailSkill = await readFile(
     path.join(repositoryRoot, ".agents", "skills", "ponytail", "SKILL.md"),

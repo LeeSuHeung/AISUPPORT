@@ -4,7 +4,7 @@
 
 Source: https://github.com/JuliusBrussee/caveman
 
-Version: v1.9.1
+Version: v1.10.0 (`fcf7663366c217dc8f334a11028de52ed950ceab`)
 
 MIT License
 

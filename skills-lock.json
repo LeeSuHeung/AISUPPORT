@@ -3,21 +3,21 @@
   "skills": {
     "caveman": {
       "source": "JuliusBrussee/caveman",
-      "ref": "v1.9.1",
+      "ref": "v1.10.0",
       "sourceType": "github",
       "skillPath": "skills/caveman/SKILL.md",
-      "computedHash": "121ba4a0d35fdabbbb85bd55993d3d1b231d4c7f78452200f3aa2d4083fca492"
+      "computedHash": "72e4dccdb62286f436c1b2febeffc134bdc6a8d9576fbe0f92192cb9bbbf2fb4"
     },
     "caveman-commit": {
       "source": "JuliusBrussee/caveman",
-      "ref": "v1.9.1",
+      "ref": "v1.10.0",
       "sourceType": "github",
       "skillPath": "skills/caveman-commit/SKILL.md",
       "computedHash": "f7aa9a35c907ab1e8ac447c2cdf5f842420732f271907a8cad26de07b447b506"
     },
     "caveman-review": {
       "source": "JuliusBrussee/caveman",
-      "ref": "v1.9.1",
+      "ref": "v1.10.0",
       "sourceType": "github",
       "skillPath": "skills/caveman-review/SKILL.md",
       "computedHash": "cab3eb70c9fc36420b65ea67561f212fe34cdb4d91a8572c32fdb2df6321c0b5"

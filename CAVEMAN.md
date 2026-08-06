@@ -5,8 +5,8 @@ This repository vendors the Caveman skill suite for Codex from
 
 ## Installed version
 
-- Release: `v1.9.1`
-- Upstream commit: `033f918602bd5319931256a537c4bd9ea7a48c25`
+- Release: `v1.10.0`
+- Upstream commit: `fcf7663366c217dc8f334a11028de52ed950ceab`
 - Project skills: `.agents/skills/`
 - Reproducibility lock: `skills-lock.json`
 - File integrity manifest: `caveman-manifest.json`
@@ -15,6 +15,11 @@ This repository vendors the Caveman skill suite for Codex from
 The files are copied instead of symlinked so they work reliably on Windows and
 can be committed to Git. `skills-lock.json` records the upstream tag, source
 path, and content hash for every installed skill.
+
+The AISUPPORT merge keeps its Codex-specific automatic trigger and manual-only
+companion skills. From `v1.10.0`, it adopts negation and number safety, exact
+session-language handling, grammar-marker preservation, and normal prose for
+content persisted outside chat. Hook-only behavior remains excluded.
 
 ## Portability
 
@@ -97,8 +102,9 @@ only when the user explicitly requests that exact publishing action.
 ## Usage
 
 Caveman starts in full mode for every new task and applies to every response.
-Ask for `caveman lite`, `caveman full`, or `caveman ultra` to change intensity.
-Say `normal mode` or `stop caveman` to disable it for the current task.
+Ask for `caveman lite`, `caveman full`, `caveman ultra`, or a named
+`wenyan-*` level to change intensity. Say `caveman off`, `normal mode`, or
+`stop caveman` to disable it for the current task.
 
 Do not start subagents, background helpers, scheduled work, branches, commits,
 pushes, pull requests, Hooks, or GitHub workflows merely because a skill makes
@@ -120,10 +126,10 @@ this repository's minimal Caveman integration.
 
 ## Update
 
-Update intentionally by replacing `v1.9.1` with the desired reviewed release:
+Update intentionally by replacing `v1.10.0` with the desired reviewed release:
 
 ```powershell
-npx -y skills@latest add https://github.com/JuliusBrussee/caveman/tree/v1.9.1 --agent codex --skill caveman caveman-commit caveman-review --yes --copy --full-depth
+npx -y skills@latest add https://github.com/JuliusBrussee/caveman/tree/v1.10.0 --agent codex --skill caveman caveman-commit caveman-review --yes --copy --full-depth
 ```
 
 Review the resulting skill and lock-file diff before committing.

@@ -22,7 +22,7 @@ const SKILL_BUNDLES = Object.freeze([
   Object.freeze({
     displayName: "Caveman",
     source: "JuliusBrussee/caveman",
-    ref: "v1.9.1",
+    ref: "v1.10.0",
     sourceType: "github",
     manifestFile: "caveman-manifest.json",
     executables: Object.freeze([]),
