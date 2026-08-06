@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "release": "v1",
+  "sourceUrl": "https://glif.app/llms.txt",
+  "reviewedAt": "2026-08-06",
+  "executables": [],
+  "files": {
+    ".agents/skills/glif/SKILL.md": "bc00f4f5be6b1610b85d9417247434948a199a3c20042fe3eea630f62b9d932b",
+    ".agents/skills/glif/agents/openai.yaml": "35d652b8a37bc2121cdc9916aaf2c2b02f47c946d00cae683a25e3e8314b54e1"
+  }
+}

@@ -22,6 +22,13 @@
       "skillPath": "skills/caveman-review/SKILL.md",
       "computedHash": "cab3eb70c9fc36420b65ea67561f212fe34cdb4d91a8572c32fdb2df6321c0b5"
     },
+    "glif": {
+      "source": "LeeSuHeung/AISUPPORT",
+      "ref": "v1",
+      "sourceType": "local",
+      "skillPath": "skills/glif/SKILL.md",
+      "computedHash": "e93c07c83dca74048519d470538d52cfa7ad75baf5db30ecad87852200787da7"
+    },
     "ponytail": {
       "source": "DietrichGebert/ponytail",
       "ref": "v4.8.4",

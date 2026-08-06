@@ -23,6 +23,7 @@ const SKILL_BUNDLES = Object.freeze([
     displayName: "Caveman",
     source: "JuliusBrussee/caveman",
     ref: "v1.9.1",
+    sourceType: "github",
     manifestFile: "caveman-manifest.json",
     executables: Object.freeze([]),
     skillNames: Object.freeze([
@@ -35,6 +36,7 @@ const SKILL_BUNDLES = Object.freeze([
     displayName: "Ponytail",
     source: "DietrichGebert/ponytail",
     ref: "v4.8.4",
+    sourceType: "github",
     manifestFile: "ponytail-manifest.json",
     executables: Object.freeze([]),
     skillNames: Object.freeze([
@@ -50,6 +52,7 @@ const SKILL_BUNDLES = Object.freeze([
     displayName: "Superpowers",
     source: "obra/superpowers",
     ref: "v6.1.1",
+    sourceType: "github",
     manifestFile: "superpowers-manifest.json",
     executables: Object.freeze([
       ".agents/skills/brainstorming/scripts/start-server.sh",
@@ -77,6 +80,15 @@ const SKILL_BUNDLES = Object.freeze([
       "writing-skills",
     ]),
   }),
+  Object.freeze({
+    displayName: "Glif",
+    source: "LeeSuHeung/AISUPPORT",
+    ref: "v1",
+    sourceType: "local",
+    manifestFile: "glif-manifest.json",
+    executables: Object.freeze([]),
+    skillNames: Object.freeze(["glif"]),
+  }),
 ]);
 
 const SKILL_NAMES = Object.freeze(
@@ -90,6 +102,14 @@ const lockPath = path.join(repositoryRoot, "skills-lock.json");
 const repositoryAgentsPath = path.join(repositoryRoot, "AGENTS.md");
 const alwaysOnStartMarker = "<!-- BEGIN CAVEMAN PORTABLE ALWAYS-ON -->";
 const alwaysOnEndMarker = "<!-- END CAVEMAN PORTABLE ALWAYS-ON -->";
+const glifMcpStartMarker = "# BEGIN AISUPPORT GLIF MCP";
+const glifMcpEndMarker = "# END AISUPPORT GLIF MCP";
+const glifMcpBlock = `${glifMcpStartMarker}
+[mcp_servers.glif]
+url = "https://glif.app/api/mcp"
+auth = "oauth"
+default_tools_approval_mode = "writes"
+${glifMcpEndMarker}`;
 
 function resolveUserPath(value, label) {
   const trimmed = value.trim();
@@ -118,13 +138,13 @@ function printUsage() {
   console.log(`Usage: node scripts/install-aisupport.mjs [options]
 
 Copy the reviewed, repository-pinned AISUPPORT skill suite into Codex's
-user-level skill directory. The installer does not download or execute
-upstream code.
+user-level skill directory and configure the Glif MCP server. The installer
+does not download or execute upstream code.
 
 Options:
   --target <path>       Override the skill target ($HOME/.agents/skills)
   --agents-file <path>  Override the always-on file ($CODEX_HOME/AGENTS.md)
-  --verify              Verify skills and the managed always-on block
+  --verify              Verify skills, guidance, and Glif MCP configuration
   --dry-run             Show actions without writing files
   --force               Back up and replace conflicting managed content
   --with-hooks          Install opt-in Gupabal command Hooks
@@ -305,7 +325,12 @@ async function readAlwaysOnBlock() {
     .replace(/\r\n/g, "\n");
 }
 
-async function inspectAlwaysOnFile(agentsFile, expectedBlock) {
+async function inspectAlwaysOnFile(
+  agentsFile,
+  expectedBlock,
+  startMarker = alwaysOnStartMarker,
+  endMarker = alwaysOnEndMarker,
+) {
   const state = await getPathState(agentsFile);
   if (!state) {
     return {
@@ -329,8 +354,8 @@ async function inspectAlwaysOnFile(agentsFile, expectedBlock) {
     snapshotHash: hashBytes(bytes),
     mode: state.mode & 0o777,
   };
-  const startCount = countOccurrences(contents, alwaysOnStartMarker);
-  const endCount = countOccurrences(contents, alwaysOnEndMarker);
+  const startCount = countOccurrences(contents, startMarker);
+  const endCount = countOccurrences(contents, endMarker);
   if (startCount === 0 && endCount === 0) {
     return { ...sharedState, status: "missing" };
   }
@@ -343,8 +368,8 @@ async function inspectAlwaysOnFile(agentsFile, expectedBlock) {
     };
   }
 
-  const startIndex = contents.indexOf(alwaysOnStartMarker);
-  const endMarkerIndex = contents.indexOf(alwaysOnEndMarker, startIndex);
+  const startIndex = contents.indexOf(startMarker);
+  const endMarkerIndex = contents.indexOf(endMarker, startIndex);
   if (endMarkerIndex < startIndex) {
     return {
       ...sharedState,
@@ -353,7 +378,7 @@ async function inspectAlwaysOnFile(agentsFile, expectedBlock) {
       replaceable: false,
     };
   }
-  const endIndex = endMarkerIndex + alwaysOnEndMarker.length;
+  const endIndex = endMarkerIndex + endMarker.length;
   const existingBlock = contents
     .slice(startIndex, endIndex)
     .replace(/\r\n/g, "\n");
@@ -365,6 +390,52 @@ async function inspectAlwaysOnFile(agentsFile, expectedBlock) {
     endIndex,
     replaceable: true,
     reason: existingBlock === expectedBlock ? undefined : "managed block differs",
+  };
+}
+
+function findGlifMcpSection(contents) {
+  const header = /^\s*\[mcp_servers\.glif\]\s*(?:#.*)?$/m;
+  const match = header.exec(contents);
+  if (!match) {
+    return null;
+  }
+  const sectionStart = match.index;
+  const remainderStart = sectionStart + match[0].length;
+  const nextHeader = /^\s*\[[^\]]+\]\s*(?:#.*)?$/m.exec(
+    contents.slice(remainderStart),
+  );
+  const sectionEnd = nextHeader
+    ? remainderStart + nextHeader.index
+    : contents.length;
+  return contents.slice(sectionStart, sectionEnd);
+}
+
+async function inspectGlifMcpFile(configFile) {
+  const state = await inspectAlwaysOnFile(
+    configFile,
+    glifMcpBlock,
+    glifMcpStartMarker,
+    glifMcpEndMarker,
+  );
+  if (state.status !== "missing" || !state.exists) {
+    return state;
+  }
+
+  const section = findGlifMcpSection(state.contents);
+  if (!section) {
+    return state;
+  }
+  const correctUrl = /^\s*url\s*=\s*["']https:\/\/glif\.app\/api\/mcp["']\s*(?:#.*)?$/m.test(
+    section,
+  );
+  if (correctUrl) {
+    return { ...state, status: "external" };
+  }
+  return {
+    ...state,
+    status: "conflict",
+    reason: "existing unmanaged mcp_servers.glif has a different URL",
+    replaceable: false,
   };
 }
 
@@ -580,10 +651,13 @@ async function validateSources() {
   for (const bundle of SKILL_BUNDLES) {
     const manifestPath = path.join(repositoryRoot, bundle.manifestFile);
     const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    const invalidUpstreamCommit =
+      bundle.sourceType === "github" &&
+      !/^[0-9a-f]{40}$/.test(manifest.upstreamCommit ?? "");
     if (
       manifest.version !== 1 ||
       typeof manifest.files !== "object" ||
-      !/^[0-9a-f]{40}$/.test(manifest.upstreamCommit ?? "")
+      invalidUpstreamCommit
     ) {
       throw new Error(
         `Unsupported ${bundle.displayName} manifest format: ${manifestPath}`,
@@ -625,7 +699,7 @@ async function validateSources() {
       if (
         locked.source !== bundle.source ||
         locked.ref !== bundle.ref ||
-        locked.sourceType !== "github"
+        locked.sourceType !== bundle.sourceType
       ) {
         throw new Error(`Unexpected source lock for ${skillName}`);
       }
@@ -755,12 +829,19 @@ async function main() {
   const options = parseArguments(process.argv.slice(2));
   const targetRoot = path.resolve(options.target);
   const agentsFile = path.resolve(options.agentsFile);
+  const configFile = path.join(path.dirname(agentsFile), "config.toml");
   const { release, sourceHashes } = await validateSources();
   const alwaysOnBlock = await readAlwaysOnBlock();
   const guidanceState = await inspectAlwaysOnFile(agentsFile, alwaysOnBlock);
+  const glifMcpState = await inspectGlifMcpFile(configFile);
   if (guidanceState.status === "conflict" && !guidanceState.replaceable) {
     throw new Error(
       `Cannot safely replace malformed AISUPPORT markers in ${agentsFile}: ${guidanceState.reason}`,
+    );
+  }
+  if (glifMcpState.status === "conflict" && !glifMcpState.replaceable) {
+    throw new Error(
+      `Cannot safely configure Glif MCP in ${configFile}: ${glifMcpState.reason}`,
     );
   }
 
@@ -789,10 +870,12 @@ async function main() {
       console.log(`${state.matches ? "OK" : "MISMATCH"} ${state.skillName}`);
     }
     const guidanceMatches = guidanceState.status === "current";
+    const glifMcpMatches = ["current", "external"].includes(glifMcpState.status);
     console.log(`${guidanceMatches ? "OK" : "MISMATCH"} always-on ${agentsFile}`);
-    if (failures.length > 0 || !guidanceMatches) {
+    console.log(`${glifMcpMatches ? "OK" : "MISMATCH"} Glif MCP ${configFile}`);
+    if (failures.length > 0 || !guidanceMatches || !glifMcpMatches) {
       throw new Error(
-        `Verification failed for ${failures.length} skill(s) and ${guidanceMatches ? 0 : 1} always-on file(s)`,
+        `Verification failed for ${failures.length} skill(s), ${guidanceMatches ? 0 : 1} always-on file(s), and ${glifMcpMatches ? 0 : 1} Glif MCP file(s)`,
       );
     }
     console.log(
@@ -805,12 +888,16 @@ async function main() {
     (state) => state.conflict || (state.exists && !state.matches),
   );
   const guidanceConflicts = guidanceState.status === "conflict";
-  if ((conflicts.length > 0 || guidanceConflicts) && !options.force) {
+  const glifMcpConflicts = glifMcpState.status === "conflict";
+  if ((conflicts.length > 0 || guidanceConflicts || glifMcpConflicts) && !options.force) {
     for (const state of conflicts) {
       console.error(`CONFLICT ${state.destination}`);
     }
     if (guidanceConflicts) {
       console.error(`CONFLICT ${agentsFile}: ${guidanceState.reason}`);
+    }
+    if (glifMcpConflicts) {
+      console.error(`CONFLICT ${configFile}: ${glifMcpState.reason}`);
     }
     throw new Error(
       "Existing managed content differs. Re-run with --force to back up and replace it.",
@@ -828,6 +915,12 @@ async function main() {
         ? "BACKUP+UPDATE"
         : "INSTALL";
     console.log(`${guidanceAction} always-on -> ${agentsFile}`);
+    const glifMcpAction = ["current", "external"].includes(glifMcpState.status)
+      ? "KEEP"
+      : glifMcpState.exists
+        ? "BACKUP+UPDATE"
+        : "INSTALL";
+    console.log(`${glifMcpAction} Glif MCP -> ${configFile}`);
     console.log(`Dry run complete for AISUPPORT skills (${release})`);
     return;
   }
@@ -865,8 +958,23 @@ async function main() {
     }
   }
 
+  if (["current", "external"].includes(glifMcpState.status)) {
+    console.log(`UP-TO-DATE Glif MCP ${configFile}`);
+  } else {
+    const glifMcpBackup = await installAlwaysOnFile(
+      configFile,
+      glifMcpState,
+      glifMcpBlock,
+      options.force,
+    );
+    console.log(`INSTALLED Glif MCP ${configFile}`);
+    if (glifMcpBackup) {
+      console.log(`BACKUP ${glifMcpBackup}`);
+    }
+  }
+
   console.log(`Installed AISUPPORT skills (${release}) into ${targetRoot}`);
-  console.log("Start a new Codex task. Restart Codex if the always-on rule does not appear.");
+  console.log("Restart Codex, then authenticate Glif in Settings > MCP servers.");
 }
 
 main().catch((error) => {

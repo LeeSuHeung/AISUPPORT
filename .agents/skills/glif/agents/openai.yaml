@@ -1,0 +1,15 @@
+interface:
+  display_name: "Glif Media"
+  short_description: "Generate and refine image, video, and audio media"
+  default_prompt: "Use $glif to create and refine media from my brief."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "glif"
+      description: "Glif project-based image, video, and audio generation"
+      transport: "streamable_http"
+      url: "https://glif.app/api/mcp"
+
+policy:
+  allow_implicit_invocation: true

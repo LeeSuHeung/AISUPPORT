@@ -32,6 +32,8 @@ const superpowersManifest = JSON.parse(
 const expectedSkillNames = Object.keys(skillsLock.skills).sort();
 const startMarker = "<!-- BEGIN CAVEMAN PORTABLE ALWAYS-ON -->";
 const endMarker = "<!-- END CAVEMAN PORTABLE ALWAYS-ON -->";
+const glifStartMarker = "# BEGIN AISUPPORT GLIF MCP";
+const glifEndMarker = "# END AISUPPORT GLIF MCP";
 
 function digest(contents) {
   return createHash("sha256").update(contents).digest("hex");
@@ -73,7 +75,7 @@ async function testSkillTriggers() {
   );
 
   for (const skillName of expectedSkillNames.filter(
-    (name) => name !== "caveman" && name !== "ponytail",
+    (name) => name !== "caveman" && name !== "ponytail" && name !== "glif",
   )) {
     const skill = await readFile(
       path.join(repositoryRoot, ".agents", "skills", skillName, "SKILL.md"),
@@ -85,6 +87,16 @@ async function testSkillTriggers() {
       `Automatic trigger allowed: ${skillName}`,
     );
   }
+
+  const glifSkill = await readFile(
+    path.join(repositoryRoot, ".agents", "skills", "glif", "SKILL.md"),
+    "utf8",
+  );
+  assert(
+    frontmatterValue(glifSkill, "description") ===
+      "Use only when the user explicitly invokes $glif or says Glif, Glyphs, or 글리프 for image, video, or audio generation and refinement through the Glif MCP server.",
+    "Glif explicit trigger missing",
+  );
 
   const gupabalSkill = await readFile(
     path.join(repositoryRoot, ".agents", "skills", "gupabal-game", "SKILL.md"),
@@ -199,6 +211,7 @@ function decodeUtf16(buffer, byteOrder) {
 async function testPreservationAndConflicts(root) {
   const skillTarget = path.join(root, "skills");
   const agentsFile = path.join(root, "codex-home", "AGENTS.md");
+  const configFile = path.join(root, "codex-home", "config.toml");
   const unrelatedSkill = path.join(skillTarget, "user-owned", "SKILL.md");
   const unrelatedContents = Buffer.from(
     "---\nname: user-owned\ndescription: preserve me\n---\n",
@@ -208,9 +221,11 @@ async function testPreservationAndConflicts(root) {
     "## Existing guidance\r\n\r\nKeep this line.\r\n",
     "utf8",
   );
+  const originalConfig = Buffer.from('model = "gpt-test"\r\n', "utf8");
   await mkdir(path.dirname(agentsFile), { recursive: true });
   await mkdir(path.dirname(unrelatedSkill), { recursive: true });
   await writeFile(agentsFile, original);
+  await writeFile(configFile, originalConfig);
   await writeFile(unrelatedSkill, unrelatedContents);
 
   const commonArguments = [
@@ -251,17 +266,41 @@ async function testPreservationAndConflicts(root) {
   assert(installed.includes(startMarker) && installed.includes(endMarker), "Managed block missing");
   assert(!/(^|[^\r])\n/.test(installed), "CRLF newline style was not preserved");
 
+  const installedConfig = await readFile(configFile, "utf8");
+  assert(
+    installedConfig.startsWith(originalConfig.toString("utf8")),
+    "Existing config.toml content changed",
+  );
+  assert(
+    installedConfig.includes(glifStartMarker) &&
+      installedConfig.includes(glifEndMarker) &&
+      installedConfig.includes('url = "https://glif.app/api/mcp"'),
+    "Glif MCP managed block missing",
+  );
+  assert(
+    !/(^|[^\r])\n/.test(installedConfig),
+    "config.toml CRLF style was not preserved",
+  );
+
   let backups = await listAgentBackups(agentsFile);
+  let configBackups = await listAgentBackups(configFile);
   assert(backups.length === 1, "Initial AGENTS.md backup missing");
   assert(
     digest(await readFile(backups[0])) === digest(original),
     "Initial AGENTS.md backup differs",
   );
+  assert(configBackups.length === 1, "Initial config.toml backup missing");
+  assert(
+    digest(await readFile(configBackups[0])) === digest(originalConfig),
+    "Initial config.toml backup differs",
+  );
 
   runInstaller([...commonArguments, "--verify"]);
   runInstaller(commonArguments);
   backups = await listAgentBackups(agentsFile);
+  configBackups = await listAgentBackups(configFile);
   assert(backups.length === 1, "Idempotent reinstall created another backup");
+  assert(configBackups.length === 1, "Idempotent reinstall created config backup");
 
   const conflicting = installed.replace(
     "Apply the available `caveman` skill to every response.",
@@ -301,6 +340,59 @@ async function testPreservationAndConflicts(root) {
   );
   backups = await listAgentBackups(agentsFile);
   assert(backups.length === 2, "Malformed marker failure created a backup");
+}
+
+async function testExistingGlifMcpHandling(root) {
+  const correctRoot = path.join(root, "correct");
+  const correctTarget = path.join(correctRoot, "skills");
+  const correctHome = path.join(correctRoot, "codex-home");
+  const correctAgents = path.join(correctHome, "AGENTS.md");
+  const correctConfig = path.join(correctHome, "config.toml");
+  const customConfig = [
+    "[mcp_servers.glif]",
+    'url = "https://glif.app/api/mcp"',
+    "enabled = false",
+    "",
+  ].join("\n");
+  await mkdir(correctHome, { recursive: true });
+  await writeFile(correctConfig, customConfig, "utf8");
+  runInstaller(["--target", correctTarget, "--agents-file", correctAgents]);
+  runInstaller([
+    "--target",
+    correctTarget,
+    "--agents-file",
+    correctAgents,
+    "--verify",
+  ]);
+  assert(
+    (await readFile(correctConfig, "utf8")) === customConfig,
+    "Compatible user-managed Glif MCP config changed",
+  );
+
+  const wrongRoot = path.join(root, "wrong");
+  const wrongTarget = path.join(wrongRoot, "skills");
+  const wrongHome = path.join(wrongRoot, "codex-home");
+  const wrongAgents = path.join(wrongHome, "AGENTS.md");
+  const wrongConfig = path.join(wrongHome, "config.toml");
+  const conflictingConfig = [
+    "[mcp_servers.glif]",
+    'url = "https://example.invalid/mcp"',
+    "",
+  ].join("\n");
+  await mkdir(wrongHome, { recursive: true });
+  await writeFile(wrongConfig, conflictingConfig, "utf8");
+  runInstaller(
+    ["--target", wrongTarget, "--agents-file", wrongAgents],
+    false,
+  );
+  assert(
+    (await readFile(wrongConfig, "utf8")) === conflictingConfig,
+    "Conflicting user-managed Glif MCP config changed",
+  );
+  assert(
+    !(await pathExists(path.join(wrongTarget, "glif"))),
+    "Conflict installed Glif skill",
+  );
 }
 
 async function testSuperpowersConflictAndBackup(root) {
@@ -580,6 +672,7 @@ try {
   await testSkillTriggers();
   await testManualOnlyGitHubWorkflow();
   await testPreservationAndConflicts(path.join(temporaryRoot, "main"));
+  await testExistingGlifMcpHandling(path.join(temporaryRoot, "glif-mcp"));
   await testSuperpowersConflictAndBackup(
     path.join(temporaryRoot, "superpowers-conflict"),
   );
