@@ -37,7 +37,7 @@ offline bootstrap once:
 ./scripts/install-aisupport.sh
 ```
 
-The bootstrap requires Node.js 18 or newer. It copies the reviewed Caveman and
+The bootstrap requires Node.js 18 or newer. It copies Short and the reviewed
 Superpowers skills to `$HOME/.agents/skills` and installs the marker-delimited
 defaults from `AGENTS.md` into `$CODEX_HOME/AGENTS.md` (normally
 `$HOME/.codex/AGENTS.md`). It makes no network request and executes no vendored
@@ -48,23 +48,29 @@ Skills do not start automatically, including in a new task. Invoke
 작업 절차를 진행해줘.` Invoke another named Superpowers skill explicitly when
 that specific workflow is needed.
 
+Invoke `$using-superpowers` at the start when the whole task should follow its
+workflow. For final checks only, invoke `$verification-before-completion`; add
+`$requesting-code-review` when an independent code review is wanted. Invoke
+`$finishing-a-development-branch` only when branch completion is needed, and
+request commit, push, merge, or pull-request actions separately.
+
 Subagents also stay off by default. The user must explicitly request delegation
 or invoke a workflow that requires it, and Codex's `multi_agent` feature must be
 explicitly enabled for that task. Branches, commits, pushes, pull requests,
 background helpers, and recurring checks require their own explicit request.
 
-An older Caveman-only installation contains a previous managed block, so the
-installer intentionally stops. Review the migration, then let it back up and
-replace only AISUPPORT-managed content:
+An older AISUPPORT installation may contain the previous Caveman managed block.
+The installer recognizes it, backs up `AGENTS.md`, and replaces only that
+managed block:
 
 ```powershell
-.\scripts\install-aisupport.ps1 -DryRun -Force
-.\scripts\install-aisupport.ps1 -Force
+.\scripts\install-aisupport.ps1 -DryRun
+.\scripts\install-aisupport.ps1
 ```
 
 ```bash
-./scripts/install-aisupport.sh --dry-run --force
-./scripts/install-aisupport.sh --force
+./scripts/install-aisupport.sh --dry-run
+./scripts/install-aisupport.sh
 ```
 
 Run verification without changing files:

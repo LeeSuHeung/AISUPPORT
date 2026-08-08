@@ -11,5 +11,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $installer = Join-Path $PSScriptRoot 'scripts\install-aisupport.ps1'
+$PSBoundParameters['WithTelegram'] = $true
+$PSBoundParameters['ConfigureTelegram'] = $true
 & $installer @PSBoundParameters
 exit $LASTEXITCODE

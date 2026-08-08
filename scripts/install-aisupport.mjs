@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "node:child_process";
+import { lstatSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import process from "node:process";
@@ -10,6 +11,13 @@ const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const skillInstaller = path.join(scriptDirectory, "install-skills.mjs");
 const gupabalInstaller = path.join(scriptDirectory, "install_gupabal.py");
 const telegramInstaller = path.join(scriptDirectory, "install-telegram-notify.py");
+const telegramNotifier = path.join(
+  scriptDirectory,
+  "..",
+  ".codex",
+  "hooks",
+  "telegram_notify.py",
+);
 
 function resolveUserPath(value, label) {
   const trimmed = value.trim();
@@ -79,8 +87,14 @@ function findPython() {
   throw new Error("Python 3.10 or newer is required");
 }
 
-function runChild(command, argumentsList, displayName) {
+function runChild(
+  command,
+  argumentsList,
+  displayName,
+  environment = process.env,
+) {
   const result = spawnSync(command, argumentsList, {
+    env: environment,
     stdio: "inherit",
     windowsHide: true,
   });
@@ -93,9 +107,12 @@ function runChild(command, argumentsList, displayName) {
 }
 
 function runInstallers(python, argumentsList) {
-  const withTelegram = argumentsList.includes("--with-telegram");
+  const withTelegram =
+    argumentsList.includes("--with-telegram") ||
+    argumentsList.includes("--configure-telegram");
   const sharedArguments = argumentsList.filter(
-    (argument) => argument !== "--with-telegram",
+    (argument) =>
+      argument !== "--with-telegram" && argument !== "--configure-telegram",
   );
   const skillArguments = sharedArguments.filter(
     (argument) => argument !== "--with-hooks",
@@ -116,7 +133,11 @@ function runInstallers(python, argumentsList) {
     ],
     "Gupabal installer",
   );
-  if (withTelegram) {
+  if (
+    withTelegram &&
+    !sharedArguments.includes("--help") &&
+    !sharedArguments.includes("-h")
+  ) {
     const agentsFileIndex = sharedArguments.indexOf("--agents-file");
     const codexHome = path.dirname(sharedArguments[agentsFileIndex + 1]);
     const telegramArguments = ["--codex-home", codexHome];
@@ -137,6 +158,63 @@ function runInstallers(python, argumentsList) {
       "Telegram notifier installer",
     );
   }
+}
+
+function telegramCodexHome(argumentsList) {
+  const agentsFileIndex = argumentsList.indexOf("--agents-file");
+  if (agentsFileIndex < 0 || !argumentsList[agentsFileIndex + 1]) {
+    throw new Error("Telegram setup requires --agents-file");
+  }
+  return path.dirname(argumentsList[agentsFileIndex + 1]);
+}
+
+function telegramCredentialsExist(codexHome) {
+  const token = process.env.TELEGRAM_BOT_TOKEN?.trim();
+  const chatId = process.env.TELEGRAM_CHAT_ID?.trim();
+  if (token || chatId) {
+    if (!token || !chatId) {
+      throw new Error(
+        "TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID must both be set",
+      );
+    }
+    return true;
+  }
+
+  const credentials = path.join(codexHome, "telegram-notify.json");
+  try {
+    const details = lstatSync(credentials);
+    if (details.isSymbolicLink() || !details.isFile()) {
+      throw new Error(
+        `Telegram credentials must be a regular file: ${credentials}`,
+      );
+    }
+    return true;
+  } catch (error) {
+    if (error?.code === "ENOENT") {
+      return false;
+    }
+    throw error;
+  }
+}
+
+function configureTelegram(python, argumentsList) {
+  const codexHome = telegramCodexHome(argumentsList);
+  if (telegramCredentialsExist(codexHome)) {
+    console.log(`Telegram credentials already configured: ${codexHome}`);
+    return;
+  }
+  runChild(
+    python.command,
+    [
+      ...python.prefixArguments,
+      "-X",
+      "utf8",
+      telegramNotifier,
+      "--configure",
+    ],
+    "Telegram notifier setup",
+    { ...process.env, CODEX_HOME: codexHome },
+  );
 }
 
 function inspectArguments(argumentsList) {
@@ -182,6 +260,9 @@ function inspectArguments(argumentsList) {
     if (argument === "--with-telegram") {
       continue;
     }
+    if (argument === "--configure-telegram") {
+      continue;
+    }
     if (argument === "--help" || argument === "-h") {
       singlePass = true;
       continue;
@@ -216,6 +297,9 @@ function main() {
   const originalArguments = process.argv.slice(2);
   const { singlePass, normalizedArguments } = inspectArguments(originalArguments);
   const python = findPython();
+  const shouldConfigureTelegram = normalizedArguments.includes(
+    "--configure-telegram",
+  );
 
   if (singlePass) {
     runInstallers(python, normalizedArguments);
@@ -224,6 +308,9 @@ function main() {
 
   runInstallers(python, [...normalizedArguments, "--dry-run"]);
   runInstallers(python, normalizedArguments);
+  if (shouldConfigureTelegram) {
+    configureTelegram(python, normalizedArguments);
+  }
   const verificationArguments = normalizedArguments.filter(
     (argument) => argument !== "--force",
   );

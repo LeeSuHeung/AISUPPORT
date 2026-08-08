@@ -60,7 +60,7 @@ async function testSkillTriggers() {
   );
   assert(
     frontmatterValue(shortSkill, "description") ===
-      "Apply automatically to every response and coding task unless the user says stop short or normal mode. Keep communication concise and coding changes small, correct, and maintainable.",
+      "Apply automatically to every response and coding task unless the user says stop short or normal mode. Keep communication, code changes, and tool output concise while preserving correctness and decisive evidence.",
     "Short automatic trigger missing",
   );
   for (const required of [
@@ -68,11 +68,11 @@ async function testSkillTriggers() {
     "Make the smallest maintainable change that satisfies the full request.",
     "Use the repository's existing test system and verify in proportion to risk.",
     "Persisted content uses normal, complete prose.",
+    "## Tool output",
+    "Never hide an error or",
+    "Do not add a dependency, background process, telemetry, or lifecycle Hook",
   ]) {
-    assert(
-      shortSkill.includes(required),
-      `Short rule missing: ${required}`,
-    );
+    assert(shortSkill.includes(required), `Short output rule missing: ${required}`);
   }
 
   for (const skillName of expectedSkillNames.filter(
@@ -125,8 +125,10 @@ async function testSkillTriggers() {
     "Do not invoke AISUPPORT skills other than `short` unless the",
     "Do not spawn subagents or delegate work unless the user explicitly requests",
     "Do not create or switch branches, create commits or pull requests, push,",
-    "When the user does not request another branch, stay on `master`.",
-    "Never schedule or repeat them in the background.",
+    "When the user does not request a branch change, stay on the current branch.",
+    "Explicitly invoked workflows may run focused tests as required.",
+    "do not repeat unchanged full test",
+    "suites or run verification in the background.",
     "commit or push completed skill or hook changes only when",
   ]) {
     assert(rootGuidance.includes(required), `Manual execution rule missing: ${required}`);
@@ -393,6 +395,30 @@ async function testExistingGlifMcpHandling(root) {
     !(await pathExists(path.join(wrongTarget, "glif"))),
     "Conflict installed Glif skill",
   );
+}
+
+async function testLegacyGuidanceMigration(root) {
+  const skillTarget = path.join(root, "skills");
+  const agentsFile = path.join(root, "codex-home", "AGENTS.md");
+  const legacy = [
+    "## Existing guidance",
+    "",
+    "<!-- BEGIN CAVEMAN PORTABLE ALWAYS-ON -->",
+    "old managed content",
+    "<!-- END CAVEMAN PORTABLE ALWAYS-ON -->",
+    "",
+  ].join("\n");
+  await mkdir(path.dirname(agentsFile), { recursive: true });
+  await writeFile(agentsFile, legacy, "utf8");
+
+  runInstaller(["--target", skillTarget, "--agents-file", agentsFile]);
+  const migrated = await readFile(agentsFile, "utf8");
+  assert(migrated.startsWith("## Existing guidance\n\n"), "Existing guidance changed");
+  assert(migrated.includes(startMarker) && migrated.includes(endMarker), "Short block missing");
+  assert(!migrated.includes("CAVEMAN PORTABLE"), "Legacy markers remain");
+  const backups = await listAgentBackups(agentsFile);
+  assert(backups.length === 1, "Legacy migration backup missing");
+  assert((await readFile(backups[0], "utf8")) === legacy, "Legacy backup differs");
 }
 
 async function testSuperpowersConflictAndBackup(root) {
@@ -667,12 +693,76 @@ async function testIntegratedTelegramOptIn(root) {
   assert(config.includes("existing-notifier"), "Existing notifier was not preserved");
 }
 
+async function testAllInOneTelegramSetup(root) {
+  const powerShellEntrypoint = await readFile(
+    path.join(repositoryRoot, "AISUPPORTinstall.ps1"),
+    "utf8",
+  );
+  assert(
+    powerShellEntrypoint.includes("$PSBoundParameters['WithTelegram'] = $true"),
+    "Windows entrypoint does not enable Telegram",
+  );
+  assert(
+    powerShellEntrypoint.includes(
+      "$PSBoundParameters['ConfigureTelegram'] = $true",
+    ),
+    "Windows entrypoint does not configure Telegram",
+  );
+
+  const windowsLauncher = await readFile(
+    path.join(repositoryRoot, "AISUPPORTinstall.cmd"),
+    "utf8",
+  );
+  assert(
+    windowsLauncher.includes(
+      'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0AISUPPORTinstall.ps1" %*',
+    ),
+    "Windows launcher does not start the all-in-one PowerShell installer",
+  );
+
+  const shellEntrypoint = await readFile(
+    path.join(repositoryRoot, "install.sh"),
+    "utf8",
+  );
+  assert(
+    shellEntrypoint.includes("--with-telegram") &&
+      shellEntrypoint.includes("--configure-telegram"),
+    "POSIX entrypoint does not install and configure Telegram",
+  );
+
+  const skillTarget = path.join(root, "skills");
+  const codexHome = path.join(root, "codex-home");
+  const agentsFile = path.join(codexHome, "AGENTS.md");
+  const credentials = '{"bot_token":"configured","chat_id":"123"}\n';
+  await mkdir(codexHome, { recursive: true });
+  await writeFile(
+    path.join(codexHome, "telegram-notify.json"),
+    credentials,
+    "utf8",
+  );
+  runInstaller([
+    "--target",
+    skillTarget,
+    "--agents-file",
+    agentsFile,
+    "--configure-telegram",
+  ]);
+  const config = await readFile(path.join(codexHome, "config.toml"), "utf8");
+  assert(config.includes("telegram_notify_"), "All-in-one setup omitted Telegram");
+  assert(
+    (await readFile(path.join(codexHome, "telegram-notify.json"), "utf8")) ===
+      credentials,
+    "All-in-one setup replaced existing Telegram credentials",
+  );
+}
+
 const temporaryRoot = await mkdtemp(path.join(os.tmpdir(), "aisupport-installer-test-"));
 try {
   await testSkillTriggers();
   await testManualOnlyGitHubWorkflow();
   await testPreservationAndConflicts(path.join(temporaryRoot, "main"));
   await testExistingGlifMcpHandling(path.join(temporaryRoot, "glif-mcp"));
+  await testLegacyGuidanceMigration(path.join(temporaryRoot, "legacy-guidance"));
   await testSuperpowersConflictAndBackup(
     path.join(temporaryRoot, "superpowers-conflict"),
   );
@@ -692,6 +782,9 @@ try {
   await testIntegratedHookOptIn(path.join(temporaryRoot, "integrated-hook-opt-in"));
   await testIntegratedTelegramOptIn(
     path.join(temporaryRoot, "integrated-telegram-opt-in"),
+  );
+  await testAllInOneTelegramSetup(
+    path.join(temporaryRoot, "all-in-one-telegram-setup"),
   );
   console.log("AISUPPORT installer tests passed");
 } finally {

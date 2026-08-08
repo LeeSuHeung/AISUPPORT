@@ -608,10 +608,13 @@ class HookTestCase(unittest.TestCase):
             "--agents-file <exact> --verify"
         )
         for document in documents:
-            self.assertIn("install.ps1 -Verify", document)
+            self.assertIn("AISUPPORTinstall.ps1 -Verify", document)
             self.assertIn("install.sh --verify", document)
             self.assertIn(python_verify, document)
-            self.assertLess(document.index("install.ps1 -Verify"), document.index(python_verify))
+            self.assertLess(
+                document.index("AISUPPORTinstall.ps1 -Verify"),
+                document.index(python_verify),
+            )
             self.assertLess(document.index("install.sh --verify"), document.index(python_verify))
             self.assertIn("PYTHONUTF8=0", document)
             self.assertIn("Unicode", document)

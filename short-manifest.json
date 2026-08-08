@@ -9,7 +9,7 @@
   ],
   "executables": [],
   "files": {
-    ".agents/skills/short/SKILL.md": "cf3a8918715152fb54e6529f591f7055da441ea05a77f2d1a1f0f493882f7fed",
-    ".agents/skills/short/agents/openai.yaml": "c86cee436196ea2c3a75a41cefb964428b682c40eecfead277b28bf008ce5d20"
+    ".agents/skills/short/SKILL.md": "5cb16fe6a8230aaf51fbb3b28e8b36175cd3a704c3c46fc108b0c5dab1260773",
+    ".agents/skills/short/agents/openai.yaml": "ba34173577734605676c5385342c16781ac7d099b3d6439ce357f51ca3149b0c"
   }
 }

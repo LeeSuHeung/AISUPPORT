@@ -78,6 +78,9 @@ async function testShortSource() {
     "Prefer, in order: existing code, standard library, native platform features, installed dependencies, then new code.",
     "Use the repository's existing test system and verify in proportion to risk.",
     "Persisted content uses normal, complete prose.",
+    "Choose the narrowest command or query that can answer the question.",
+    "Never hide an error or",
+    "Do not add a dependency, background process, telemetry, or lifecycle Hook",
   ]) {
     assert(skill.includes(required), `Short rule missing: ${required}`);
   }

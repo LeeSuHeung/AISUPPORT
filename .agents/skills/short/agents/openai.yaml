@@ -1,7 +1,7 @@
 interface:
   display_name: "Short"
-  short_description: "Concise answers and minimal correct code changes"
-  default_prompt: "Use $short to answer concisely and make the smallest clear, correct implementation."
+  short_description: "Concise answers, code, and tool output"
+  default_prompt: "Use $short to produce the smallest clear, correct result with focused tool output."
 
 policy:
   allow_implicit_invocation: true

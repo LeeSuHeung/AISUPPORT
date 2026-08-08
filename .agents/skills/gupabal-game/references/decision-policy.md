@@ -64,7 +64,7 @@ json.dumps(
 
 ## 설치된 runtime 검증
 
-AISUPPORT의 source 검증 통과는 현재 PC의 runtime 설치 완료를 뜻하지 않는다. 완료 전에 canonical AISUPPORT checkout에서 설치 때와 같은 custom `CODEX_HOME`, `--target`, `--agents-file` 값으로 통합 installer verify를 먼저 실행한다. Windows 명령은 `powershell -ExecutionPolicy Bypass -File .\install.ps1 -Verify -Target '<same-target>' -AgentsFile '<same-agents-file>'`, macOS·Linux 명령은 `CODEX_HOME='<same-codex-home>' sh ./install.sh --verify --target '<same-target>' --agents-file '<same-agents-file>'`이다. Windows도 설치 때와 같은 `CODEX_HOME` 환경을 유지한다. 이 통합 명령 전체가 exit `0`이고 출력 어디에도 `MISMATCH`가 없어야 한다.
+AISUPPORT의 source 검증 통과는 현재 PC의 runtime 설치 완료를 뜻하지 않는다. 완료 전에 canonical AISUPPORT checkout에서 설치 때와 같은 custom `CODEX_HOME`, `--target`, `--agents-file` 값으로 통합 installer verify를 먼저 실행한다. Windows 명령은 `powershell -ExecutionPolicy Bypass -File .\AISUPPORTinstall.ps1 -Verify -Target '<same-target>' -AgentsFile '<same-agents-file>'`, macOS·Linux 명령은 `CODEX_HOME='<same-codex-home>' sh ./install.sh --verify --target '<same-target>' --agents-file '<same-agents-file>'`이다. Windows도 설치 때와 같은 `CODEX_HOME` 환경을 유지한다. 이 통합 명령 전체가 exit `0`이고 출력 어디에도 `MISMATCH`가 없어야 한다.
 
 그다음 명시적인 Python 3.10+ 명령으로 같은 환경에서 `<python> -X utf8 scripts/install_gupabal.py --target <exact> --agents-file <exact> --verify`를 실행한다. 두 `<exact>`는 각각 최초 설치와 정확히 같은 target과 agents-file 값을 뜻하며, shell에서 Unicode (공백·한글·이모지 포함) 경로 하나로 안전하게 quote한다. `PYTHONUTF8=0`이어도 `-X utf8`을 제거하지 않는다. 이 두 번째 명령도 exit `0`이고 `MISMATCH`가 없어야 하며, 출력에는 정확히 하나의 `OK <absolute-path>/gupabal_hooks_<sha16>.py` 줄이 있어야 한다.
 

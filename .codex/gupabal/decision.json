@@ -55,8 +55,8 @@
     "art": [],
     "client": [
       "scripts/install-aisupport.mjs",
-      "scripts/install-caveman.mjs",
-      "scripts/test-caveman-installer.mjs",
+      "scripts/install-skills.mjs",
+      "scripts/test-aisupport-installer.mjs",
       "scripts/merge_gupabal_hooks.py",
       "tests/test_gupabal_windows.py",
       "README.md"
@@ -93,8 +93,8 @@
     "client": {
       "roots": [
         "scripts/install-aisupport.mjs",
-        "scripts/install-caveman.mjs",
-        "scripts/test-caveman-installer.mjs",
+        "scripts/install-skills.mjs",
+        "scripts/test-aisupport-installer.mjs",
         "scripts/merge_gupabal_hooks.py",
         "tests/test_gupabal_windows.py",
         "README.md"

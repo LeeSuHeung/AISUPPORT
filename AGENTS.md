@@ -21,8 +21,8 @@
 
 - Apply the available `short` skill to every response and coding task.
 - `short` is the only automatically invoked AISUPPORT skill.
-- Apply its communication rules to every response and its implementation rules
-  only to coding work.
+- Apply its communication and tool-output rules to every response and its
+  implementation rules only to coding work.
 - Keep it active for the whole task. Disable it only when the user
   explicitly asks to stop it or use normal mode.
 
@@ -36,9 +36,10 @@
   dispatch workflows, enable lifecycle hooks, start background helpers, or
   create scheduled or recurring automations unless the user explicitly
   requests that exact action.
-- When the user does not request another branch, stay on `master`.
-- Tests and verification needed to finish an explicitly requested change may
-  run once in that task. Never schedule or repeat them in the background.
+- When the user does not request a branch change, stay on the current branch.
+- Explicitly invoked workflows may run focused tests as required. Run final
+  verification once after implementation; do not repeat unchanged full test
+  suites or run verification in the background.
 - After explicit invocation, follow that other skill for the current task within the user's scope.
 
 ## AISUPPORT skill and hook policy

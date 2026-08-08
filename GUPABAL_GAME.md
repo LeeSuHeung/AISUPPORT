@@ -28,7 +28,7 @@ Windows PowerShell:
 ```powershell
 git clone https://github.com/LeeSuHeung/AISUPPORT.git
 cd AISUPPORT
-powershell -ExecutionPolicy Bypass -File .\install.ps1
+powershell -ExecutionPolicy Bypass -File .\AISUPPORTinstall.ps1
 ```
 
 macOS 또는 Linux:
@@ -48,7 +48,7 @@ sh ./install.sh
 구파발 command Hook은 기본으로 비활성화됩니다. 일반 설치는 사용자 Hook을 보존하고 기존 구파발 관리 handler만 제거합니다. Hook을 명시적으로 활성화하려면 Windows에서는 `-WithHooks`, macOS/Linux에서는 `--with-hooks`를 설치 명령에 추가하고, `$CODEX_HOME/config.toml`의 `[features]` 아래에서 `hooks = true`로 바꾼 뒤 Codex를 다시 시작합니다.
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\install.ps1 -WithHooks
+powershell -ExecutionPolicy Bypass -File .\AISUPPORTinstall.ps1 -WithHooks
 ```
 
 ```sh
@@ -82,7 +82,7 @@ Git에서 받은 AISUPPORT source가 올바르다는 검사와 이 PC의 Codex r
 Windows에서는 설치 때와 같은 `CODEX_HOME` 환경을 유지하고 다음 명령을 실행합니다.
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\install.ps1 -Verify -Target '<same-target>' -AgentsFile '<same-agents-file>'
+powershell -ExecutionPolicy Bypass -File .\AISUPPORTinstall.ps1 -Verify -Target '<same-target>' -AgentsFile '<same-agents-file>'
 ```
 
 macOS 또는 Linux에서는 다음 명령을 실행합니다.

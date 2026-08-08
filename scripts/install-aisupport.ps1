@@ -6,7 +6,8 @@ param(
     [switch]$DryRun,
     [switch]$Force,
     [switch]$WithHooks,
-    [switch]$WithTelegram
+    [switch]$WithTelegram,
+    [switch]$ConfigureTelegram
 )
 
 $ErrorActionPreference = 'Stop'
@@ -44,6 +45,9 @@ if ($WithHooks) {
 }
 if ($WithTelegram) {
     $installerArguments += '--with-telegram'
+}
+if ($ConfigureTelegram) {
+    $installerArguments += '--configure-telegram'
 }
 
 & $nodeCommand.Source @installerArguments

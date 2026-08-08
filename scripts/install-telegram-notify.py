@@ -201,6 +201,11 @@ def encoded_command(command: list[str]) -> str:
 def insert_notify(text: str, command: list[str], newline: str) -> str:
     table = re.search(r"(?m)^[ \t]*\[", text)
     position = table.start() if table else len(text)
+    if table:
+        for line in reversed(text[:position].splitlines(keepends=True)):
+            if line.strip() and not line.lstrip().startswith("#"):
+                break
+            position -= len(line)
     prefix = text[:position]
     suffix = text[position:]
     if prefix and not prefix.endswith(("\n", "\r")):

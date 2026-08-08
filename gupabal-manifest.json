@@ -2,9 +2,9 @@
   "version": 1,
   "files": {
     ".agents/skills/gupabal-game/agents/openai.yaml": "baa3ef2be721b850b1af7ce36325f59415172876bcd28aae19ba7b1809d97b93",
-    ".agents/skills/gupabal-game/references/decision-policy.md": "0d6a39f5b5be7d44a63f242edd76b0a158767eaf93bb1d33fffa3aed29984546",
+    ".agents/skills/gupabal-game/references/decision-policy.md": "45a8a9c7b3060608560742f10bdcb24c7d51160af3d14b16214cacf3ec38d043",
     ".agents/skills/gupabal-game/references/decision-template.json": "17ecaf878b0258f2b45b7e08cfa34b195392a4a607b71ac191ebfcce7fc89ed9",
-    ".agents/skills/gupabal-game/SKILL.md": "82f9880b78c5891781e4f7d846c59f2ab2cea1971824406d52179ee751cd5b5e",
+    ".agents/skills/gupabal-game/SKILL.md": "726ad20b2fdd39dfec82c2fe22a5786cea68147fb9bcc31dcecf301b442291e5",
     ".codex/agents/gupabal_art_designer.toml": "c76b02f986c65780594ee0048f71e8c0c45454b5efc94b25116c31c935f7f6e0",
     ".codex/agents/gupabal_client.toml": "8fd109fbe5d94e9f29cfdf99c9ac9df49693a99ba17d0fb7c5954c2a4e311030",
     ".codex/agents/gupabal_planner.toml": "cb2308cb04ce5a565250cc6a9e275940049d5348b0371df55a0da55bf9181496",

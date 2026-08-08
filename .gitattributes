@@ -3,6 +3,9 @@
 /.codex/** text eol=lf whitespace=-trailing-space
 /.github/workflows/verify-aisupport.yml text eol=lf
 /AGENTS.md text eol=lf
+/AISUPPORTinstall.cmd text eol=crlf
+/AISUPPORTinstall.ps1 text eol=lf
+/GLIF.md text eol=lf
 /SHORT.md text eol=lf
 /GUPABAL_GAME.md text eol=lf
 /README.md text eol=lf
@@ -10,9 +13,10 @@
 /THIRD_PARTY_NOTICES.md text eol=lf
 /short-manifest.json text eol=lf
 /gupabal-manifest.json text eol=lf
-/install.ps1 text eol=lf
+/glif-manifest.json text eol=lf
 /install.sh text eol=lf
 /superpowers-manifest.json text eol=lf
+/telegram-manifest.json text eol=lf
 /scripts/install-aisupport.mjs text eol=lf
 /scripts/install-aisupport.ps1 text eol=lf
 /scripts/install-aisupport.sh text eol=lf

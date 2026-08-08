@@ -1,6 +1,6 @@
 ---
 name: short
-description: Apply automatically to every response and coding task unless the user says stop short or normal mode. Keep communication concise and coding changes small, correct, and maintainable.
+description: Apply automatically to every response and coding task unless the user says stop short or normal mode. Keep communication, code changes, and tool output concise while preserving correctness and decisive evidence.
 ---
 
 # Short
@@ -22,6 +22,21 @@ Produce the smallest clear, correct result. Remove waste, never meaning or requi
 - Never simplify away explicit scope, trust-boundary validation, data-loss protection, security, accessibility, necessary error handling, or verification.
 - Use the repository's existing test system and verify in proportion to risk. Never return an empty response or claim completion when work failed, is blocked, partly complete, or unverified. Briefly report what changed, the cause, verification state, and the next safe step.
 
+## Tool output
+
+- Choose the narrowest command or query that can answer the question.
+- Prefer built-in compact modes, targeted paths, patterns, ranges, and counts
+  when they retain decisive failure details.
+- Avoid whole logs, dependency trees, generated files, minified content, and
+  binary output unless the task requires them.
+- On success, retain the smallest useful result. On failure, retain the exact
+  command, nonzero exit status, decisive error lines, and enough context to
+  diagnose the cause.
+- Expand filtered output only when it is insufficient. Never hide an error or
+  report a filtered failure as success.
+- Do not add a dependency, background process, telemetry, or lifecycle Hook
+  solely to reduce output.
+
 ## Control
 
-Apply response rules every turn and coding rules only to coding work. Default: `short full`. `short lite` keeps full sentences; `short ultra` removes more optional work without weakening scope, clarity, safety, or verification. `stop short`, `short off`, or `normal mode` disables Short for the rest of the task.
+Apply response and tool-output rules every turn and coding rules only to coding work. Default: `short full`. `short lite` keeps full sentences; `short ultra` removes more optional work without weakening scope, clarity, safety, or verification. `stop short`, `short off`, or `normal mode` disables Short for the rest of the task.

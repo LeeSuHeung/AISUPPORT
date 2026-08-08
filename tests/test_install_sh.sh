@@ -20,7 +20,8 @@ if ! command -v python3 >/dev/null 2>&1 || ! python3 -c 'import sys; raise Syste
     export PATH
 fi
 
-mkdir -p -- "$test_user_path"
+mkdir -p -- "$test_user_path/.codex"
+printf '%s\n' '{"bot_token":"configured","chat_id":"123"}' > "$test_user_path/.codex/telegram-notify.json"
 sh "$repository/install.sh" --target "$skill_target" --agents-file "$agents_file" > "$first_log"
 sh "$repository/install.sh" --target "$skill_target" --agents-file "$agents_file" > "$second_log"
 sh "$repository/install.sh" --target "$skill_target" --agents-file "$agents_file" --verify >/dev/null
@@ -38,6 +39,12 @@ import sys
 test_user_path = pathlib.Path(sys.argv[1])
 hooks_path = test_user_path / ".codex" / "hooks.json"
 assert not hooks_path.exists()
+config = (test_user_path / ".codex" / "config.toml").read_text(encoding="utf-8-sig")
+assert "telegram_notify_" in config
+credentials = json.loads(
+    (test_user_path / ".codex" / "telegram-notify.json").read_text(encoding="utf-8")
+)
+assert credentials == {"bot_token": "configured", "chat_id": "123"}
 PY
 
 sh "$repository/install.sh" --target "$skill_target" --agents-file "$agents_file" --with-hooks >/dev/null

@@ -78,6 +78,39 @@ class TelegramNotifierTests(unittest.TestCase):
 
 
 class TelegramInstallerTests(unittest.TestCase):
+    def test_install_preserves_comment_delimited_table_block(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            codex_home = Path(temporary) / "codex-home"
+            codex_home.mkdir()
+            config = codex_home / "config.toml"
+            managed_block = (
+                "# BEGIN AISUPPORT GLIF MCP\n"
+                "[mcp_servers.glif]\n"
+                'url = "https://glif.app/api/mcp"\n'
+                'auth = "oauth"\n'
+                'default_tools_approval_mode = "writes"\n'
+                "# END AISUPPORT GLIF MCP\n"
+            )
+            config.write_text(managed_block, encoding="utf-8")
+
+            install = subprocess.run(
+                [
+                    sys.executable,
+                    "-X",
+                    "utf8",
+                    str(INSTALLER_PATH),
+                    "--codex-home",
+                    str(codex_home),
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(install.returncode, 0, install.stderr)
+            installed = config.read_text(encoding="utf-8")
+            self.assertIn(managed_block, installed)
+            self.assertLess(installed.index("notify ="), installed.index(managed_block))
+
     def test_install_verify_and_remove_preserve_existing_notifier(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             codex_home = Path(temporary) / "codex-home"
