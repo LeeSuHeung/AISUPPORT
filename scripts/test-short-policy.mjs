@@ -25,6 +25,14 @@ const shortStartMarker = "<!-- BEGIN SHORT PORTABLE ALWAYS-ON -->";
 const shortEndMarker = "<!-- END SHORT PORTABLE ALWAYS-ON -->";
 const legacyStartMarker = "<!-- BEGIN CAVEMAN PORTABLE ALWAYS-ON -->";
 const legacyEndMarker = "<!-- END CAVEMAN PORTABLE ALWAYS-ON -->";
+const requiredBehaviorScenarioIds = Object.freeze([
+  "information-request-is-read-only",
+  "clear-modification-preserves-scope",
+  "ambiguous-deletion-pauses-once",
+  "secret-bearing-failure-keeps-evidence",
+  "failed-verification-is-not-complete",
+  "conversational-mode-transition-keeps-safety",
+]);
 
 function assert(condition, message) {
   if (!condition) {
@@ -69,18 +77,21 @@ async function testShortSource() {
     "Treat information-only requests as read-only.",
     "Change state only when the user's execution intent, target, and scope are clear.",
     "When the user's latest instruction conflicts with earlier instructions, replace only the conflict and keep compatible constraints.",
-    "Never undo completed work without an explicit request; report its state instead.",
+    "Never undo completed work outside the currently authorized scope without an explicit request; report its state instead.",
     "Use secrets only for the user's authorized purpose and minimum necessary scope.",
-    "Redact secrets when exact reproduction would reveal them.",
+    "Redact only the sensitive value; preserve the surrounding evidence.",
     "Modify only authorized targets and scope.",
     "Preserve out-of-scope content and existing user changes.",
     "Never return an empty response or claim completion when work failed",
     "Prefer, in order: existing code, standard library, native platform features, installed dependencies, then new code.",
     "Use the repository's existing test system and verify in proportion to risk.",
-    "Persisted content uses normal, complete prose.",
+    "Persisted content follows the target format and repository or project conventions.",
     "Choose the narrowest command or query that can answer the question.",
     "Never hide an error or",
     "Do not add a dependency, background process, telemetry, or lifecycle Hook",
+    "Redact secrets and sensitive values in every retained field without",
+    "These are conversational directives, not Codex runtime modes.",
+    "No mode may reduce requested implementation, scope, safety, correctness, necessary error handling, or required verification.",
   ]) {
     assert(skill.includes(required), `Short rule missing: ${required}`);
   }
@@ -144,6 +155,59 @@ async function testShortSource() {
     await pathExists(path.join(scriptDirectory, "install-skills.mjs")),
     "Generic skill installer is missing",
   );
+
+  const contract = JSON.parse(
+    await readFile(path.join(repositoryRoot, "tests", "short-behavior-contract.json"), "utf8"),
+  );
+  assert(contract.version === 1, "Short behavior contract version must be 1");
+  assert(
+    contract.kind === "static-policy-contract",
+    "Short behavior contract must identify itself as a static policy contract",
+  );
+  assert(
+    contract.executesModel === false && contract.executesApi === false,
+    "Short behavior contract must not claim to execute a model or API",
+  );
+  assert(
+    typeof contract.description === "string" &&
+      contract.description.includes("does not run or grade a model or API response"),
+    "Short behavior contract must state its non-executing scope",
+  );
+  assert(Array.isArray(contract.scenarios), "Short behavior scenarios must be an array");
+  assert(
+    contract.scenarios.length >= requiredBehaviorScenarioIds.length,
+    "Short behavior contract must contain at least six scenarios",
+  );
+  const scenarioIds = contract.scenarios.map((scenario) => scenario.id);
+  assert(
+    new Set(scenarioIds).size === scenarioIds.length,
+    "Short behavior scenario IDs must be unique",
+  );
+  for (const requiredId of requiredBehaviorScenarioIds) {
+    assert(scenarioIds.includes(requiredId), `Short behavior scenario missing: ${requiredId}`);
+  }
+  for (const scenario of contract.scenarios) {
+    assert(
+      typeof scenario.input === "string" && scenario.input.trim().length > 0,
+      `Short behavior scenario input is missing: ${scenario.id}`,
+    );
+    for (const field of ["expected", "forbidden", "policyAnchors"]) {
+      assert(
+        Array.isArray(scenario[field]) && scenario[field].length > 0,
+        `Short behavior scenario ${field} is missing: ${scenario.id}`,
+      );
+      assert(
+        scenario[field].every((value) => typeof value === "string" && value.trim().length > 0),
+        `Short behavior scenario ${field} contains an invalid value: ${scenario.id}`,
+      );
+    }
+    for (const anchor of scenario.policyAnchors) {
+      assert(
+        skill.includes(anchor),
+        `Short behavior scenario policy anchor is missing (${scenario.id}): ${anchor}`,
+      );
+    }
+  }
 
   const lock = JSON.parse(
     await readFile(path.join(repositoryRoot, "skills-lock.json"), "utf8"),

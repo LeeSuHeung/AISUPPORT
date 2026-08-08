@@ -6,6 +6,7 @@ import {
   mkdtemp,
   readFile,
   readdir,
+  rename,
   rm,
   stat,
   writeFile,
@@ -15,6 +16,10 @@ import path from "node:path";
 import process from "node:process";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import {
+  copySkillAtomically,
+  hashDirectory,
+} from "./install-skills.mjs";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = path.resolve(scriptDirectory, "..");
@@ -64,10 +69,10 @@ async function testSkillTriggers() {
     "Short automatic trigger missing",
   );
   for (const required of [
-    "Preserve negation, numbers, units, paths, commands, code and API names, and exact error text.",
+    "Preserve negation, numbers, units, paths, commands, code and API names, and exact error text after redacting secrets and sensitive values.",
     "Make the smallest maintainable change that satisfies the full request.",
     "Use the repository's existing test system and verify in proportion to risk.",
-    "Persisted content uses normal, complete prose.",
+    "Persisted content follows the target format and repository or project conventions.",
     "## Tool output",
     "Never hide an error or",
     "Do not add a dependency, background process, telemetry, or lifecycle Hook",
@@ -163,6 +168,186 @@ async function pathExists(targetPath) {
     }
     throw error;
   }
+}
+
+async function testAtomicSkillReplacement(root) {
+  const source = path.join(root, "source", "short");
+  const targetRoot = path.join(root, "skills");
+  const destination = path.join(targetRoot, "short");
+  const sourceSkill = path.join(source, "SKILL.md");
+  const destinationSkill = path.join(destination, "SKILL.md");
+  const newContents = "new skill\n";
+  const oldContents = "existing skill\n";
+
+  await mkdir(source, { recursive: true });
+  await mkdir(destination, { recursive: true });
+  await writeFile(sourceSkill, newContents, "utf8");
+  await writeFile(destinationSkill, oldContents, "utf8");
+
+  let verificationError = null;
+  try {
+    await copySkillAtomically(source, destination, "invalid hash", true);
+  } catch (error) {
+    verificationError = error;
+  }
+  assert(
+    verificationError?.message.includes("Verification failed while copying short"),
+    "Invalid staged skill did not fail verification",
+  );
+  assert(
+    (await readFile(destinationSkill, "utf8")) === oldContents,
+    "Verification failure changed the active skill",
+  );
+  assert(
+    !(await pathExists(path.join(root, "skill-backups"))),
+    "Verification failure created a backup before the staged skill was ready",
+  );
+  assert(
+    !(await readdir(targetRoot)).some((name) => name.startsWith(".short-install-")),
+    "Verification failure left a temporary skill directory",
+  );
+
+  const expectedHash = await hashDirectory(source);
+  let renameCalls = 0;
+  let stagedBeforeMove = false;
+  const failReplacementRename = async (sourcePath, destinationPath) => {
+    renameCalls += 1;
+    if (renameCalls === 1) {
+      const temporaryParents = (await readdir(targetRoot)).filter((name) =>
+        name.startsWith(".short-install-"),
+      );
+      assert(
+        sourcePath === destination && temporaryParents.length === 1,
+        "Active skill moved before one staged skill was ready",
+      );
+      stagedBeforeMove =
+        (await readFile(
+          path.join(targetRoot, temporaryParents[0], "short", "SKILL.md"),
+          "utf8",
+        )) === newContents;
+    }
+    if (renameCalls === 2) {
+      throw new Error("injected replacement failure");
+    }
+    await rename(sourcePath, destinationPath);
+  };
+
+  let replacementError = null;
+  const failCleanupAfterRemoval = async (...argumentsList) => {
+    await rm(...argumentsList);
+    throw new Error("injected cleanup failure");
+  };
+  try {
+    await copySkillAtomically(
+      source,
+      destination,
+      expectedHash,
+      true,
+      failReplacementRename,
+      failCleanupAfterRemoval,
+    );
+  } catch (error) {
+    replacementError = error;
+  }
+  assert(
+    replacementError instanceof AggregateError &&
+      replacementError.message.includes("injected replacement failure") &&
+      replacementError.message.includes("injected cleanup failure") &&
+      replacementError.errors.some(
+        (error) => error?.message === "injected replacement failure",
+      ) &&
+      replacementError.errors.some(
+        (error) => error?.message === "injected cleanup failure",
+      ),
+    "Replacement and cleanup failures were not both reported",
+  );
+  assert(stagedBeforeMove, "Active skill moved before staged contents were copied");
+  assert(renameCalls === 3, "Replacement failure did not restore the backup");
+  assert(
+    (await readFile(destinationSkill, "utf8")) === oldContents,
+    "Replacement failure did not restore the active skill",
+  );
+  assert(
+    (await readdir(path.join(root, "skill-backups"))).length === 0,
+    "Replacement failure left the restored backup in backup storage",
+  );
+  assert(
+    !(await readdir(targetRoot)).some((name) => name.startsWith(".short-install-")),
+    "Replacement failure left a temporary skill directory",
+  );
+
+  const backupPath = await copySkillAtomically(
+    source,
+    destination,
+    expectedHash,
+    true,
+  );
+  assert(backupPath, "Successful forced replacement did not return its backup path");
+  assert(
+    (await readFile(path.join(backupPath, "SKILL.md"), "utf8")) === oldContents,
+    "Successful forced replacement backup differs from the active skill",
+  );
+  assert(
+    (await readFile(destinationSkill, "utf8")) === newContents,
+    "Successful forced replacement did not install the staged skill",
+  );
+  assert(
+    !(await readdir(targetRoot)).some((name) => name.startsWith(".short-install-")),
+    "Successful replacement left a temporary skill directory",
+  );
+
+  let stateProbeCalls = 0;
+  const failRollbackStateProbe = async (targetPath) => {
+    stateProbeCalls += 1;
+    if (stateProbeCalls === 1) {
+      return stat(targetPath);
+    }
+    throw new Error("injected state probe failure");
+  };
+  let probeRenameCalls = 0;
+  const failReplacementAfterBackup = async (sourcePath, destinationPath) => {
+    probeRenameCalls += 1;
+    if (probeRenameCalls === 2) {
+      throw new Error("injected probe-path replacement failure");
+    }
+    await rename(sourcePath, destinationPath);
+  };
+  let probeError = null;
+  try {
+    await copySkillAtomically(
+      source,
+      destination,
+      expectedHash,
+      true,
+      failReplacementAfterBackup,
+      rm,
+      failRollbackStateProbe,
+    );
+  } catch (error) {
+    probeError = error;
+  }
+  assert(
+    probeError instanceof AggregateError &&
+      probeError.message.includes("injected probe-path replacement failure") &&
+      probeError.message.includes("injected state probe failure") &&
+      probeError.errors.some(
+        (error) => error?.message === "injected probe-path replacement failure",
+      ) &&
+      probeError.errors.some(
+        (error) => error?.message === "injected state probe failure",
+      ),
+    "Replacement and rollback state-probe failures were not both reported",
+  );
+  assert(!(await pathExists(destination)), "Unknown rollback state recreated the destination");
+  const retainedBackups = await readdir(path.join(root, "skill-backups"));
+  assert(
+    retainedBackups.length === 2,
+    "Unknown rollback state did not retain both successful and recovery backups",
+  );
+  assert(
+    !(await readdir(targetRoot)).some((name) => name.startsWith(".short-install-")),
+    "Rollback state-probe failure left a temporary skill directory",
+  );
 }
 
 function runInstaller(argumentsList, shouldPass = true, environment = process.env) {
@@ -760,6 +945,7 @@ const temporaryRoot = await mkdtemp(path.join(os.tmpdir(), "aisupport-installer-
 try {
   await testSkillTriggers();
   await testManualOnlyGitHubWorkflow();
+  await testAtomicSkillReplacement(path.join(temporaryRoot, "atomic-skill"));
   await testPreservationAndConflicts(path.join(temporaryRoot, "main"));
   await testExistingGlifMcpHandling(path.join(temporaryRoot, "glif-mcp"));
   await testLegacyGuidanceMigration(path.join(temporaryRoot, "legacy-guidance"));

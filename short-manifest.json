@@ -2,14 +2,14 @@
   "version": 1,
   "release": "v2",
   "sourceUrl": "https://github.com/LeeSuHeung/AISUPPORT",
-  "reviewedAt": "2026-08-06",
+  "reviewedAt": "2026-08-08",
   "derivedFrom": [
     "JuliusBrussee/caveman@v1.10.0",
     "DietrichGebert/ponytail@v4.8.4"
   ],
   "executables": [],
   "files": {
-    ".agents/skills/short/SKILL.md": "5cb16fe6a8230aaf51fbb3b28e8b36175cd3a704c3c46fc108b0c5dab1260773",
+    ".agents/skills/short/SKILL.md": "edeb5d2a0285ff093e17b32c33fe7c4f892b89c5517dc7b864d649e1b3d1d4c9",
     ".agents/skills/short/agents/openai.yaml": "ba34173577734605676c5385342c16781ac7d099b3d6439ce357f51ca3149b0c"
   }
 }

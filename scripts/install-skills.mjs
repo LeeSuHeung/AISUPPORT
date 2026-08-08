@@ -583,7 +583,7 @@ async function collectFiles(rootPath, currentPath = rootPath) {
   return files;
 }
 
-async function hashDirectory(directoryPath) {
+export async function hashDirectory(directoryPath) {
   const state = await getPathState(directoryPath);
   if (!state?.isDirectory()) {
     throw new Error(`Expected directory: ${directoryPath}`);
@@ -815,16 +815,21 @@ async function findBackupPath(backupRoot, skillName) {
   return candidate;
 }
 
-async function copySkillAtomically(source, destination, expectedHash, force) {
+export async function copySkillAtomically(
+  source,
+  destination,
+  expectedHash,
+  force,
+  renamePath = rename,
+  removePath = rm,
+  getStatePath = getPathState,
+) {
   let backupPath = null;
-  const existing = await getPathState(destination);
+  const existing = await getStatePath(destination);
   if (existing) {
     if (!force) {
       throw new Error(`Refusing to replace existing skill without --force: ${destination}`);
     }
-    const backupRoot = path.join(path.dirname(path.dirname(destination)), "skill-backups");
-    backupPath = await findBackupPath(backupRoot, path.basename(destination));
-    await rename(destination, backupPath);
   }
 
   await mkdir(path.dirname(destination), { recursive: true });
@@ -832,6 +837,8 @@ async function copySkillAtomically(source, destination, expectedHash, force) {
     path.join(path.dirname(destination), `.${path.basename(destination)}-install-`),
   );
   const temporarySkill = path.join(temporaryParent, path.basename(destination));
+  let originalMoved = false;
+  let operationError = null;
 
   try {
     await cp(source, temporarySkill, {
@@ -843,14 +850,63 @@ async function copySkillAtomically(source, destination, expectedHash, force) {
     if (copiedHash !== expectedHash) {
       throw new Error(`Verification failed while copying ${path.basename(destination)}`);
     }
-    await rename(temporarySkill, destination);
-    await rm(temporaryParent, { recursive: true, force: true });
-  } catch (error) {
-    await rm(temporaryParent, { recursive: true, force: true });
-    if (backupPath && !(await getPathState(destination))) {
-      await rename(backupPath, destination);
+
+    if (existing) {
+      const backupRoot = path.join(
+        path.dirname(path.dirname(destination)),
+        "skill-backups",
+      );
+      backupPath = await findBackupPath(backupRoot, path.basename(destination));
+      await renamePath(destination, backupPath);
+      originalMoved = true;
     }
-    throw error;
+
+    await renamePath(temporarySkill, destination);
+    originalMoved = false;
+  } catch (error) {
+    operationError = error;
+    let destinationMissing = false;
+    if (originalMoved) {
+      try {
+        destinationMissing = !(await getStatePath(destination));
+      } catch (stateError) {
+        operationError = new AggregateError(
+          [operationError, stateError],
+          `Failed to replace ${path.basename(destination)}: ${operationError.message}; destination inspection before backup restoration also failed: ${stateError.message}`,
+        );
+      }
+    }
+    if (originalMoved && destinationMissing) {
+      try {
+        await renamePath(backupPath, destination);
+        originalMoved = false;
+      } catch (restoreError) {
+        operationError = new AggregateError(
+          [error, restoreError],
+          `Failed to replace ${path.basename(destination)}: ${error.message}; backup restoration also failed: ${restoreError.message}`,
+        );
+      }
+    }
+  }
+
+  let cleanupError = null;
+  try {
+    await removePath(temporaryParent, { recursive: true, force: true });
+  } catch (error) {
+    cleanupError = error;
+  }
+
+  if (operationError && cleanupError) {
+    throw new AggregateError(
+      [operationError, cleanupError],
+      `${operationError.message}; staging cleanup also failed: ${cleanupError.message}`,
+    );
+  }
+  if (operationError) {
+    throw operationError;
+  }
+  if (cleanupError) {
+    throw cleanupError;
   }
 
   return backupPath;
@@ -1057,7 +1113,9 @@ async function main() {
   console.log("Restart Codex, then authenticate Glif in Settings > MCP servers.");
 }
 
-main().catch((error) => {
-  console.error(`AISUPPORT installer failed: ${error.message}`);
-  process.exitCode = 1;
-});
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch((error) => {
+    console.error(`AISUPPORT installer failed: ${error.message}`);
+    process.exitCode = 1;
+  });
+}
